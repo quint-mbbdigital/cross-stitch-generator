@@ -380,7 +380,7 @@ class PatternGenerator:
 
             return estimates
 
-        except Exception as e:
+        except Exception:
             # Return default estimates if calculation fails
             return {
                 'image_loading': 1.0,

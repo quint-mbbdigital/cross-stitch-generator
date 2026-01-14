@@ -1,21 +1,19 @@
-# Core dependencies for cross-stitch pattern generation
-pillow==12.1.0          # Image processing
-openpyxl==3.1.5         # Excel file generation
-numpy>=1.24.0           # Array operations and numerical computing
-scikit-learn>=1.3.0     # K-means clustering for color quantization
-
-# Development and testing dependencies
-pytest==9.0.2           # Testing framework
-mypy==1.19.1            # Static type checking
-mypy_extensions==1.1.0  # Type checking extensions
-ruff==0.14.11           # Code linting and formatting
-
-# Supporting libraries (dependencies of main packages)
-et_xmlfile==2.0.0       # XML support for openpyxl
-iniconfig==2.3.0        # INI file parsing for pytest
-librt==0.7.8            # Runtime library
-packaging==25.0         # Package utilities
-pathspec==1.0.3        # Path pattern matching for ruff
-pluggy==1.6.0           # Plugin system for pytest
-Pygments==2.19.2       # Syntax highlighting
-typing_extensions==4.15.0  # Extended typing support
+et_xmlfile==2.0.0
+iniconfig==2.3.0
+joblib==1.5.3
+librt==0.7.8
+mypy==1.19.1
+mypy_extensions==1.1.0
+numpy==2.4.1
+openpyxl==3.1.5
+packaging==25.0
+pathspec==1.0.3
+pillow==12.1.0
+pluggy==1.6.0
+Pygments==2.19.2
+pytest==9.0.2
+ruff==0.14.11
+scikit-learn==1.8.0
+scipy==1.17.0
+threadpoolctl==3.6.0
+typing_extensions==4.15.0

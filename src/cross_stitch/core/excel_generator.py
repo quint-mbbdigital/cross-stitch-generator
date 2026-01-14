@@ -9,7 +9,7 @@ from openpyxl.styles import PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ..models import PatternSet, CrossStitchPattern, ColorPalette, GeneratorConfig
+from ..models import PatternSet, CrossStitchPattern, GeneratorConfig
 from ..utils import ExcelGenerationError, save_file
 
 
@@ -340,7 +340,7 @@ class ExcelGenerator:
                 try:
                     if len(str(cell.value)) > max_length:
                         max_length = len(str(cell.value))
-                except:
+                except (TypeError, AttributeError):
                     pass
 
             adjusted_width = min(max_length + 2, 50)  # Cap at reasonable width

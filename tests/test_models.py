@@ -322,7 +322,7 @@ class TestCrossStitchPattern:
             )
 
         # Invalid color indices
-        colors_invalid = np.array([[0, 99]])  # Index 99 doesn't exist in palette
+        colors_invalid = np.array([[99]])  # Index 99 doesn't exist in palette (shape 1x1)
         with pytest.raises(ValueError, match="Color indices must be between 0 and"):
             CrossStitchPattern(
                 width=1, height=1, colors=colors_invalid,
@@ -383,7 +383,7 @@ class TestPatternSet:
         assert sample_image_rgb in pattern_set.source_image_path.parents or \
                pattern_set.source_image_path == sample_image_rgb
 
-    def test_pattern_set_validation(self, sample_image_rgb):
+    def test_pattern_set_validation(self, sample_pattern, sample_image_rgb):
         """Test pattern set validation."""
         # Empty patterns should fail
         with pytest.raises(ValueError, match="PatternSet must contain at least one pattern"):

@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 from typing import Union, List, Tuple
 
-from PIL import Image
 
 from ..models import GeneratorConfig
 from .exceptions import ValidationError, ImageProcessingError
@@ -91,7 +90,7 @@ def validate_image_file(image_path: Union[str, Path]) -> None:
             )
 
         # Check minimum dimensions
-        min_size = 10
+        min_size = 5
         if width < min_size or height < min_size:
             raise ValidationError(
                 f"Image too small: {width}x{height} (minimum {min_size}x{min_size})",
@@ -202,7 +201,7 @@ def _validate_resolutions(resolutions: List[Tuple[int, int]]) -> None:
             )
 
         # Check minimum size
-        min_size = 10
+        min_size = 5
         if width < min_size or height < min_size:
             raise ValidationError(
                 f"Resolution too small: {width}x{height} (min {min_size}x{min_size})",
