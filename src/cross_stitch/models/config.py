@@ -1,0 +1,63 @@
+"""Configuration models for cross-stitch pattern generation."""
+
+from dataclasses import dataclass, field
+from typing import List, Tuple
+
+
+@dataclass
+class GeneratorConfig:
+    """Configuration options for pattern generation."""
+
+    # Resolution settings
+    resolutions: List[Tuple[int, int]] = field(
+        default_factory=lambda: [(50, 50), (100, 100), (150, 150)]
+    )
+
+    # Color management
+    max_colors: int = 256
+    quantization_method: str = "median_cut"  # "median_cut", "kmeans"
+
+    # Image processing
+    preserve_aspect_ratio: bool = True
+    handle_transparency: str = "white_background"  # "white_background", "remove", "preserve"
+
+    # Excel formatting
+    excel_cell_size: float = 20.0  # points (width and height)
+    include_color_legend: bool = True
+    legend_sheet_name: str = "Color Legend"
+
+    # Output settings
+    output_filename_template: str = "{base_name}_cross_stitch.xlsx"
+
+    def validate(self) -> None:
+        """Validate configuration settings."""
+        if not self.resolutions:
+            raise ValueError("At least one resolution must be specified")
+
+        for width, height in self.resolutions:
+            if width <= 0 or height <= 0:
+                raise ValueError(f"Invalid resolution: {width}x{height}")
+            if width > 1000 or height > 1000:
+                raise ValueError(f"Resolution too large: {width}x{height} (max 1000x1000)")
+
+        if self.max_colors <= 0 or self.max_colors > 16777216:  # 2^24
+            raise ValueError(f"max_colors must be between 1 and 16777216, got {self.max_colors}")
+
+        if self.quantization_method not in ["median_cut", "kmeans"]:
+            raise ValueError(f"Unknown quantization method: {self.quantization_method}")
+
+        if self.handle_transparency not in ["white_background", "remove", "preserve"]:
+            raise ValueError(f"Invalid transparency handling: {self.handle_transparency}")
+
+        if self.excel_cell_size <= 0:
+            raise ValueError(f"excel_cell_size must be positive, got {self.excel_cell_size}")
+
+    def get_resolution_name(self, width: int, height: int) -> str:
+        """Generate a readable name for a resolution."""
+        return f"{width}x{height}"
+
+    def get_output_filename(self, input_path: str) -> str:
+        """Generate output filename based on input path."""
+        import os
+        base_name = os.path.splitext(os.path.basename(input_path))[0]
+        return self.output_filename_template.format(base_name=base_name)
