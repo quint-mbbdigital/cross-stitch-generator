@@ -2,15 +2,13 @@
 
 import sys
 import argparse
-from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 import logging
 
 from ..models import GeneratorConfig
 from ..core import PatternGenerator
 from ..utils import (
-    CrossStitchError, ValidationError, ImageProcessingError,
-    ColorQuantizationError, ExcelGenerationError, PatternGenerationError
+    CrossStitchError
 )
 
 
@@ -84,28 +82,28 @@ def create_config_from_args(args) -> GeneratorConfig:
     config = GeneratorConfig()
 
     # Override default settings with command-line arguments
-    if args.resolutions:
+    if hasattr(args, 'resolutions') and args.resolutions:
         config.resolutions = parse_resolutions(args.resolutions)
 
-    if args.max_colors:
+    if hasattr(args, 'max_colors') and args.max_colors:
         config.max_colors = args.max_colors
 
-    if args.quantization:
+    if hasattr(args, 'quantization') and args.quantization:
         config.quantization_method = args.quantization
 
-    if args.transparency:
+    if hasattr(args, 'transparency') and args.transparency:
         config.handle_transparency = args.transparency
 
-    if args.no_aspect_ratio:
+    if hasattr(args, 'no_aspect_ratio') and args.no_aspect_ratio:
         config.preserve_aspect_ratio = False
 
-    if args.cell_size:
+    if hasattr(args, 'cell_size') and args.cell_size:
         config.excel_cell_size = args.cell_size
 
-    if args.no_legend:
+    if hasattr(args, 'no_legend') and args.no_legend:
         config.include_color_legend = False
 
-    if args.legend_name:
+    if hasattr(args, 'legend_name') and args.legend_name:
         config.legend_sheet_name = args.legend_name
 
     return config
@@ -122,7 +120,7 @@ def info_command(args) -> int:
 
         # Print source image information
         source = info['source_image']
-        print(f"\nSource Image:")
+        print("\nSource Image:")
         print(f"  Size: {source['size'][0]}x{source['size'][1]} pixels")
         print(f"  Mode: {source['mode']}")
         print(f"  Format: {source['format']}")
@@ -130,7 +128,7 @@ def info_command(args) -> int:
         print(f"  Has Transparency: {source['has_transparency']}")
 
         # Print target resolutions
-        print(f"\nTarget Resolutions:")
+        print("\nTarget Resolutions:")
         for name, target in info['target_resolutions'].items():
             size = target['target_size']
             scale_x = target['scale_factor_x']
@@ -139,7 +137,7 @@ def info_command(args) -> int:
 
         # Print configuration
         config_info = info['config']
-        print(f"\nConfiguration:")
+        print("\nConfiguration:")
         print(f"  Max Colors: {config_info['max_colors']}")
         print(f"  Quantization: {config_info['quantization_method']}")
         print(f"  Transparency: {config_info['transparency_handling']}")
@@ -148,7 +146,7 @@ def info_command(args) -> int:
         # Print time estimates
         if args.estimate_time:
             estimates = generator.estimate_processing_time(args.image)
-            print(f"\nEstimated Processing Time:")
+            print("\nEstimated Processing Time:")
             print(f"  Image Loading: {estimates['image_loading']:.1f}s")
             print(f"  Image Resizing: {estimates['image_resizing']:.1f}s")
             print(f"  Color Quantization: {estimates['color_quantization']:.1f}s")
@@ -184,7 +182,7 @@ def generate_command(args) -> int:
 
         # Print summary
         if not args.quiet:
-            print(f"\nGeneration Complete!")
+            print("\nGeneration Complete!")
             print(f"Patterns generated: {pattern_set.pattern_count}")
             for name, pattern in pattern_set.patterns.items():
                 print(f"  {name}: {pattern.width}x{pattern.height} stitches, {pattern.unique_colors_used} colors")

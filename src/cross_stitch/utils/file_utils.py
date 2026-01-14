@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union
 from PIL import Image, UnidentifiedImageError
 
 from .exceptions import FileOperationError, ImageProcessingError

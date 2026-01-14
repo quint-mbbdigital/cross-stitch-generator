@@ -1,11 +1,9 @@
 """Color management and quantization for cross-stitch patterns."""
 
-from typing import List, Tuple, Union, Optional
+from typing import List, Tuple
 import numpy as np
 from PIL import Image
 from sklearn.cluster import KMeans
-import heapq
-from collections import Counter
 
 from ..models import Color, ColorPalette, GeneratorConfig
 from ..utils import ColorQuantizationError
