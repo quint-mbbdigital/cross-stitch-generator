@@ -1,0 +1,410 @@
+dmc_code,name,r,g,b,hex_code
+BLANC,White,255,255,255,FFFFFF
+ECRU,Ecru,240,234,218,F0EADA
+B5200,Snow White,250,250,250,FAFAFA
+150,Dusty Rose Ultra Very Dark,171,2,73,AB0249
+151,Dusty Rose Very Light,251,231,238,FBE7EE
+152,Shell Pink Medium Light,233,185,200,E9B9C8
+153,Violet Very Light,230,204,217,E6CCD9
+154,Very Dark Red Grape,135,31,81,871F51
+155,Blue Violet Medium Light,149,123,178,957BB2
+156,Blue Violet Medium Light,157,129,186,9D81BA
+157,Cornflower Blue Very Light,187,195,217,BBD3D9
+158,Cornflower Blue Medium Very Dark,79,85,136,4F5588
+159,Blue Gray Light,203,209,223,CBD1DF
+160,Blue Gray Medium,149,155,181,959BB5
+161,Blue Gray,125,131,168,7D83A8
+162,Blue Ultra Very Light,217,230,251,D9E6FB
+163,Celadon Green Light,206,215,142,CED78E
+164,Forest Green Light,200,216,176,C8D8B0
+165,Moss Green Very Light,239,244,161,EFF4A1
+166,Moss Green Medium Light,192,200,64,C0C840
+167,Yellow Brown Very Dark,181,134,79,B5864F
+168,Pewter Very Light,209,209,209,D1D1D1
+169,Pewter Light,132,132,132,848484
+208,Lavender Very Dark,131,91,139,835B8B
+209,Lavender Dark,163,123,167,A37BA7
+210,Lavender Medium,195,159,195,C39FC3
+211,Lavender Light,227,203,227,E3CBE3
+221,Shell Pink Very Dark,145,54,93,91365D
+223,Shell Pink Light,204,152,164,CC98A4
+224,Shell Pink Very Light,237,203,207,EDCBCF
+225,Shell Pink Ultra Very Light,255,245,248,FFF5F8
+300,Mahogany Very Dark,111,47,0,6F2F00
+301,Mahogany Medium,222,113,45,DE712D
+304,Christmas Red Medium,220,24,52,DC1834
+307,Lemon,253,237,84,FDEDA54
+309,Rose Deep,220,67,104,DC4368
+310,Black,0,0,0,000000
+311,Navy Blue Medium,19,95,159,135F9F
+312,Navy Blue Light,53,120,167,3578A7
+315,Antique Mauve Very Dark,129,49,77,81314D
+316,Antique Mauve Medium,183,115,141,B7738D
+317,Pewter Gray,108,108,108,6C6C6C
+318,Steel Gray Light,171,171,171,ABABAB
+319,Pistachio Green Very Dark,32,95,46,205F2E
+320,Pistachio Green Medium,105,136,90,69885A
+321,Christmas Red,220,24,52,DC1834
+322,Navy Blue Very Light,80,134,167,5086A7
+326,Rose Very Deep,184,38,75,B8264B
+327,Violet Dark,98,45,145,622D91
+333,Blue Violet Very Dark,92,51,108,5C336C
+334,Baby Blue Medium,139,176,203,8BB0CB
+335,Rose,255,119,155,FF779B
+336,Navy Blue,37,73,126,25497E
+340,Blue Violet Medium,173,167,199,ADA7C7
+341,Blue Violet Light,189,184,208,BDB8D0
+347,Salmon Very Dark,191,59,47,BF3B2F
+349,Coral Dark,210,15,57,D20F39
+350,Coral Medium,227,109,109,E36D6D
+351,Coral,233,138,138,E98A8A
+352,Coral Light,253,156,151,FD9C97
+353,Peach,254,206,191,FECEBF
+355,Terra Cotta Dark,152,86,55,985637
+356,Terra Cotta Medium,228,156,115,E49C73
+367,Pistachio Green Dark,97,134,97,618661
+368,Pistachio Green Light,166,194,152,A6C298
+369,Pistachio Green Very Light,215,237,204,D7EDCC
+370,Mustard Medium,184,138,70,B88A46
+371,Mustard,191,155,48,BF9B30
+372,Mustard Light,204,168,61,CC8A3D
+400,Mahogany Dark,190,86,0,BE5600
+402,Mahogany Very Light,247,139,89,F78B59
+407,Desert Sand Dark,187,139,115,BB8B73
+413,Pewter Gray Dark,86,86,86,565656
+414,Steel Gray Dark,140,140,140,8C8C8C
+415,Pearl Gray,212,212,212,D4D4D4
+420,Hazel Nut Brown Dark,160,112,66,A07042
+422,Hazel Nut Brown Light,198,139,88,C68B58
+433,Brown Medium,122,69,31,7A451F
+434,Brown Light,152,94,51,985E33
+435,Brown Very Light,184,119,72,B87748
+436,Tan,203,144,81,CB9051
+437,Tan Light,228,172,118,E4AC76
+444,Lemon Dark,255,206,0,FFCE00
+445,Lemon Light,255,255,128,FFFF80
+451,Shell Gray Dark,145,123,115,917B73
+452,Shell Gray Medium,192,179,174,C0B3AE
+453,Shell Gray Light,215,206,203,D7CECB
+469,Avocado Green,114,132,60,72843C
+470,Avocado Green Light,148,171,79,94AB4F
+471,Avocado Green Very Light,174,191,121,AEBF79
+472,Avocado Green Ultra Light,217,228,171,D9E4AB
+498,Christmas Red Dark,167,19,43,A7132B
+500,Blue Green Very Dark,0,67,72,004348
+501,Blue Green Dark,58,82,65,3A5241
+502,Blue Green,134,158,134,869E86
+503,Blue Green Medium,195,206,183,C3CEB7
+504,Blue Green Light,206,221,193,CEDDC1
+517,Wedgwood Dark,60,109,109,3C6D6D
+518,Wedgwood Light,102,139,139,668B8B
+519,Sky Blue,179,209,224,B3D1E0
+520,Fern Green Dark,62,86,68,3E5644
+522,Fern Green,158,167,157,9EA79D
+523,Fern Green Light,168,179,164,A8B3A4
+524,Fern Green Very Light,196,205,193,C4CDC1
+535,Ash Gray Very Light,99,99,99,636363
+543,Beige Brown Ultra Very Light,242,227,206,F2E3CE
+550,Violet Very Dark,102,24,99,661863
+552,Violet Medium,128,59,128,803B80
+553,Violet,157,93,157,9D5D9D
+554,Violet Light,219,180,219,DBBBDB
+561,Celadon Green Very Dark,39,80,39,275027
+562,Jade Medium,46,107,46,2E6B2E
+563,Jade Light,162,191,156,A2BF9C
+564,Jade Very Light,201,220,193,C9DCC1
+580,Moss Green Dark,89,88,49,595831
+581,Moss Green,167,123,49,A77B31
+597,Turquoise,112,179,179,70B3B3
+598,Turquoise Light,179,209,209,B3D1D1
+600,Cranberry Very Dark,215,44,109,D72C6D
+601,Cranberry Dark,218,89,130,DA5982
+602,Cranberry Medium,237,118,150,ED7696
+603,Cranberry,255,164,190,FFA4BE
+604,Cranberry Light,255,182,203,FFB6CB
+605,Cranberry Very Light,255,192,205,FFC0CD
+606,Bright Orange Red,255,0,0,FF0000
+608,Bright Orange,255,91,0,FF5B00
+610,Drab Brown Very Dark,101,76,46,654C2E
+611,Drab Brown Dark,134,99,64,876340
+612,Drab Brown Medium,188,140,99,BC8C63
+613,Drab Brown Light,220,188,160,DCBCA0
+632,Desert Sand Ultra Very Dark,136,77,59,884D3B
+640,Beige Gray Very Dark,138,119,99,8A7763
+642,Beige Gray Dark,164,148,130,A49482
+644,Beige Gray Medium,221,203,188,DDCBBC
+645,Beaver Gray Very Dark,111,111,111,6F6F6F
+646,Beaver Gray Dark,135,135,135,878787
+647,Beaver Gray Medium,176,176,176,B0B0B0
+648,Beaver Gray Light,192,192,192,C0C0C0
+666,Bright Red,227,29,66,E31D42
+676,Old Gold Light,229,170,84,E5AA54
+677,Old Gold Very Light,244,188,115,F4BC73
+680,Old Gold Dark,188,140,14,BC8C0E
+699,Christmas Green,0,73,0,004900
+700,Christmas Green Bright,0,104,0,006800
+701,Christmas Green Light,73,140,73,498C49
+702,Kelly Green,71,167,47,47A72F
+703,Chartreuse,123,134,0,7B8600
+704,Chartreuse Bright,147,169,0,93A900
+712,Cream,255,255,236,FFFFEC
+718,Plum,219,24,151,DB1897
+720,Orange Spice Dark,229,83,0,E55300
+721,Orange Spice Medium,242,116,53,F27435
+722,Orange Spice Light,242,158,99,F29E63
+725,Topaz,255,204,51,FFCC33
+726,Topaz Light,255,221,84,FFDD54
+727,Topaz Very Light,255,238,137,FFEE89
+729,Old Gold Medium,218,165,32,DAA520
+738,Tan Very Light,236,204,158,ECCC9E
+739,Tan Ultra Very Light,248,220,188,F8DCBC
+740,Tangerine,255,140,0,FF8C00
+741,Tangerine Medium,255,163,0,FFA300
+742,Tangerine Light,255,191,0,FFBF00
+743,Yellow Medium,255,224,96,FFE060
+744,Yellow Pale,255,234,140,FFEA8C
+745,Yellow Light Pale,255,238,173,FFEEAD
+746,Off White,252,252,252,FCFCFC
+747,Sky Blue Very Light,242,250,255,F2FAFF
+754,Peach Light,250,179,156,FABF9C
+758,Terra Cotta Very Light,238,186,168,EEBAA8
+760,Salmon,255,143,153,FF8F99
+761,Salmon Light,255,201,201,FFC9C9
+762,Pearl Gray Very Light,236,236,236,ECECEC
+772,Pine Green Very Light,219,230,196,DBE6C4
+775,Baby Blue Very Light,220,229,236,DCE5EC
+776,Pink Medium,255,143,153,FF8F99
+778,Antique Mauve Very Light,217,187,199,D9BBC7
+780,Topaz Ultra Very Dark,133,88,8,855808
+781,Topaz Very Dark,172,128,49,AC8031
+782,Topaz Dark,204,119,66,CC7742
+783,Christmas Gold,218,165,0,DAA500
+792,Cornflower Blue Dark,91,114,173,5B72AD
+793,Cornflower Blue Medium,114,137,195,7289C3
+794,Cornflower Blue Light,135,176,235,87B0EB
+796,Royal Blue Dark,47,72,142,2F488E
+797,Royal Blue,0,79,145,004F91
+798,Delft Blue Dark,70,99,154,46639A
+799,Delft Blue Medium,121,155,194,799BC2
+800,Delft Blue Pale,185,215,244,B9D7F4
+801,Coffee Brown Dark,101,51,0,653300
+806,Peacock Blue Dark,58,143,145,3A8F91
+807,Peacock Blue,103,154,156,679A9C
+809,Delft Blue,148,168,181,94A8B5
+813,Blue Light,179,191,229,B3BFE5
+814,Garnet Dark,162,0,88,A20058
+815,Garnet Medium,162,0,88,A20058
+816,Garnet,162,0,88,A20058
+817,Coral Red Very Dark,189,32,60,BD203C
+818,Baby Pink,255,234,235,FFEBEB
+819,Baby Pink Light,255,242,231,FFF2E7
+820,Royal Blue Very Dark,21,43,82,152B52
+822,Beige Gray Light,230,220,203,E6DCCB
+823,Navy Blue Dark,0,53,106,00356A
+824,Blue Very Dark,53,93,154,355D9A
+825,Blue Dark,83,123,186,537BBA
+826,Blue Medium,114,154,200,729AC8
+827,Blue Very Light,187,215,235,BBD7EB
+828,Blue Ultra Very Light,237,247,252,EDF7FC
+829,Golden Olive Very Dark,134,108,21,866C15
+830,Golden Olive Dark,171,142,58,AB8E3A
+831,Golden Olive Medium,179,142,21,B38E15
+832,Golden Olive,189,155,49,BD9B31
+833,Golden Olive Light,219,182,128,DBBF80
+834,Golden Olive Very Light,221,203,161,DDCBA1
+838,Beige Brown Very Dark,122,85,85,7A5555
+839,Beige Brown Dark,101,67,67,654343
+840,Beige Brown Medium,154,134,112,9A8670
+841,Beige Brown Light,189,174,153,BDAE99
+842,Beige Brown Very Light,208,188,168,D0BCA8
+844,Beaver Gray Ultra Dark,77,77,77,4D4D4D
+869,Hazel Nut Brown Very Dark,133,99,66,856342
+890,Pistachio Green Ultra Dark,23,65,32,174120
+891,Carnation Dark,255,109,123,FF6D7B
+892,Carnation Medium,255,138,150,FF8A96
+893,Carnation Light,255,174,186,FFAEBA
+894,Carnation Very Light,255,194,205,FFC2CD
+895,Hunter Green Very Dark,89,86,65,595641
+898,Coffee Brown Very Dark,73,42,19,492A13
+899,Rose Medium,233,109,115,E96D73
+900,Burnt Orange Dark,209,91,71,D15B47
+902,Garnet Very Dark,123,47,62,7B2F3E
+904,Parrot Green Very Dark,99,134,67,638643
+905,Parrot Green Dark,98,186,99,62BA63
+906,Parrot Green Medium,142,203,89,8ECB59
+907,Parrot Green Light,185,218,125,B9DA7D
+909,Emerald Green Very Dark,49,105,85,316955
+910,Emerald Green Dark,54,125,104,367D68
+911,Emerald Green Medium,75,145,118,4B9176
+912,Emerald Green Light,104,161,134,68A186
+913,Nile Green Medium,153,188,149,99BC95
+915,Plum Dark,162,42,82,A22A52
+917,Plum Medium,173,68,142,AD448E
+918,Red Copper Dark,132,70,70,844646
+919,Red Copper,179,95,86,B35F56
+920,Copper Medium,198,114,108,C6726C
+921,Copper,222,138,130,DE8A82
+922,Copper Light,234,170,166,EAAAA6
+924,Gray Green Very Dark,92,104,92,5C685C
+926,Gray Green Medium,105,125,112,697D70
+927,Gray Green Light,181,206,187,B5CEBB
+928,Gray Green Very Light,220,231,218,DCE7DA
+930,Antique Blue Dark,107,111,123,6B6F7B
+931,Antique Blue Medium,122,130,151,7A8297
+932,Antique Blue Light,180,188,206,B4BCCE
+934,Black Avocado Green,49,57,23,393917
+935,Avocado Green Dark,63,73,32,3F4920
+936,Avocado Green Very Dark,89,97,53,595335
+937,Avocado Green Medium,98,107,59,626B3B
+938,Coffee Brown Ultra Dark,54,31,14,361F0E
+939,Navy Blue Very Dark,0,20,51,001433
+943,Aquamarine Medium,0,139,119,008B77
+945,Tawny,252,203,176,FCBBB0
+946,Burnt Orange Medium,218,124,84,DA7C54
+947,Burnt Orange,255,123,77,FF7B4D
+948,Peach Very Light,255,207,207,FFCFCF
+950,Desert Sand Light,237,188,164,EDBCA4
+951,Tawny Light,255,226,207,FFE2CF
+954,Nile Green,0,153,153,009999
+955,Nile Green Light,174,212,191,AED4BF
+956,Geranium,255,109,115,FF6D73
+957,Geranium Pale,255,204,208,FFCCD0
+958,Sea Green Dark,0,128,128,008080
+959,Sea Green Medium,102,153,153,669999
+961,Dusty Rose Dark,255,58,109,FF3A6D
+962,Dusty Rose Medium,255,119,153,FF7799
+963,Dusty Rose Ultra Very Light,255,227,236,FFE3EC
+964,Sea Green Light,135,206,181,87CEB5
+966,Baby Green Medium,174,215,173,AEDD7D
+967,Apricot Very Light,255,227,209,FFE3D1
+970,Pumpkin Bright,247,139,89,F78B59
+971,Pumpkin,255,123,0,FF7B00
+972,Canary Deep,255,181,107,FFB56B
+973,Canary Bright,255,227,0,FFE300
+975,Golden Brown Dark,139,69,0,8B4500
+976,Golden Brown Medium,246,143,71,F68F47
+977,Golden Brown Light,255,166,102,FFA666
+986,Forest Green Very Dark,76,89,68,4C5944
+987,Forest Green Dark,115,130,98,738262
+988,Forest Green Medium,132,148,119,849477
+989,Forest Green,132,161,103,84A167
+991,Aquamarine Dark,107,137,126,6B897E
+992,Aquamarine,102,139,139,668B8B
+993,Aquamarine Light,192,224,200,C0E0C8
+995,Electric Blue Dark,0,123,167,007BA7
+996,Electric Blue Medium,102,170,188,66AABC
+3011,Khaki Green Dark,121,111,57,796F39
+3012,Khaki Green Medium,204,168,102,CCA866
+3013,Khaki Green Light,220,201,154,DCC99A
+3021,Brown Gray Very Dark,62,49,45,3E312D
+3022,Brown Gray Medium,142,119,89,8E7759
+3023,Brown Gray Light,198,176,145,C6B091
+3024,Brown Gray Very Light,235,223,206,EBDFCE
+3031,Mocha Brown Very Dark,76,56,43,4C382B
+3032,Mocha Brown Medium,198,176,145,C6B091
+3033,Mocha Brown Very Light,235,223,206,EBDFCE
+3041,Antique Violet Medium,145,123,115,917B73
+3042,Antique Violet Light,221,203,188,DDCBBC
+3045,Yellow Beige Dark,218,165,32,DAA520
+3046,Yellow Beige Medium,228,180,104,E4B468
+3047,Yellow Beige Light,255,230,168,FFE6A8
+3051,Green Gray Dark,89,87,76,59574C
+3052,Green Gray Medium,156,154,138,9C9A8A
+3053,Green Gray,220,218,195,DCDAC3
+3072,Beaver Gray Very Light,230,230,237,E6E6ED
+3078,Golden Yellow Very Light,253,249,205,FDF9CD
+3325,Baby Blue Light,179,209,224,B3D1E0
+3326,Rose Light,255,156,170,FF9CAA
+3328,Salmon Dark,189,86,119,BD5677
+3340,Apricot Medium,255,123,115,FF7B73
+3341,Apricot,255,172,162,FFACA2
+3345,Hunter Green Dark,62,89,65,3E5941
+3346,Hunter Green,115,140,109,738C6D
+3347,Hunter Green Medium,132,161,157,84A19D
+3348,Hunter Green Light,220,231,80,DCE750
+3350,Dusty Rose Ultra Dark,183,91,122,B75B7A
+3354,Dusty Rose Light,255,172,162,FFACA2
+3362,Pine Green Dark,89,104,117,596875
+3363,Pine Green Medium,132,140,132,848C84
+3364,Pine Green,162,176,162,A2B0A2
+3371,Black Brown,27,20,16,1B1410
+3607,Plum Light,198,91,140,C65B8C
+3608,Plum Very Light,255,173,201,FFADC9
+3609,Plum Ultra Light,255,214,229,FFD6E5
+3685,Mauve Dark,156,91,115,9C5B73
+3687,Mauve,198,132,156,C6849C
+3688,Mauve Medium,255,156,170,FF9CAA
+3689,Mauve Light,255,214,229,FFD6E5
+3705,Melon Dark,255,91,156,FF5B9C
+3706,Melon Medium,255,140,170,FF8CAA
+3708,Melon Light,255,214,229,FFD6E5
+3712,Salmon Medium,255,123,123,FF7B7B
+3713,Salmon Very Light,255,227,217,FFE3D9
+3716,Dusty Rose Very Light,255,214,229,FFD6E5
+3721,Shell Pink Dark,189,91,115,BD5B73
+3722,Shell Pink Medium,198,132,156,C6849C
+3726,Antique Mauve Dark,156,91,115,9C5B73
+3727,Antique Mauve Light,255,214,229,FFD6E5
+3731,Dusty Rose Very Dark,220,91,156,DC5B9C
+3733,Dusty Rose,255,156,214,FF9CD6
+3740,Antique Violet Dark,156,91,115,9C5B73
+3743,Antique Violet Very Light,255,227,217,FFE3D9
+3746,Blue Violet Dark,156,91,140,9C5B8C
+3747,Blue Violet Very Light,230,214,255,E6D6FF
+3750,Antique Blue Very Dark,89,104,117,596875
+3752,Antique Blue Very Light,199,216,230,C7D8E6
+3753,Antique Blue Ultra Very Light,230,245,255,E6F5FF
+3755,Baby Blue,173,216,230,ADB8E6
+3756,Baby Blue Ultra Very Light,245,253,255,F5FDFF
+3760,Wedgwood Medium,121,155,194,799BC2
+3761,Sky Blue Light,192,224,255,C0E0FF
+3765,Peacock Blue Very Dark,58,143,145,3A8F91
+3766,Peacock Blue Light,121,155,194,799BC2
+3768,Gray Green Dark,89,104,117,596875
+3770,Tawny Very Light,255,238,217,FFEEE9
+3771,Terra Cotta Ultra Very Light,255,204,170,FFCCAA
+3772,Desert Sand Very Dark,156,134,115,9C8673
+3773,Desert Sand Medium,198,176,145,C6B091
+3774,Desert Sand Very Light,255,238,217,FFEEE9
+3776,Mahogany Light,255,123,77,FF7B4D
+3777,Terra Cotta Very Dark,134,77,51,864D33
+3778,Terra Cotta Light,255,214,181,FFD6B5
+3779,Terra Cotta Ultra Very Light,255,245,238,FFF5EE
+3781,Mocha Brown Dark,107,77,58,6B4D3A
+3782,Mocha Brown Light,198,156,115,C6849C
+3787,Brown Gray Dark,115,104,89,736859
+3790,Beige Gray Ultra Dark,115,104,89,736859
+3799,Pewter Gray Very Dark,89,89,89,595959
+3801,Melon Very Dark,255,91,156,FF5B9C
+3802,Antique Mauve Very Dark,115,77,89,734D59
+3803,Mauve Dark,156,91,140,9C5B8C
+3804,Cyclamen Pink Dark,224,91,156,E05B9C
+3805,Cyclamen Pink,255,140,214,FF8CD6
+3806,Cyclamen Pink Light,255,173,230,FFADE6
+3807,Cornflower Blue,121,155,194,799BC2
+3808,Turquoise Ultra Very Dark,58,143,145,3A8F91
+3809,Turquoise Very Dark,102,139,139,668B8B
+3810,Turquoise Dark,73,167,173,49A7AD
+3811,Turquoise Very Light,179,209,224,B3D1E0
+3812,Sea Green Very Dark,47,140,132,2F8C84
+3813,Blue Green Light,178,212,189,B2D4BD
+3814,Aquamarine,102,139,139,668B8B
+3815,Celadon Green Dark,71,119,89,477759
+3816,Celadon Green,132,180,132,84B484
+3817,Celadon Green Light,162,214,156,A2D69C
+3818,Emerald Green Ultra Dark,17,89,51,115933
+3819,Moss Green Light,224,232,104,E0E868
+3820,Straw Dark,218,165,32,DAA520
+3821,Straw,255,230,168,FFE6A8
+3822,Straw Light,246,234,193,F6EAC1
+3823,Yellow Ultra Pale,255,253,227,FFFD3
+3824,Apricot Light,254,206,191,FECEBF
+3825,Pumpkin Pale,255,214,181,FFD6B5
+3826,Golden Brown,205,133,63,CD853F
+3827,Golden Brown Pale,248,203,156,F8CB9C
+3828,Hazel Nut Brown,198,139,88,C68B58
+3829,Old Gold Very Dark,169,142,49,A98E31
+3830,Terra Cotta,210,180,140,D2B48C
+3831,Raspberry Dark,184,38,75,B8264B
+3832,Raspberry Medium,255,109,156,FF6D9C
+3833,Raspberry Light,255,156,214,FF9CD6
