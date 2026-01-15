@@ -247,7 +247,12 @@ class ExcelGenerator:
                 legend_sheet.cell(row=row, column=3, value=rgb_text)
 
                 # DMC Code
-                legend_sheet.cell(row=row, column=4, value=color.thread_code if color.thread_code else "")
+                dmc_cell = legend_sheet.cell(row=row, column=4)
+                if color.thread_code:
+                    dmc_cell.number_format = '@'  # Text format to prevent Excel warnings
+                    dmc_cell.value = color.thread_code
+                else:
+                    dmc_cell.value = ""
 
                 # Thread Name
                 legend_sheet.cell(row=row, column=5, value=color.name if color.name else "")
