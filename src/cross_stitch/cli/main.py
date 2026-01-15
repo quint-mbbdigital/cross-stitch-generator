@@ -106,6 +106,23 @@ def create_config_from_args(args) -> GeneratorConfig:
     if hasattr(args, 'legend_name') and args.legend_name:
         config.legend_sheet_name = args.legend_name
 
+    # DMC color matching options
+    if hasattr(args, 'enable_dmc') and args.enable_dmc:
+        config.enable_dmc = True
+
+    if hasattr(args, 'dmc_only') and args.dmc_only:
+        config.dmc_only = True
+
+    if hasattr(args, 'dmc_palette_size') and args.dmc_palette_size:
+        config.dmc_palette_size = args.dmc_palette_size
+
+    if hasattr(args, 'no_dmc') and args.no_dmc:
+        config.no_dmc = True
+        config.enable_dmc = False
+
+    if hasattr(args, 'dmc_database') and args.dmc_database:
+        config.dmc_database = args.dmc_database
+
     return config
 
 
@@ -226,6 +243,18 @@ Examples:
   # Generate with custom transparency handling
   cross-stitch generate input.png output.xlsx --transparency white_background --verbose
 
+  # Generate with DMC thread color matching
+  cross-stitch generate input.jpg output.xlsx --enable-dmc
+
+  # Restrict to DMC colors only during quantization
+  cross-stitch generate input.png output.xlsx --dmc-only --max-colors 32
+
+  # Use custom DMC color database
+  cross-stitch generate input.jpg output.xlsx --dmc-database /path/to/custom_dmc.csv
+
+  # Disable DMC matching explicitly
+  cross-stitch generate input.png output.xlsx --no-dmc
+
 Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
         """
     )
@@ -262,6 +291,18 @@ Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
     gen_parser.add_argument('--legend-name', type=str,
                             help='Name for color legend sheet (default: "Color Legend")')
 
+    # DMC color matching options
+    gen_parser.add_argument('--enable-dmc', action='store_true',
+                            help='Enable DMC color matching (default when DMC database available)')
+    gen_parser.add_argument('--dmc-only', action='store_true',
+                            help='Restrict color quantization to existing DMC colors only')
+    gen_parser.add_argument('--dmc-palette-size', type=int, metavar='N',
+                            help='Limit to N most common DMC colors (e.g., 50)')
+    gen_parser.add_argument('--no-dmc', action='store_true',
+                            help='Explicitly disable DMC color matching')
+    gen_parser.add_argument('--dmc-database', type=str, metavar='PATH',
+                            help='Path to custom DMC color database CSV file')
+
     # Info command
     info_parser = subparsers.add_parser('info', help='Get information about an image')
     info_parser.add_argument('image', help='Input image file path')
@@ -279,6 +320,18 @@ Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
                              help='Transparency handling for analysis')
     info_parser.add_argument('--no-aspect-ratio', action='store_true',
                              help='Do not preserve aspect ratio for analysis')
+
+    # DMC color matching options for info command
+    info_parser.add_argument('--enable-dmc', action='store_true',
+                            help='Enable DMC color matching for analysis')
+    info_parser.add_argument('--dmc-only', action='store_true',
+                            help='Restrict analysis to existing DMC colors only')
+    info_parser.add_argument('--dmc-palette-size', type=int, metavar='N',
+                            help='Limit analysis to N most common DMC colors')
+    info_parser.add_argument('--no-dmc', action='store_true',
+                            help='Explicitly disable DMC color matching for analysis')
+    info_parser.add_argument('--dmc-database', type=str, metavar='PATH',
+                            help='Path to custom DMC color database CSV file for analysis')
 
     return parser
 

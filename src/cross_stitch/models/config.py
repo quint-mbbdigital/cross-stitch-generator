@@ -1,7 +1,7 @@
 """Configuration models for cross-stitch pattern generation."""
 
 from dataclasses import dataclass, field
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 
 @dataclass
@@ -29,6 +29,13 @@ class GeneratorConfig:
     # Output settings
     output_filename_template: str = "{base_name}_cross_stitch.xlsx"
 
+    # DMC color matching settings
+    enable_dmc: bool = True  # Enable DMC color matching by default when available
+    dmc_only: bool = False  # Restrict quantization to existing DMC colors only
+    dmc_palette_size: Optional[int] = None  # Limit to N most common DMC colors
+    no_dmc: bool = False  # Explicitly disable DMC matching
+    dmc_database: Optional[str] = None  # Path to custom DMC color database
+
     def validate(self) -> None:
         """Validate configuration settings."""
         if not self.resolutions:
@@ -51,6 +58,15 @@ class GeneratorConfig:
 
         if self.excel_cell_size <= 0:
             raise ValueError(f"excel_cell_size must be positive, got {self.excel_cell_size}")
+
+        # DMC validation
+        if self.dmc_palette_size is not None and self.dmc_palette_size <= 0:
+            raise ValueError(f"dmc_palette_size must be positive, got {self.dmc_palette_size}")
+
+        if self.dmc_database is not None:
+            import os
+            if not os.path.exists(self.dmc_database):
+                raise ValueError(f"DMC database file does not exist: {self.dmc_database}")
 
     def get_resolution_name(self, width: int, height: int) -> str:
         """Generate a readable name for a resolution."""
