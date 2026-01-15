@@ -323,4 +323,4 @@ class TestMinColorPercentErrorHandling:
 
         # Should contain min-color-percent in help
         assert '--min-color-percent' in help_output
-        assert 'merge colors below this percentage threshold' in help_output.lower()
+        assert 'remove noise colors below this threshold' in help_output.lower()
