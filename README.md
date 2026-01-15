@@ -6,6 +6,8 @@ A Python application that converts image files into Excel-based cross-stitch pat
 
 - **Multi-Resolution Support**: Generate patterns at 50x50, 100x100, and 150x150 stitches (configurable)
 - **Smart Color Quantization**: Uses median cut or k-means algorithms to reduce colors to manageable palettes
+- **Edge Handling Controls**: Choose smooth (LANCZOS) or hard (NEAREST) resampling for different image types
+- **Color Cleanup**: Automatically remove minor "noise" colors below configurable threshold
 - **DMC Thread Matching**: Automatically match colors to DMC embroidery floss threads with thread codes
 - **Excel Output**: Creates `.xlsx` files where each cell represents one stitch with accurate background colors
 - **DMC Integration**: Pattern cells display DMC thread codes, legend shows thread names and quantities
@@ -55,6 +57,34 @@ python cross_stitch_generator.py generate input.png output.xlsx \
     --transparency white_background
 ```
 
+### Edge Handling and Color Cleanup
+
+#### Edge Mode Selection
+- **Use `--edge-mode hard`** for:
+  - Logos and graphics with solid colors
+  - Pixel art and sprites
+  - Images with sharp, defined boundaries
+  - When you want to preserve exact color boundaries
+
+- **Use `--edge-mode smooth` (default)** for:
+  - Photographs and realistic images
+  - Images with gradients and natural textures
+  - When you want smooth color transitions
+
+#### Color Cleanup
+- **Use `--min-color-percent`** to automatically remove minor "noise" colors:
+  - **Recommended values: 1.0-3.0** for cleaning edge artifacts
+  - **Set to 0 (default)** to keep all colors
+  - Colors below the threshold get merged into their nearest neighbors
+  - Helps simplify patterns and reduce thread count
+
+#### Combined Usage Example
+```bash
+python cross_stitch_generator.py generate logo.png pattern.xlsx \
+    --edge-mode hard \
+    --min-color-percent 2.0
+```
+
 ## Command-Line Options
 
 ### Generate Command
@@ -64,6 +94,8 @@ python cross_stitch_generator.py generate input.png output.xlsx \
 - `--quantization`: Color quantization method (`median_cut` or `kmeans`)
 - `--transparency`: Transparency handling (`white_background`, `remove`, `preserve`)
 - `--no-aspect-ratio`: Disable aspect ratio preservation
+- `--edge-mode`: Edge handling mode (`smooth` for photos, `hard` for logos/graphics)
+- `--min-color-percent`: Merge colors below this percentage threshold (0.0-100.0)
 - `--cell-size`: Excel cell size in points (default: 20.0)
 - `--no-legend`: Skip color legend sheet
 - `--legend-name`: Custom name for legend sheet
@@ -152,6 +184,24 @@ python cross_stitch_generator.py generate abstract.png rgb_only.xlsx \
 ```
 
 Explicitly disables DMC matching for pure RGB color output without thread codes.
+
+### Example 9: Clean Logo/Graphics Pattern
+```bash
+python cross_stitch_generator.py generate logo.png pattern.xlsx \
+    --edge-mode hard \
+    --min-color-percent 2.0
+```
+
+Perfect for logos, pixel art, and graphics with solid colors. Uses hard edges to prevent color bleeding and removes minor noise colors.
+
+### Example 10: High-Quality Photo Pattern
+```bash
+python cross_stitch_generator.py generate photo.jpg pattern.xlsx \
+    --edge-mode smooth \
+    --min-color-percent 1.0
+```
+
+Best for photographs and complex images. Uses smooth interpolation for natural gradients while cleaning up minor noise.
 
 ## Output Structure
 

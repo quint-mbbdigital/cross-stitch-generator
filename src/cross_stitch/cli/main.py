@@ -252,6 +252,12 @@ Examples:
   # Generate with DMC thread color matching
   cross-stitch generate input.jpg output.xlsx --enable-dmc
 
+  # Clean logos and graphics with hard edges and color cleanup
+  cross-stitch generate logo.png output.xlsx --edge-mode hard --min-color-percent 2.0
+
+  # Process photos with smooth interpolation and minor noise cleanup
+  cross-stitch generate photo.jpg output.xlsx --edge-mode smooth --min-color-percent 1.0
+
   # Restrict to DMC colors only during quantization
   cross-stitch generate input.png output.xlsx --dmc-only --max-colors 32
 
@@ -291,7 +297,7 @@ Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
     gen_parser.add_argument('--no-aspect-ratio', action='store_true',
                             help='Do not preserve aspect ratio when resizing')
     gen_parser.add_argument('--edge-mode', choices=['smooth', 'hard'], default='smooth',
-                            help='Edge handling mode: smooth (LANCZOS, default) or hard (NEAREST)')
+                            help='Edge handling mode: "smooth" (LANCZOS) for photos, "hard" (NEAREST) for logos/graphics')
 
     # Define validation function for min-color-percent
     def validate_percent(value):
@@ -302,7 +308,7 @@ Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
 
     gen_parser.add_argument('--min-color-percent', type=validate_percent, default=0.0,
                             metavar='PERCENT',
-                            help='Merge colors below this percentage threshold (0.0-100.0, default: 0.0)')
+                            help='Remove noise colors below this threshold. Recommended: 1.0-3.0 for cleanup, 0=keep all (default: 0.0)')
     gen_parser.add_argument('--cell-size', type=float,
                             help='Excel cell size in points (default: 20.0)')
     gen_parser.add_argument('--no-legend', action='store_true',
@@ -340,10 +346,10 @@ Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
     info_parser.add_argument('--no-aspect-ratio', action='store_true',
                              help='Do not preserve aspect ratio for analysis')
     info_parser.add_argument('--edge-mode', choices=['smooth', 'hard'], default='smooth',
-                             help='Edge handling mode for analysis: smooth (LANCZOS, default) or hard (NEAREST)')
+                             help='Edge handling mode: "smooth" for photos, "hard" for logos/graphics')
     info_parser.add_argument('--min-color-percent', type=validate_percent, default=0.0,
                              metavar='PERCENT',
-                             help='Merge colors below this percentage threshold for analysis (0.0-100.0, default: 0.0)')
+                             help='Color cleanup threshold for analysis. Recommended: 1.0-3.0 for cleanup, 0=keep all (default: 0.0)')
 
     # DMC color matching options for info command
     info_parser.add_argument('--enable-dmc', action='store_true',
