@@ -18,41 +18,46 @@ class TestDMCCLIFlags:
         """Test that --enable-dmc flag is available in the CLI parser."""
         parser = create_parser()
 
-        # Test that parser accepts --enable-dmc flag
-        with pytest.raises(SystemExit):  # argparse exits on error
-            parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--enable-dmc'])
+        # Test that parser accepts --enable-dmc flag without error
+        args = parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--enable-dmc'])
+        assert hasattr(args, 'enable_dmc')
+        assert args.enable_dmc is True
 
     def test_dmc_only_flag_available_in_parser(self):
         """Test that --dmc-only flag is available in the CLI parser."""
         parser = create_parser()
 
-        # Test that parser accepts --dmc-only flag
-        with pytest.raises(SystemExit):  # Should fail because flag doesn't exist yet
-            parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--dmc-only'])
+        # Test that parser accepts --dmc-only flag without error
+        args = parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--dmc-only'])
+        assert hasattr(args, 'dmc_only')
+        assert args.dmc_only is True
 
     def test_dmc_palette_size_flag_available_in_parser(self):
         """Test that --dmc-palette-size flag is available in the CLI parser."""
         parser = create_parser()
 
-        # Test that parser accepts --dmc-palette-size with integer argument
-        with pytest.raises(SystemExit):  # Should fail because flag doesn't exist yet
-            parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--dmc-palette-size', '50'])
+        # Test that parser accepts --dmc-palette-size with integer argument without error
+        args = parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--dmc-palette-size', '50'])
+        assert hasattr(args, 'dmc_palette_size')
+        assert args.dmc_palette_size == 50
 
     def test_no_dmc_flag_available_in_parser(self):
         """Test that --no-dmc flag is available in the CLI parser."""
         parser = create_parser()
 
-        # Test that parser accepts --no-dmc flag
-        with pytest.raises(SystemExit):  # Should fail because flag doesn't exist yet
-            parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--no-dmc'])
+        # Test that parser accepts --no-dmc flag without error
+        args = parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--no-dmc'])
+        assert hasattr(args, 'no_dmc')
+        assert args.no_dmc is True
 
     def test_dmc_database_path_flag_available_in_parser(self):
         """Test that --dmc-database flag is available in the CLI parser."""
         parser = create_parser()
 
-        # Test that parser accepts --dmc-database with file path argument
-        with pytest.raises(SystemExit):  # Should fail because flag doesn't exist yet
-            parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--dmc-database', '/path/to/dmc.csv'])
+        # Test that parser accepts --dmc-database with file path argument without error
+        args = parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--dmc-database', '/path/to/dmc.csv'])
+        assert hasattr(args, 'dmc_database')
+        assert args.dmc_database == '/path/to/dmc.csv'
 
     def test_enable_dmc_flag_sets_config_option(self, tmp_path):
         """Test that --enable-dmc flag properly sets configuration."""
@@ -140,7 +145,8 @@ class TestDMCCLIIntegration:
             'generate',
             str(tiny_image),
             str(output_file),
-            '--enable-dmc'
+            '--enable-dmc',
+            '--resolutions', '10x10'  # Use appropriate resolution for 5x5 image
         ]
 
         with patch.object(sys, 'argv', test_argv):
@@ -161,7 +167,8 @@ class TestDMCCLIIntegration:
             str(tiny_image),
             str(output_file),
             '--dmc-only',
-            '--max-colors', '16'
+            '--max-colors', '16',
+            '--resolutions', '10x10'  # Use appropriate resolution for 5x5 image
         ]
 
         with patch.object(sys, 'argv', test_argv):
@@ -182,7 +189,8 @@ class TestDMCCLIIntegration:
             str(tiny_image),
             str(output_file),
             '--enable-dmc',
-            '--dmc-palette-size', '32'
+            '--dmc-palette-size', '32',
+            '--resolutions', '10x10'  # Use appropriate resolution for 5x5 image
         ]
 
         with patch.object(sys, 'argv', test_argv):
@@ -209,7 +217,8 @@ BLANC,White,255,255,255,FFFFFF
             str(tiny_image),
             str(output_file),
             '--enable-dmc',
-            '--dmc-database', str(custom_dmc)
+            '--dmc-database', str(custom_dmc),
+            '--resolutions', '10x10'  # Use appropriate resolution for 5x5 image
         ]
 
         with patch.object(sys, 'argv', test_argv):
@@ -227,7 +236,8 @@ BLANC,White,255,255,255,FFFFFF
             'cross_stitch_generator.py',
             'generate',
             str(tiny_image),
-            str(output_file)
+            str(output_file),
+            '--resolutions', '10x10'  # Use appropriate resolution for 5x5 image
         ]
 
         with patch.object(sys, 'argv', test_argv):
@@ -248,7 +258,8 @@ BLANC,White,255,255,255,FFFFFF
             'generate',
             str(tiny_image),
             str(output_file),
-            '--no-dmc'
+            '--no-dmc',
+            '--resolutions', '10x10'  # Use appropriate resolution for 5x5 image
         ]
 
         with patch.object(sys, 'argv', test_argv):
@@ -273,7 +284,8 @@ class TestDMCCLIErrorHandling:
             'generate',
             str(tiny_image),
             str(output_file),
-            '--dmc-database', str(non_existent_dmc)
+            '--dmc-database', str(non_existent_dmc),
+            '--resolutions', '10x10'  # Use appropriate resolution for 5x5 image
         ]
 
         with patch.object(sys, 'argv', test_argv):

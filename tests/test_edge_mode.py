@@ -126,7 +126,7 @@ class TestEdgeModeImageProcessing:
         test_image.save(test_image_path)
 
         config = GeneratorConfig(
-            resolutions=[(4, 4)],  # Resize to smaller to force interpolation
+            resolutions=[(5, 5)],  # Minimum valid resolution
             max_colors=10,
             edge_mode='smooth'
         )
@@ -134,7 +134,7 @@ class TestEdgeModeImageProcessing:
         generator = PatternGenerator(config)
         pattern_set = generator.generate_patterns(test_image_path, tmp_path / "smooth_test.xlsx")
 
-        pattern = pattern_set.get_pattern("4x4")
+        pattern = pattern_set.get_pattern("5x5")
         # Smooth mode should create MORE than 2 colors due to interpolation
         assert pattern.unique_colors_used > 2
 
@@ -146,7 +146,7 @@ class TestEdgeModeImageProcessing:
         test_image.save(test_image_path)
 
         config = GeneratorConfig(
-            resolutions=[(4, 4)],  # Resize to smaller
+            resolutions=[(5, 5)],  # Minimum valid resolution
             max_colors=10,
             edge_mode='hard'
         )
@@ -154,7 +154,7 @@ class TestEdgeModeImageProcessing:
         generator = PatternGenerator(config)
         pattern_set = generator.generate_patterns(test_image_path, tmp_path / "hard_test.xlsx")
 
-        pattern = pattern_set.get_pattern("4x4")
+        pattern = pattern_set.get_pattern("5x5")
         # Hard mode should preserve exactly 2 colors (no interpolated colors)
         assert pattern.unique_colors_used == 2
 
@@ -165,13 +165,13 @@ class TestEdgeModeImageProcessing:
         test_image.save(test_image_path)
 
         config = GeneratorConfig(
-            resolutions=[(3, 3)],
+            resolutions=[(5, 5)],
             edge_mode='hard'
         )
 
         # Mock PIL Image.resize to verify NEAREST is used
         with patch.object(Image.Image, 'resize') as mock_resize:
-            mock_resize.return_value = test_image.resize((3, 3), Image.NEAREST)
+            mock_resize.return_value = test_image.resize((5, 5), Image.NEAREST)
 
             generator = PatternGenerator(config)
             generator.generate_patterns(test_image_path, tmp_path / "mock_test.xlsx")
@@ -179,7 +179,7 @@ class TestEdgeModeImageProcessing:
             # Verify resize was called with NEAREST resampling
             mock_resize.assert_called()
             call_args = mock_resize.call_args
-            assert call_args[0][0] == (3, 3)  # Target size
+            assert call_args[0][0] == (5, 5)  # Target size
             assert call_args[1]['resample'] == Image.NEAREST  # Should use NEAREST
 
     def test_smooth_mode_uses_lanczos_resampling(self, tmp_path):
@@ -189,13 +189,13 @@ class TestEdgeModeImageProcessing:
         test_image.save(test_image_path)
 
         config = GeneratorConfig(
-            resolutions=[(3, 3)],
+            resolutions=[(5, 5)],
             edge_mode='smooth'
         )
 
         # Mock PIL Image.resize to verify LANCZOS is used
         with patch.object(Image.Image, 'resize') as mock_resize:
-            mock_resize.return_value = test_image.resize((3, 3), Image.LANCZOS)
+            mock_resize.return_value = test_image.resize((5, 5), Image.LANCZOS)
 
             generator = PatternGenerator(config)
             generator.generate_patterns(test_image_path, tmp_path / "mock_test.xlsx")
@@ -203,7 +203,7 @@ class TestEdgeModeImageProcessing:
             # Verify resize was called with LANCZOS resampling
             mock_resize.assert_called()
             call_args = mock_resize.call_args
-            assert call_args[0][0] == (3, 3)  # Target size
+            assert call_args[0][0] == (5, 5)  # Target size
             assert call_args[1]['resample'] == Image.LANCZOS  # Should use LANCZOS
 
 

@@ -216,6 +216,12 @@ class ImageProcessor:
         """
         target_width, target_height = target_resolution
 
+        # Choose resampling method based on edge_mode
+        if self.config.edge_mode == "hard":
+            resample_method = Image.Resampling.NEAREST
+        else:  # "smooth" or default
+            resample_method = Image.Resampling.LANCZOS
+
         if self.config.preserve_aspect_ratio:
             # Calculate the scaling factor to fit within target dimensions
             scale_x = target_width / image.width
@@ -227,7 +233,7 @@ class ImageProcessor:
             new_height = int(image.height * scale)
 
             # Resize image
-            resized = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            resized = image.resize((new_width, new_height), resample_method)
 
             # If the resized image is smaller than target, pad it
             if new_width < target_width or new_height < target_height:
@@ -248,7 +254,7 @@ class ImageProcessor:
 
         else:
             # Stretch to exact target dimensions
-            return image.resize(target_resolution, Image.Resampling.LANCZOS)
+            return image.resize(target_resolution, resample_method)
 
     def get_image_array(self, image: Image.Image) -> np.ndarray:
         """

@@ -20,6 +20,8 @@ class GeneratorConfig:
     # Image processing
     preserve_aspect_ratio: bool = True
     handle_transparency: str = "white_background"  # "white_background", "remove", "preserve"
+    edge_mode: str = "smooth"  # "smooth", "hard"
+    min_color_percent: float = 0.0  # Merge colors below this percentage threshold
 
     # Excel formatting
     excel_cell_size: float = 20.0  # points (width and height)
@@ -55,6 +57,12 @@ class GeneratorConfig:
 
         if self.handle_transparency not in ["white_background", "remove", "preserve"]:
             raise ValueError(f"Invalid transparency handling: {self.handle_transparency}")
+
+        if self.edge_mode not in ["smooth", "hard"]:
+            raise ValueError(f"Invalid edge_mode: {self.edge_mode}")
+
+        if not (0.0 <= self.min_color_percent <= 100.0):
+            raise ValueError(f"min_color_percent must be between 0 and 100, got {self.min_color_percent}")
 
         if self.excel_cell_size <= 0:
             raise ValueError(f"excel_cell_size must be positive, got {self.excel_cell_size}")

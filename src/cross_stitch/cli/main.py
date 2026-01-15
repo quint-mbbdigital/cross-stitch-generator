@@ -97,6 +97,12 @@ def create_config_from_args(args) -> GeneratorConfig:
     if hasattr(args, 'no_aspect_ratio') and args.no_aspect_ratio:
         config.preserve_aspect_ratio = False
 
+    if hasattr(args, 'edge_mode') and args.edge_mode:
+        config.edge_mode = args.edge_mode
+
+    if hasattr(args, 'min_color_percent') and args.min_color_percent is not None:
+        config.min_color_percent = args.min_color_percent
+
     if hasattr(args, 'cell_size') and args.cell_size:
         config.excel_cell_size = args.cell_size
 
@@ -284,6 +290,19 @@ Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
                             help='Transparency handling (default: white_background)')
     gen_parser.add_argument('--no-aspect-ratio', action='store_true',
                             help='Do not preserve aspect ratio when resizing')
+    gen_parser.add_argument('--edge-mode', choices=['smooth', 'hard'], default='smooth',
+                            help='Edge handling mode: smooth (LANCZOS, default) or hard (NEAREST)')
+
+    # Define validation function for min-color-percent
+    def validate_percent(value):
+        fvalue = float(value)
+        if fvalue < 0.0 or fvalue > 100.0:
+            raise argparse.ArgumentTypeError(f"min-color-percent must be between 0.0 and 100.0, got {fvalue}")
+        return fvalue
+
+    gen_parser.add_argument('--min-color-percent', type=validate_percent, default=0.0,
+                            metavar='PERCENT',
+                            help='Merge colors below this percentage threshold (0.0-100.0, default: 0.0)')
     gen_parser.add_argument('--cell-size', type=float,
                             help='Excel cell size in points (default: 20.0)')
     gen_parser.add_argument('--no-legend', action='store_true',
@@ -320,6 +339,11 @@ Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
                              help='Transparency handling for analysis')
     info_parser.add_argument('--no-aspect-ratio', action='store_true',
                              help='Do not preserve aspect ratio for analysis')
+    info_parser.add_argument('--edge-mode', choices=['smooth', 'hard'], default='smooth',
+                             help='Edge handling mode for analysis: smooth (LANCZOS, default) or hard (NEAREST)')
+    info_parser.add_argument('--min-color-percent', type=validate_percent, default=0.0,
+                             metavar='PERCENT',
+                             help='Merge colors below this percentage threshold for analysis (0.0-100.0, default: 0.0)')
 
     # DMC color matching options for info command
     info_parser.add_argument('--enable-dmc', action='store_true',

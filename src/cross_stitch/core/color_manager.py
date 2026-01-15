@@ -7,6 +7,7 @@ from sklearn.cluster import KMeans
 
 from ..models import Color, ColorPalette, GeneratorConfig
 from ..utils import ColorQuantizationError
+from .dmc_matcher import DMCMatcher
 
 
 class ColorManager:
@@ -20,6 +21,18 @@ class ColorManager:
             config: Generator configuration object
         """
         self.config = config
+        # Initialize DMC matcher if DMC features are enabled
+        self.dmc_matcher = None
+        if (hasattr(config, 'enable_dmc') and config.enable_dmc and
+            not (hasattr(config, 'no_dmc') and config.no_dmc)):
+            try:
+                dmc_db_path = getattr(config, 'dmc_database', None)
+                self.dmc_matcher = DMCMatcher(dmc_db_path)
+                if not self.dmc_matcher.is_available():
+                    self.dmc_matcher = None
+            except Exception:
+                # Gracefully handle DMC initialization failures
+                self.dmc_matcher = None
 
     def quantize_image(self, image: Image.Image) -> Tuple[ColorPalette, np.ndarray]:
         """
@@ -45,31 +58,56 @@ class ColorManager:
             # Reshape to list of pixels
             pixels = image_array.reshape(-1, 3)
 
-            # Choose quantization method
-            if self.config.quantization_method == "median_cut":
-                palette_colors = self._median_cut_quantization(pixels)
-            elif self.config.quantization_method == "kmeans":
-                palette_colors = self._kmeans_quantization(pixels)
-            else:
-                raise ColorQuantizationError(
-                    f"Unknown quantization method: {self.config.quantization_method}",
-                    method=self.config.quantization_method
+            # Check if we should use DMC-only mode
+            if (hasattr(self.config, 'dmc_only') and self.config.dmc_only and
+                self.dmc_matcher and self.dmc_matcher.is_available()):
+
+                # Use only real DMC colors for quantization
+                palette_size = getattr(self.config, 'dmc_palette_size', None)
+                palette = self.dmc_matcher.create_dmc_only_palette(
+                    max_colors=self.config.max_colors,
+                    most_common_only=palette_size
                 )
 
-            # Create ColorPalette object
-            color_objects = [
-                Color(r=int(rgb[0]), g=int(rgb[1]), b=int(rgb[2]))
-                for rgb in palette_colors
-            ]
-            palette = ColorPalette(
-                colors=color_objects,
-                max_colors=self.config.max_colors,
-                quantization_method=self.config.quantization_method
-            )
+                # Extract RGB values for pixel mapping
+                palette_colors = [(color.r, color.g, color.b) for color in palette.colors]
+
+            else:
+                # Normal quantization process
+                # Choose quantization method
+                if self.config.quantization_method == "median_cut":
+                    palette_colors = self._median_cut_quantization(pixels)
+                elif self.config.quantization_method == "kmeans":
+                    palette_colors = self._kmeans_quantization(pixels)
+                else:
+                    raise ColorQuantizationError(
+                        f"Unknown quantization method: {self.config.quantization_method}",
+                        method=self.config.quantization_method
+                    )
+
+                # Create ColorPalette object
+                color_objects = [
+                    Color(r=int(rgb[0]), g=int(rgb[1]), b=int(rgb[2]))
+                    for rgb in palette_colors
+                ]
+                palette = ColorPalette(
+                    colors=color_objects,
+                    max_colors=self.config.max_colors,
+                    quantization_method=self.config.quantization_method
+                )
 
             # Map each pixel to closest palette color
             color_indices = self._map_pixels_to_palette(pixels, palette_colors)
             color_indices = color_indices.reshape(height, width)
+
+            # Apply color cleanup (merge minor colors) after quantization but before DMC matching
+            if hasattr(self.config, 'min_color_percent') and self.config.min_color_percent > 0.0:
+                palette, color_indices = self.cleanup_minor_colors(palette, color_indices)
+
+            # Apply DMC matching if enabled (after cleanup)
+            if (self.dmc_matcher and self.dmc_matcher.is_available() and
+                hasattr(self.config, 'enable_dmc') and self.config.enable_dmc):
+                palette = self.dmc_matcher.map_palette_to_dmc(palette)
 
             return palette, color_indices
 
@@ -302,6 +340,102 @@ class ColorManager:
         else:
             # If adjustment didn't help enough, return original color
             return color
+
+    def cleanup_minor_colors(self, palette: ColorPalette, color_indices: np.ndarray) -> Tuple[ColorPalette, np.ndarray]:
+        """
+        Remove colors below min_color_percent threshold by merging them into nearest neighbors.
+
+        Args:
+            palette: Original color palette
+            color_indices: Array of color indices from quantization
+
+        Returns:
+            Tuple of (cleaned_palette, updated_color_indices)
+        """
+        # Skip cleanup if threshold is 0 or palette is too small
+        if self.config.min_color_percent <= 0.0 or len(palette.colors) <= 1:
+            return palette, color_indices
+
+        # Calculate usage statistics for each color
+        total_pixels = color_indices.size
+        unique_indices, counts = np.unique(color_indices, return_counts=True)
+
+        # Calculate percentage for each color
+        color_percentages = {}
+        for idx, count in zip(unique_indices, counts):
+            percentage = (count / total_pixels) * 100.0
+            color_percentages[idx] = percentage
+
+        # Identify colors below threshold
+        colors_to_merge = []
+        colors_to_keep = []
+
+        for color_idx, percentage in color_percentages.items():
+            if percentage < self.config.min_color_percent:
+                colors_to_merge.append(color_idx)
+            else:
+                colors_to_keep.append(color_idx)
+
+        # If no colors to merge, return original
+        if not colors_to_merge:
+            return palette, color_indices
+
+        # If all colors are below threshold, keep the most common one
+        if not colors_to_keep:
+            # Find the most common color
+            most_common_idx = unique_indices[np.argmax(counts)]
+            colors_to_keep = [most_common_idx]
+            colors_to_merge = [idx for idx in unique_indices if idx != most_common_idx]
+
+        # Create mapping from old indices to new indices
+        index_mapping = {}
+
+        # Keep colors above threshold with their original indices
+        for keep_idx in colors_to_keep:
+            index_mapping[keep_idx] = keep_idx
+
+        # For each color to merge, find its closest neighbor among kept colors
+        for merge_idx in colors_to_merge:
+            merge_color = palette.colors[merge_idx]
+            min_distance = float('inf')
+            closest_keep_idx = colors_to_keep[0]  # fallback
+
+            # Find the closest color among those being kept
+            for keep_idx in colors_to_keep:
+                keep_color = palette.colors[keep_idx]
+                distance = merge_color.distance_to(keep_color)
+                if distance < min_distance:
+                    min_distance = distance
+                    closest_keep_idx = keep_idx
+
+            index_mapping[merge_idx] = closest_keep_idx
+
+        # Create new palette with only the kept colors
+        new_colors = [palette.colors[idx] for idx in sorted(colors_to_keep)]
+
+        # Create mapping from old kept indices to new compact indices
+        old_to_new_mapping = {}
+        for new_idx, old_idx in enumerate(sorted(colors_to_keep)):
+            old_to_new_mapping[old_idx] = new_idx
+
+        # Update the index mapping to use new compact indices
+        final_mapping = {}
+        for old_idx, keep_idx in index_mapping.items():
+            final_mapping[old_idx] = old_to_new_mapping[keep_idx]
+
+        # Apply mapping to color_indices array
+        new_indices = np.copy(color_indices)
+        for old_idx, new_idx in final_mapping.items():
+            new_indices[color_indices == old_idx] = new_idx
+
+        # Create new palette
+        cleaned_palette = ColorPalette(
+            colors=new_colors,
+            max_colors=palette.max_colors,
+            quantization_method=palette.quantization_method
+        )
+
+        return cleaned_palette, new_indices
 
     def get_color_statistics(self, image: Image.Image,
                              palette: ColorPalette,
