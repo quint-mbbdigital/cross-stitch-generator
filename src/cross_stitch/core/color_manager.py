@@ -156,11 +156,13 @@ class ColorManager:
                 return [(int(color[0]), int(color[1]), int(color[2]))]
 
             # Perform K-means clustering
+            # Use n_jobs=1 to avoid threading issues on macOS with OpenBLAS
             kmeans = KMeans(
                 n_clusters=n_colors,
                 random_state=42,
                 n_init=10,
-                max_iter=300
+                max_iter=300,
+                n_jobs=1
             )
 
             # Use a sample of pixels if there are too many
@@ -183,11 +185,17 @@ class ColorManager:
             return palette_colors
 
         except Exception as e:
-            raise ColorQuantizationError(
-                f"K-means quantization failed: {e}",
-                method="kmeans",
-                cause=e
-            )
+            # If K-means fails (often due to threading issues), fall back to median cut
+            try:
+                import logging
+                logging.warning(f"K-means quantization failed ({e}), falling back to median cut")
+                return self._median_cut_quantization(pixels)
+            except Exception as fallback_error:
+                raise ColorQuantizationError(
+                    f"K-means quantization failed: {e}, median cut fallback also failed: {fallback_error}",
+                    method="kmeans",
+                    cause=e
+                )
 
     def _map_pixels_to_palette(self, pixels: np.ndarray,
                                palette_colors: List[Tuple[int, int, int]]) -> np.ndarray:
