@@ -372,3 +372,76 @@ class TestPatternGeneratorIntegration:
             assert 'width' in pattern_info
             assert 'height' in pattern_info
             assert 'total_stitches' in pattern_info
+
+    def test_dmc_workflow_integration(self, tiny_image, temp_dir):
+        """Test complete DMC workflow: image → quantize → DMC config → Excel with DMC features."""
+        # Create config with DMC features enabled
+        config = GeneratorConfig(
+            resolutions=[(8, 8), (12, 12)],
+            max_colors=6,
+            enable_dmc=True,
+            include_color_legend=True,
+            quantization_method="median_cut"
+        )
+
+        generator = PatternGenerator(config)
+        output_path = temp_dir / "dmc_workflow_test.xlsx"
+
+        # Generate patterns with DMC configuration
+        pattern_set = generator.generate_patterns(tiny_image, output_path)
+
+        # Verify pattern generation succeeded
+        assert pattern_set.pattern_count == 2
+        assert output_path.exists()
+        assert output_path.stat().st_size > 1000  # Non-empty file
+
+        # Verify Excel file structure for DMC features
+        from openpyxl import load_workbook
+        workbook = load_workbook(output_path)
+
+        # Check that pattern sheets exist
+        assert "8x8" in workbook.sheetnames
+        assert "12x12" in workbook.sheetnames
+
+        # Check that Color Legend sheet exists and has DMC columns
+        assert "Color Legend" in workbook.sheetnames
+        legend_sheet = workbook["Color Legend"]
+
+        # Verify DMC columns are present in legend headers
+        headers = []
+        for col in range(1, 10):  # Check first 9 columns
+            cell_value = legend_sheet.cell(row=1, column=col).value
+            if cell_value:
+                headers.append(cell_value)
+
+        # DMC-specific columns should be present
+        assert "DMC Code" in headers
+        assert "Thread Name" in headers
+
+        # Original columns should still be present
+        assert "Color" in headers
+        assert "Hex Code" in headers
+        assert "Usage Count" in headers
+
+        # Verify pattern sheets are accessible
+        pattern_sheet_8x8 = workbook["8x8"]
+        assert pattern_sheet_8x8 is not None
+
+        # Test that cells can be accessed without errors
+        for row in range(1, 9):
+            for col in range(1, 9):
+                cell = pattern_sheet_8x8.cell(row=row, column=col)
+                # Just accessing should not raise exceptions
+
+        workbook.close()
+
+        # Verify individual patterns have correct properties
+        pattern_8x8 = pattern_set.get_pattern("8x8")
+        assert_valid_pattern(pattern_8x8)
+        assert pattern_8x8.width == 8
+        assert pattern_8x8.height == 8
+
+        pattern_12x12 = pattern_set.get_pattern("12x12")
+        assert_valid_pattern(pattern_12x12)
+        assert pattern_12x12.width == 12
+        assert pattern_12x12.height == 12

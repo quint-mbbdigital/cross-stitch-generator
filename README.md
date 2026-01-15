@@ -6,9 +6,11 @@ A Python application that converts image files into Excel-based cross-stitch pat
 
 - **Multi-Resolution Support**: Generate patterns at 50x50, 100x100, and 150x150 stitches (configurable)
 - **Smart Color Quantization**: Uses median cut or k-means algorithms to reduce colors to manageable palettes
+- **DMC Thread Matching**: Automatically match colors to DMC embroidery floss threads with thread codes
 - **Excel Output**: Creates `.xlsx` files where each cell represents one stitch with accurate background colors
+- **DMC Integration**: Pattern cells display DMC thread codes, legend shows thread names and quantities
 - **Square Cells**: Properly sized cells for realistic pattern visualization
-- **Color Legend**: Optional color palette summary with usage statistics
+- **Color Legend**: Optional color palette summary with usage statistics and DMC thread information
 - **Multiple Image Formats**: Supports PNG, JPG, GIF, BMP, TIFF, and WEBP
 - **Transparency Handling**: Configurable transparency processing for RGBA images
 - **Aspect Ratio Preservation**: Maintains image proportions or allows stretching
@@ -66,6 +68,13 @@ python cross_stitch_generator.py generate input.png output.xlsx \
 - `--no-legend`: Skip color legend sheet
 - `--legend-name`: Custom name for legend sheet
 
+#### DMC Thread Options
+- `--enable-dmc`: Enable DMC thread color matching (default when database available)
+- `--dmc-only`: Restrict quantization to existing DMC thread colors only
+- `--dmc-palette-size N`: Limit to N most common DMC thread colors
+- `--no-dmc`: Explicitly disable DMC thread matching
+- `--dmc-database PATH`: Use custom DMC thread database CSV file
+
 ### Info Command
 
 - `--estimate-time`: Include processing time estimates
@@ -107,24 +116,64 @@ python cross_stitch_generator.py generate sprite.png game_pattern.xlsx \
     --resolutions "32x32,64x64"
 ```
 
+### Example 5: DMC Thread Color Matching
+```bash
+python cross_stitch_generator.py generate flower.jpg dmc_pattern.xlsx \
+    --enable-dmc \
+    --max-colors 32
+```
+
+Generates patterns with DMC thread codes displayed in cells and thread names in the legend.
+
+### Example 6: DMC-Only Color Palette
+```bash
+python cross_stitch_generator.py generate portrait.jpg dmc_only.xlsx \
+    --dmc-only \
+    --dmc-palette-size 50 \
+    --max-colors 24
+```
+
+Restricts quantization to only use actual DMC thread colors from the 50 most common threads.
+
+### Example 7: Custom DMC Database
+```bash
+python cross_stitch_generator.py generate vintage.jpg custom_dmc.xlsx \
+    --dmc-database my_dmc_colors.csv \
+    --enable-dmc
+```
+
+Uses a custom DMC thread database file for specialized thread collections.
+
+### Example 8: Disable DMC for RGB-Only Output
+```bash
+python cross_stitch_generator.py generate abstract.png rgb_only.xlsx \
+    --no-dmc \
+    --max-colors 64
+```
+
+Explicitly disables DMC matching for pure RGB color output without thread codes.
+
 ## Output Structure
 
 The generated Excel file contains:
 
 1. **Pattern Sheets**: One sheet per resolution with colored cells representing stitches
-2. **Color Legend**: Summary of all colors with hex codes, RGB values, and usage statistics
+2. **Color Legend**: Summary of all colors with hex codes, RGB values, usage statistics, and DMC thread information
 3. **Summary Sheet**: Metadata about the source image and generation settings
 
 ### Pattern Sheets
 - Each cell represents one stitch
 - Cell background color matches the quantized pixel color
+- DMC thread codes displayed as text within cells (when DMC matching enabled)
 - Square cells sized for realistic visualization
 - Optional gridlines for easier counting
 
 ### Color Legend
 - Color swatches with hex codes
 - RGB values for color matching
+- DMC thread codes and thread names (when available)
 - Usage count and percentage for each color
+- Thread quantity calculations for shopping lists
 - Sorted by frequency of use
 
 ## Configuration
