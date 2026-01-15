@@ -110,14 +110,16 @@ class ExcelGenerator:
         # Set cell dimensions to make them square
         cell_size_points = self.config.excel_cell_size
 
-        # Set column widths (converting points to Excel units: 1 point ≈ 0.75 Excel units)
-        excel_width = cell_size_points * 0.75 / 7  # Approximate conversion
+        # Convert points to Excel column width units for square cells
+        # Excel column width is in character units (based on default font)
+        # More accurate conversion: points / 7.5 works better for square cells
+        excel_width = cell_size_points / 7.5
 
         for col in range(1, pattern.width + 1):
             column_letter = get_column_letter(col)
             worksheet.column_dimensions[column_letter].width = excel_width
 
-        # Set row heights
+        # Set row heights (in points)
         for row in range(1, pattern.height + 1):
             worksheet.row_dimensions[row].height = cell_size_points
 
