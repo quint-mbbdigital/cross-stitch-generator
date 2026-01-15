@@ -5,7 +5,7 @@ from pathlib import Path
 import io
 
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Alignment, Border, Side
+from openpyxl.styles import PatternFill, Alignment, Border, Side, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -121,8 +121,24 @@ class ExcelGenerator:
         for row in range(1, pattern.height + 1):
             worksheet.row_dimensions[row].height = cell_size_points
 
+    def _get_contrasting_font_color(self, background_color) -> str:
+        """Calculate contrasting font color (black or white) for background color.
+
+        Args:
+            background_color: Color object with r, g, b values
+
+        Returns:
+            Hex color string ("000000" for black, "FFFFFF" for white)
+        """
+        # Calculate luminance using standard formula
+        # Luminance = 0.299*R + 0.587*G + 0.114*B
+        luminance = (0.299 * background_color.r + 0.587 * background_color.g + 0.114 * background_color.b) / 255
+
+        # Use white text on dark backgrounds, black text on light backgrounds
+        return "FFFFFF" if luminance < 0.5 else "000000"
+
     def _apply_pattern_colors(self, worksheet: Worksheet, pattern: CrossStitchPattern) -> None:
-        """Apply background colors to cells based on pattern."""
+        """Apply background colors and DMC codes to cells based on pattern."""
         try:
             for y in range(pattern.height):
                 for x in range(pattern.width):
@@ -139,6 +155,14 @@ class ExcelGenerator:
 
                     # Apply fill to cell
                     cell.fill = fill
+
+                    # Add DMC code as cell text if Color has thread info
+                    if color.thread_code:
+                        cell.value = color.thread_code
+
+                        # Calculate contrasting font color for readability
+                        font_color = self._get_contrasting_font_color(color)
+                        cell.font = Font(color=font_color, size=8, bold=True)
 
         except Exception as e:
             raise ExcelGenerationError(
@@ -182,8 +206,8 @@ class ExcelGenerator:
             sheet_name = self._sanitize_sheet_name(self.config.legend_sheet_name)
             legend_sheet = workbook.create_sheet(title=sheet_name)
 
-            # Set up legend headers
-            headers = ["Color", "Hex Code", "RGB", "Usage Count", "Usage %"]
+            # Set up legend headers (include DMC information)
+            headers = ["Color", "Hex Code", "RGB", "DMC Code", "Thread Name", "Usage Count", "Usage %"]
             for col, header in enumerate(headers, 1):
                 cell = legend_sheet.cell(row=1, column=col, value=header)
                 cell.alignment = Alignment(horizontal='center', vertical='center')
@@ -218,11 +242,17 @@ class ExcelGenerator:
                 rgb_text = f"({color.r}, {color.g}, {color.b})"
                 legend_sheet.cell(row=row, column=3, value=rgb_text)
 
+                # DMC Code
+                legend_sheet.cell(row=row, column=4, value=color.thread_code if color.thread_code else "")
+
+                # Thread Name
+                legend_sheet.cell(row=row, column=5, value=color.name if color.name else "")
+
                 # Usage count
-                legend_sheet.cell(row=row, column=4, value=count)
+                legend_sheet.cell(row=row, column=6, value=count)
 
                 # Usage percentage
-                legend_sheet.cell(row=row, column=5, value=f"{percentage:.1f}%")
+                legend_sheet.cell(row=row, column=7, value=f"{percentage:.1f}%")
 
                 row += 1
 
