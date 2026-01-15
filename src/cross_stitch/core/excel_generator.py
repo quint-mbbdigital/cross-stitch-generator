@@ -160,6 +160,8 @@ class ExcelGenerator:
 
                     # Add DMC code as cell text if Color has thread info
                     if color.thread_code:
+                        # Set cell format to text to prevent Excel from converting numeric DMC codes
+                        cell.number_format = '@'  # '@' is Excel's text format
                         cell.value = color.thread_code
 
                         # Calculate contrasting font color for readability
