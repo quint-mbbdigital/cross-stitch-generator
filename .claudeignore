@@ -1,0 +1,144 @@
+# .claudeignore - Exclude files from Claude Code context
+# Uses .gitignore syntax: https://git-scm.com/docs/gitignore
+
+# Python build artifacts and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing artifacts
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.cache
+nosetests.xml
+
+# Test output files and temporary directories
+*.xlsx
+*.xls
+test_output/
+temp_*/
+tmp_*/
+*_test_output*
+*_demo*
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.Python
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Operating system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Logs and databases
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Large image and media files (sample inputs/outputs)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.webp
+*.svg
+*.ico
+*.pdf
+
+# Archives and compressed files
+*.zip
+*.tar.gz
+*.tar.bz2
+*.rar
+*.7z
+
+# Documentation builds
+docs/_build/
+site/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# pyenv version file
+.python-version
+
+# pipenv files
+Pipfile.lock
+
+# Poetry files
+poetry.lock
+
+# Environment variable files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Local configuration files
+config.local.*
+settings.local.*
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Package manager files
+node_modules/
+package-lock.json
+yarn.lock
+
+# Generated/compiled files that don't need review
+*.min.js
+*.min.css
