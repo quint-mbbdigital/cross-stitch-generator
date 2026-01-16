@@ -344,6 +344,7 @@ class ColorManager:
     def cleanup_minor_colors(self, palette: ColorPalette, color_indices: np.ndarray) -> Tuple[ColorPalette, np.ndarray]:
         """
         Remove colors below min_color_percent threshold by merging them into nearest neighbors.
+        Only merges colors if they are visually similar (within max_merge_distance).
 
         Args:
             palette: Original color palette
@@ -395,6 +396,8 @@ class ColorManager:
             index_mapping[keep_idx] = keep_idx
 
         # For each color to merge, find its closest neighbor among kept colors
+        # Only merge if the color distance is below max_merge_distance threshold
+        colors_actually_merged = []
         for merge_idx in colors_to_merge:
             merge_color = palette.colors[merge_idx]
             min_distance = float('inf')
@@ -408,7 +411,16 @@ class ColorManager:
                     min_distance = distance
                     closest_keep_idx = keep_idx
 
-            index_mapping[merge_idx] = closest_keep_idx
+            # Only merge if the color distance is below the threshold
+            # Exception: if min_color_percent is 100%, force merge everything regardless of distance
+            # This prevents merging visually distinct colors (e.g., blue text into cream background)
+            if min_distance <= self.config.max_merge_distance or self.config.min_color_percent >= 100.0:
+                index_mapping[merge_idx] = closest_keep_idx
+                colors_actually_merged.append(merge_idx)
+            else:
+                # Color is too visually distinct to merge, keep it
+                index_mapping[merge_idx] = merge_idx
+                colors_to_keep.append(merge_idx)
 
         # Create new palette with only the kept colors
         new_colors = [palette.colors[idx] for idx in sorted(colors_to_keep)]

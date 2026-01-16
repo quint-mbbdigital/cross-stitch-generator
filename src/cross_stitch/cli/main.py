@@ -103,6 +103,9 @@ def create_config_from_args(args) -> GeneratorConfig:
     if hasattr(args, 'min_color_percent') and args.min_color_percent is not None:
         config.min_color_percent = args.min_color_percent
 
+    if hasattr(args, 'max_merge_distance') and args.max_merge_distance is not None:
+        config.max_merge_distance = args.max_merge_distance
+
     if hasattr(args, 'cell_size') and args.cell_size:
         config.excel_cell_size = args.cell_size
 
@@ -199,6 +202,14 @@ def generate_command(args) -> int:
         print(f"Generating cross-stitch patterns from: {args.image}")
         if not args.quiet:
             print(f"Output file: {args.output}")
+
+        # Check for texture issues before processing
+        if config.check_for_texture:
+            texture_result = generator.analyze_image_texture(args.image)
+            if texture_result.has_problematic_texture:
+                import sys
+                print(f"WARNING: {texture_result.warning_message}", file=sys.stderr)
+                print("Processing will continue, but results may be suboptimal.", file=sys.stderr)
 
         # Generate patterns
         pattern_set = generator.generate_patterns(args.image, args.output)
@@ -309,6 +320,9 @@ Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
     gen_parser.add_argument('--min-color-percent', type=validate_percent, default=0.0,
                             metavar='PERCENT',
                             help='Remove noise colors below this threshold. Recommended: 1.0-3.0 for cleanup, 0=keep all (default: 0.0)')
+    gen_parser.add_argument('--max-merge-distance', type=float, default=50.0,
+                            metavar='DISTANCE',
+                            help='Maximum RGB color distance for merging colors. Prevents merging visually distinct colors (default: 50.0)')
     gen_parser.add_argument('--cell-size', type=float,
                             help='Excel cell size in points (default: 20.0)')
     gen_parser.add_argument('--no-legend', action='store_true',
@@ -350,6 +364,9 @@ Supported image formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP
     info_parser.add_argument('--min-color-percent', type=validate_percent, default=0.0,
                              metavar='PERCENT',
                              help='Color cleanup threshold for analysis. Recommended: 1.0-3.0 for cleanup, 0=keep all (default: 0.0)')
+    info_parser.add_argument('--max-merge-distance', type=float, default=50.0,
+                             metavar='DISTANCE',
+                             help='Maximum RGB color distance for merging colors in analysis (default: 50.0)')
 
     # DMC color matching options for info command
     info_parser.add_argument('--enable-dmc', action='store_true',

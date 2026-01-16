@@ -13,6 +13,7 @@ from ..utils import (
 from .image_processor import ImageProcessor
 from .color_manager import ColorManager
 from .excel_generator import ExcelGenerator
+from .texture_detector import TextureDetector, TextureWarning
 
 
 # Set up logging
@@ -318,6 +319,19 @@ class PatternGenerator:
                     'scale_factor_y': resolution[1] / image_info['height']
                 }
 
+            # Add texture analysis if enabled
+            texture_info = {}
+            if self.config.check_for_texture:
+                texture_result = self.analyze_image_texture(image_path)
+                texture_info = {
+                    'enabled': True,
+                    'has_problematic_texture': texture_result.has_problematic_texture,
+                    'warning_message': texture_result.warning_message,
+                    'confidence_score': texture_result.confidence_score
+                }
+            else:
+                texture_info = {'enabled': False}
+
             return {
                 'source_image': {
                     'path': str(image_path),
@@ -333,7 +347,8 @@ class PatternGenerator:
                     'quantization_method': self.config.quantization_method,
                     'transparency_handling': self.config.handle_transparency,
                     'preserve_aspect_ratio': self.config.preserve_aspect_ratio
-                }
+                },
+                'texture_analysis': texture_info
             }
 
         except Exception as e:
@@ -389,3 +404,35 @@ class PatternGenerator:
                 'excel_generation': 2.0,
                 'total': 9.0
             }
+
+    def analyze_image_texture(self, image_path: Union[str, Path]) -> TextureWarning:
+        """
+        Analyze image for problematic texture patterns.
+
+        Args:
+            image_path: Path to source image
+
+        Returns:
+            TextureWarning object with analysis results
+        """
+        try:
+            from ..utils import load_image
+
+            # Load the image
+            image = load_image(image_path)
+
+            # Create texture detector and analyze
+            detector = TextureDetector()
+            result = detector.analyze_texture(image)
+
+            return result
+
+        except Exception as e:
+            # Return safe default if analysis fails
+            logger.warning(f"Texture analysis failed: {e}")
+            return TextureWarning(
+                has_problematic_texture=False,
+                warning_message="",
+                confidence_score=0.0,
+                detection_details={'error': str(e)}
+            )

@@ -138,9 +138,10 @@ class TestMinColorPercentColorMerging:
         pattern_set = generator.generate_patterns(test_image_path, tmp_path / "merged_test.xlsx")
 
         pattern = pattern_set.get_pattern("20x20")
-        # Should have fewer colors after merging due to cleanup
-        # (interpolation creates more colors than original 3, cleanup reduces them)
-        assert pattern.unique_colors_used <= 3
+        # Should have fewer colors after merging, but only if they're visually similar
+        # With max_merge_distance protection, visually distinct colors are preserved
+        # Note: quantization may create more colors than the original 3
+        assert pattern.unique_colors_used <= 6  # Allow for quantization artifacts
 
     def test_colors_above_threshold_are_preserved(self, tmp_path):
         """Test that colors above threshold are preserved."""
@@ -228,8 +229,9 @@ class TestMinColorPercentColorMerging:
         pattern_set = generator.generate_patterns(test_image_path, tmp_path / "noise_merged.xlsx")
 
         pattern = pattern_set.get_pattern("15x15")
-        # Should have fewer colors due to noise merging
-        assert pattern.unique_colors_used <= 3  # Gray, blue, and maybe merged noise
+        # Should have fewer colors due to noise merging, but preserve visually distinct ones
+        # With distance protection, only truly similar colors get merged
+        assert pattern.unique_colors_used <= 5  # Gray, blue, and some preserved distinct colors
 
 
 class TestMinColorPercentIntegration:
@@ -324,3 +326,77 @@ class TestMinColorPercentErrorHandling:
         # Should contain min-color-percent in help
         assert '--min-color-percent' in help_output
         assert 'remove noise colors below this threshold' in help_output.lower()
+
+
+class TestMinColorPercentVisualDistinctness:
+    """Test that min-color-percent doesn't merge visually distinct colors."""
+
+    def create_cream_with_text_image(self):
+        """Create image with cream background and visually distinct blue/black text.
+
+        Returns: Image with 90% cream, 5% blue text, 5% black text
+        """
+        # Create 100x100 image for easy percentage calculation
+        image_array = np.zeros((100, 100, 3), dtype=np.uint8)
+
+        # Fill with cream background (90% = 9000 pixels)
+        image_array[:, :] = [255, 253, 208]  # Light cream color
+
+        # Add blue text (5% = 500 pixels) - left side vertical strip
+        image_array[:, :5] = [0, 0, 255]  # Pure blue
+
+        # Add black text (5% = 500 pixels) - right side vertical strip
+        image_array[:, 95:] = [0, 0, 0]  # Pure black
+
+        return Image.fromarray(image_array, mode='RGB')
+
+    def test_visually_distinct_colors_not_merged_despite_low_percentage(self, tmp_path):
+        """Test that visually distinct colors are preserved even when below percentage threshold.
+
+        This test should FAIL with current implementation, demonstrating the bug.
+
+        Image has:
+        - 90% cream background (RGB: 255, 253, 208)
+        - 5% blue text (RGB: 0, 0, 255)
+        - 5% black text (RGB: 0, 0, 0)
+
+        With min-color-percent=10, blue and black are below threshold but should NOT
+        be merged into cream because they're visually too different (high color distance).
+        """
+        test_image = self.create_cream_with_text_image()
+        test_image_path = tmp_path / "cream_text_test.png"
+        test_image.save(test_image_path)
+
+        config = GeneratorConfig(
+            resolutions=[(20, 20)],
+            max_colors=10,
+            min_color_percent=10.0  # Blue (5%) and black (5%) are below threshold
+        )
+
+        generator = PatternGenerator(config)
+        pattern_set = generator.generate_patterns(test_image_path, tmp_path / "distinct_test.xlsx")
+
+        pattern = pattern_set.get_pattern("20x20")
+
+        # Should have 3+ colors: cream, blue, black (quantization may create slight variants)
+        # Buggy implementation merges blue+black into cream = few colors
+        # Fixed implementation preserves distinct colors = more colors
+        assert pattern.unique_colors_used >= 3, (
+            f"Expected 3+ colors (cream, blue, black) but got {pattern.unique_colors_used}. "
+            f"Bug: visually distinct colors merged into background despite high color distance."
+        )
+
+        # Verify the colors are actually distinct by checking color palette
+        palette_colors = [(color.r, color.g, color.b) for color in pattern.palette.colors]
+
+        # Should contain cream-like color
+        has_cream = any(r > 240 and g > 240 and b > 200 for r, g, b in palette_colors)
+        assert has_cream, f"Expected cream color in palette, got: {palette_colors}"
+
+        # Should contain blue-like color
+        has_blue = any(r < 50 and g < 50 and b > 200 for r, g, b in palette_colors)
+        assert has_blue, f"Expected blue color in palette, got: {palette_colors}"
+
+        # Should contain black-like color
+        has_black = any(r < 50 and g < 50 and b < 50 for r, g, b in palette_colors)
+        assert has_black, f"Expected black color in palette, got: {palette_colors}"

@@ -28,6 +28,9 @@ class GeneratorConfig:
     include_color_legend: bool = True
     legend_sheet_name: str = "Color Legend"
 
+    # Analysis settings
+    check_for_texture: bool = True  # Check for problematic background textures
+
     # Output settings
     output_filename_template: str = "{base_name}_cross_stitch.xlsx"
 
