@@ -160,8 +160,9 @@ class ExcelGenerator:
 
                     # Add DMC code as cell text if Color has thread info
                     if color.thread_code:
-                        # Set cell format to text to prevent Excel from converting numeric DMC codes
+                        # Set cell format and data type to text to prevent Excel warnings
                         cell.number_format = '@'  # '@' is Excel's text format
+                        cell.data_type = 's'  # Explicitly set as string type
                         cell.value = color.thread_code
 
                         # Calculate contrasting font color for readability
@@ -250,6 +251,7 @@ class ExcelGenerator:
                 dmc_cell = legend_sheet.cell(row=row, column=4)
                 if color.thread_code:
                     dmc_cell.number_format = '@'  # Text format to prevent Excel warnings
+                    dmc_cell.data_type = 's'  # Explicitly set as string type
                     dmc_cell.value = color.thread_code
                 else:
                     dmc_cell.value = ""
