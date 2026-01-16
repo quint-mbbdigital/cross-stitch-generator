@@ -7,7 +7,12 @@ from pathlib import Path
 from PIL import Image
 import numpy as np
 
-from src.cross_stitch.models import GeneratorConfig, Color, ColorPalette, CrossStitchPattern
+from src.cross_stitch.models import (
+    GeneratorConfig,
+    Color,
+    ColorPalette,
+    CrossStitchPattern,
+)
 
 
 @pytest.fixture
@@ -28,7 +33,7 @@ def sample_config():
         preserve_aspect_ratio=True,
         handle_transparency="white_background",
         excel_cell_size=20.0,
-        include_color_legend=True
+        include_color_legend=True,
     )
 
 
@@ -36,11 +41,11 @@ def sample_config():
 def sample_colors():
     """Create sample colors for testing."""
     return [
-        Color(r=255, g=0, b=0),    # Red
-        Color(r=0, g=255, b=0),    # Green
-        Color(r=0, g=0, b=255),    # Blue
+        Color(r=255, g=0, b=0),  # Red
+        Color(r=0, g=255, b=0),  # Green
+        Color(r=0, g=0, b=255),  # Blue
         Color(r=255, g=255, b=0),  # Yellow
-        Color(r=255, g=255, b=255) # White
+        Color(r=255, g=255, b=255),  # White
     ]
 
 
@@ -48,9 +53,7 @@ def sample_colors():
 def sample_palette(sample_colors):
     """Create a sample color palette for testing."""
     return ColorPalette(
-        colors=sample_colors,
-        max_colors=256,
-        quantization_method="median_cut"
+        colors=sample_colors, max_colors=256, quantization_method="median_cut"
     )
 
 
@@ -65,7 +68,7 @@ def sample_pattern(sample_palette):
         height=10,
         colors=colors,
         palette=sample_palette,
-        resolution_name="10x10"
+        resolution_name="10x10",
     )
 
 
@@ -80,12 +83,12 @@ def sample_image_rgb(temp_dir):
     for y in range(height):
         for x in range(width):
             image_array[y, x] = [
-                int(255 * x / width),      # Red gradient horizontal
-                int(255 * y / height),     # Green gradient vertical
-                128                        # Constant blue
+                int(255 * x / width),  # Red gradient horizontal
+                int(255 * y / height),  # Green gradient vertical
+                128,  # Constant blue
             ]
 
-    image = Image.fromarray(image_array, mode='RGB')
+    image = Image.fromarray(image_array, mode="RGB")
     image_path = temp_dir / "sample_rgb.png"
     image.save(image_path)
 
@@ -107,7 +110,7 @@ def sample_image_rgba(temp_dir):
             else:
                 image_array[y, x] = [0, 255, 0, 128]  # Green, semi-transparent
 
-    image = Image.fromarray(image_array, mode='RGBA')
+    image = Image.fromarray(image_array, mode="RGBA")
     image_path = temp_dir / "sample_rgba.png"
     image.save(image_path)
 
@@ -127,11 +130,11 @@ def sample_image_grayscale(temp_dir):
 
     for y in range(height):
         for x in range(width):
-            distance = np.sqrt((x - center_x)**2 + (y - center_y)**2)
+            distance = np.sqrt((x - center_x) ** 2 + (y - center_y) ** 2)
             intensity = max(0, int(255 * (1 - distance / max_distance)))
             image_array[y, x] = intensity
 
-    image = Image.fromarray(image_array, mode='L')
+    image = Image.fromarray(image_array, mode="L")
     image_path = temp_dir / "sample_grayscale.png"
     image.save(image_path)
 
@@ -165,7 +168,7 @@ def large_image(temp_dir):
     width, height = 500, 500
     image_array = np.random.randint(0, 256, (height, width, 3), dtype=np.uint8)
 
-    image = Image.fromarray(image_array, mode='RGB')
+    image = Image.fromarray(image_array, mode="RGB")
     image_path = temp_dir / "large_image.png"
     image.save(image_path)
 
@@ -176,16 +179,18 @@ def large_image(temp_dir):
 def tiny_image(temp_dir):
     """Create a very small image for edge case testing."""
     # Create a 5x5 image
-    width, height = 5, 5
-    image_array = np.array([
-        [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255]],
-        [[0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [255, 0, 0]],
-        [[0, 0, 255], [255, 255, 0], [255, 0, 255], [255, 0, 0], [0, 255, 0]],
-        [[255, 255, 0], [255, 0, 255], [255, 0, 0], [0, 255, 0], [0, 0, 255]],
-        [[255, 0, 255], [255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0]]
-    ], dtype=np.uint8)
+    image_array = np.array(
+        [
+            [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255]],
+            [[0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [255, 0, 0]],
+            [[0, 0, 255], [255, 255, 0], [255, 0, 255], [255, 0, 0], [0, 255, 0]],
+            [[255, 255, 0], [255, 0, 255], [255, 0, 0], [0, 255, 0], [0, 0, 255]],
+            [[255, 0, 255], [255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0]],
+        ],
+        dtype=np.uint8,
+    )
 
-    image = Image.fromarray(image_array, mode='RGB')
+    image = Image.fromarray(image_array, mode="RGB")
     image_path = temp_dir / "tiny_image.png"
     image.save(image_path)
 
@@ -223,6 +228,7 @@ def mock_progress_callback():
 
 # Utility functions for tests
 
+
 def assert_valid_color(color):
     """Assert that a color object is valid."""
     assert isinstance(color, Color)
@@ -231,7 +237,7 @@ def assert_valid_color(color):
     assert 0 <= color.b <= 255
     assert isinstance(color.hex_code, str)
     assert len(color.hex_code) == 7
-    assert color.hex_code.startswith('#')
+    assert color.hex_code.startswith("#")
 
 
 def assert_valid_palette(palette):
@@ -258,21 +264,21 @@ def assert_valid_pattern(pattern):
     assert np.all(pattern.colors <= max_index)
 
 
-def create_test_image(width: int, height: int, mode: str = 'RGB') -> Image.Image:
+def create_test_image(width: int, height: int, mode: str = "RGB") -> Image.Image:
     """Create a test image with specific dimensions and mode."""
-    if mode == 'RGB':
+    if mode == "RGB":
         channels = 3
-    elif mode == 'RGBA':
+    elif mode == "RGBA":
         channels = 4
-    elif mode == 'L':
-        return Image.new('L', (width, height), color=128)
+    elif mode == "L":
+        return Image.new("L", (width, height), color=128)
     else:
         raise ValueError(f"Unsupported mode: {mode}")
 
     # Create random image data
     image_array = np.random.randint(0, 256, (height, width, channels), dtype=np.uint8)
 
-    if mode == 'RGBA':
+    if mode == "RGBA":
         # Make some pixels transparent for testing
         image_array[:, :, 3] = np.random.choice([0, 255], size=(height, width))
 

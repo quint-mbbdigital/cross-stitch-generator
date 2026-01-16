@@ -3,6 +3,7 @@
 from typing import List, Dict, Any, Union
 from pathlib import Path
 import io
+from datetime import datetime
 
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Alignment, Border, Side, Font
@@ -25,7 +26,9 @@ class ExcelGenerator:
         """
         self.config = config
 
-    def generate_excel_file(self, pattern_set: PatternSet, output_path: Union[str, Path]) -> Path:
+    def generate_excel_file(
+        self, pattern_set: PatternSet, output_path: Union[str, Path]
+    ) -> Path:
         """
         Generate complete Excel file from pattern set.
 
@@ -73,10 +76,12 @@ class ExcelGenerator:
             raise ExcelGenerationError(
                 f"Failed to generate Excel file: {e}",
                 output_path=str(output_path),
-                cause=e
+                cause=e,
             )
 
-    def _create_pattern_sheet(self, workbook: Workbook, pattern: CrossStitchPattern) -> None:
+    def _create_pattern_sheet(
+        self, workbook: Workbook, pattern: CrossStitchPattern
+    ) -> None:
         """
         Create a worksheet for a specific pattern resolution.
 
@@ -102,10 +107,12 @@ class ExcelGenerator:
             raise ExcelGenerationError(
                 f"Failed to create pattern sheet: {e}",
                 sheet_name=pattern.resolution_name,
-                cause=e
+                cause=e,
             )
 
-    def _setup_pattern_worksheet(self, worksheet: Worksheet, pattern: CrossStitchPattern) -> None:
+    def _setup_pattern_worksheet(
+        self, worksheet: Worksheet, pattern: CrossStitchPattern
+    ) -> None:
         """Set up basic structure of pattern worksheet."""
         # Set cell dimensions to make them square
         cell_size_points = self.config.excel_cell_size
@@ -134,12 +141,18 @@ class ExcelGenerator:
         """
         # Calculate luminance using standard formula
         # Luminance = 0.299*R + 0.587*G + 0.114*B
-        luminance = (0.299 * background_color.r + 0.587 * background_color.g + 0.114 * background_color.b) / 255
+        luminance = (
+            0.299 * background_color.r
+            + 0.587 * background_color.g
+            + 0.114 * background_color.b
+        ) / 255
 
         # Use white text on dark backgrounds, black text on light backgrounds
         return "FFFFFF" if luminance < 0.5 else "000000"
 
-    def _apply_pattern_colors(self, worksheet: Worksheet, pattern: CrossStitchPattern) -> None:
+    def _apply_pattern_colors(
+        self, worksheet: Worksheet, pattern: CrossStitchPattern
+    ) -> None:
         """Apply background colors and DMC codes to cells based on pattern."""
         try:
             for y in range(pattern.height):
@@ -152,8 +165,10 @@ class ExcelGenerator:
                     cell = worksheet.cell(row=y + 1, column=x + 1)
 
                     # Create fill pattern with the color
-                    fill_color = color.hex_code.lstrip('#')  # Remove # if present
-                    fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type='solid')
+                    fill_color = color.hex_code.lstrip("#")  # Remove # if present
+                    fill = PatternFill(
+                        start_color=fill_color, end_color=fill_color, fill_type="solid"
+                    )
 
                     # Apply fill to cell
                     cell.fill = fill
@@ -161,8 +176,8 @@ class ExcelGenerator:
                     # Add DMC code as cell text if Color has thread info
                     if color.thread_code:
                         # Set cell format and data type to text to prevent Excel warnings
-                        cell.number_format = '@'  # '@' is Excel's text format
-                        cell.data_type = 's'  # Explicitly set as string type
+                        cell.number_format = "@"  # '@' is Excel's text format
+                        cell.data_type = "s"  # Explicitly set as string type
                         cell.value = color.thread_code
 
                         # Calculate contrasting font color for readability
@@ -173,18 +188,22 @@ class ExcelGenerator:
             raise ExcelGenerationError(
                 f"Failed to apply pattern colors: {e}",
                 sheet_name=pattern.resolution_name,
-                cause=e
+                cause=e,
             )
 
-    def _apply_cell_styling(self, worksheet: Worksheet, pattern: CrossStitchPattern) -> None:
+    def _apply_cell_styling(
+        self, worksheet: Worksheet, pattern: CrossStitchPattern
+    ) -> None:
         """Apply additional styling to pattern cells."""
         try:
             # Define border style for grid effect
             thin_border = Side(border_style="thin", color="000000")
-            border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
+            border = Border(
+                top=thin_border, left=thin_border, right=thin_border, bottom=thin_border
+            )
 
             # Define center alignment
-            center_alignment = Alignment(horizontal='center', vertical='center')
+            center_alignment = Alignment(horizontal="center", vertical="center")
 
             # Apply styling to all pattern cells
             for y in range(1, pattern.height + 1):
@@ -195,14 +214,11 @@ class ExcelGenerator:
                     cell.border = border
                     cell.alignment = center_alignment
 
-                    # Optionally add cell value (for debugging or reference)
-                    # cell.value = pattern.get_color_at(x-1, y-1)
-
         except Exception as e:
             raise ExcelGenerationError(
                 f"Failed to apply cell styling: {e}",
                 sheet_name=pattern.resolution_name,
-                cause=e
+                cause=e,
             )
 
     def _create_legend_sheet(self, workbook: Workbook, pattern_set: PatternSet) -> None:
@@ -212,10 +228,18 @@ class ExcelGenerator:
             legend_sheet = workbook.create_sheet(title=sheet_name)
 
             # Set up legend headers (include DMC information)
-            headers = ["Color", "Hex Code", "RGB", "DMC Code", "Thread Name", "Usage Count", "Usage %"]
+            headers = [
+                "Color",
+                "Hex Code",
+                "RGB",
+                "DMC Code",
+                "Thread Name",
+                "Usage Count",
+                "Usage %",
+            ]
             for col, header in enumerate(headers, 1):
                 cell = legend_sheet.cell(row=1, column=col, value=header)
-                cell.alignment = Alignment(horizontal='center', vertical='center')
+                cell.alignment = Alignment(horizontal="center", vertical="center")
 
             row = 2
             total_stitches = 0
@@ -229,16 +253,18 @@ class ExcelGenerator:
 
             # Add each color to the legend
             for color_data in color_usage:
-                color = color_data['color']
-                count = color_data['count']
+                color = color_data["color"]
+                count = color_data["count"]
                 percentage = (count / total_stitches * 100) if total_stitches > 0 else 0
 
                 # Color sample cell
                 color_cell = legend_sheet.cell(row=row, column=1)
-                fill_color = color.hex_code.lstrip('#')
-                color_cell.fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type='solid')
+                fill_color = color.hex_code.lstrip("#")
+                color_cell.fill = PatternFill(
+                    start_color=fill_color, end_color=fill_color, fill_type="solid"
+                )
                 color_cell.value = "■"  # Color block symbol
-                color_cell.alignment = Alignment(horizontal='center', vertical='center')
+                color_cell.alignment = Alignment(horizontal="center", vertical="center")
 
                 # Hex code
                 legend_sheet.cell(row=row, column=2, value=color.hex_code)
@@ -250,14 +276,18 @@ class ExcelGenerator:
                 # DMC Code
                 dmc_cell = legend_sheet.cell(row=row, column=4)
                 if color.thread_code:
-                    dmc_cell.number_format = '@'  # Text format to prevent Excel warnings
-                    dmc_cell.data_type = 's'  # Explicitly set as string type
+                    dmc_cell.number_format = (
+                        "@"  # Text format to prevent Excel warnings
+                    )
+                    dmc_cell.data_type = "s"  # Explicitly set as string type
                     dmc_cell.value = color.thread_code
                 else:
                     dmc_cell.value = ""
 
                 # Thread Name
-                legend_sheet.cell(row=row, column=5, value=color.name if color.name else "")
+                legend_sheet.cell(
+                    row=row, column=5, value=color.name if color.name else ""
+                )
 
                 # Usage count
                 legend_sheet.cell(row=row, column=6, value=count)
@@ -274,10 +304,12 @@ class ExcelGenerator:
             raise ExcelGenerationError(
                 f"Failed to create legend sheet: {e}",
                 sheet_name=self.config.legend_sheet_name,
-                cause=e
+                cause=e,
             )
 
-    def _create_summary_sheet(self, workbook: Workbook, pattern_set: PatternSet) -> None:
+    def _create_summary_sheet(
+        self, workbook: Workbook, pattern_set: PatternSet
+    ) -> None:
         """Create summary sheet with pattern metadata."""
         try:
             summary_sheet = workbook.create_sheet(title="Summary")
@@ -287,12 +319,15 @@ class ExcelGenerator:
 
             # Source image information
             summary_sheet.cell(row=row, column=1, value="Source Image:")
-            summary_sheet.cell(row=row, column=2, value=str(pattern_set.source_image_path.name))
+            summary_sheet.cell(
+                row=row, column=2, value=str(pattern_set.source_image_path.name)
+            )
             row += 1
 
             summary_sheet.cell(row=row, column=1, value="Generated On:")
-            from datetime import datetime
-            summary_sheet.cell(row=row, column=2, value=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            summary_sheet.cell(
+                row=row, column=2, value=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            )
             row += 2
 
             # Pattern information
@@ -301,8 +336,14 @@ class ExcelGenerator:
 
             for resolution_name, pattern in pattern_set.patterns.items():
                 summary_sheet.cell(row=row, column=1, value=f"  {resolution_name}:")
-                summary_sheet.cell(row=row, column=2, value=f"{pattern.width}x{pattern.height} stitches")
-                summary_sheet.cell(row=row, column=3, value=f"{pattern.unique_colors_used} colors")
+                summary_sheet.cell(
+                    row=row,
+                    column=2,
+                    value=f"{pattern.width}x{pattern.height} stitches",
+                )
+                summary_sheet.cell(
+                    row=row, column=3, value=f"{pattern.unique_colors_used} colors"
+                )
                 row += 1
 
             row += 1
@@ -316,7 +357,7 @@ class ExcelGenerator:
                 ("Max Colors", str(self.config.max_colors)),
                 ("Transparency Handling", self.config.handle_transparency),
                 ("Aspect Ratio Preserved", str(self.config.preserve_aspect_ratio)),
-                ("Cell Size", f"{self.config.excel_cell_size} points")
+                ("Cell Size", f"{self.config.excel_cell_size} points"),
             ]
 
             for label, value in config_items:
@@ -329,12 +370,12 @@ class ExcelGenerator:
 
         except Exception as e:
             raise ExcelGenerationError(
-                f"Failed to create summary sheet: {e}",
-                sheet_name="Summary",
-                cause=e
+                f"Failed to create summary sheet: {e}", sheet_name="Summary", cause=e
             )
 
-    def _collect_color_usage_stats(self, pattern_set: PatternSet) -> List[Dict[str, Any]]:
+    def _collect_color_usage_stats(
+        self, pattern_set: PatternSet
+    ) -> List[Dict[str, Any]]:
         """Collect color usage statistics across all patterns."""
         color_counts = {}
 
@@ -346,24 +387,21 @@ class ExcelGenerator:
                 color_key = color.rgb_tuple
 
                 if color_key in color_counts:
-                    color_counts[color_key]['count'] += count
+                    color_counts[color_key]["count"] += count
                 else:
-                    color_counts[color_key] = {
-                        'color': color,
-                        'count': count
-                    }
+                    color_counts[color_key] = {"color": color, "count": count}
 
         # Sort by usage count (most used first)
-        return sorted(color_counts.values(), key=lambda x: x['count'], reverse=True)
+        return sorted(color_counts.values(), key=lambda x: x["count"], reverse=True)
 
     def _sanitize_sheet_name(self, name: str) -> str:
         """Sanitize sheet name for Excel compatibility."""
         # Excel sheet names can't contain: \ / * ? : [ ]
-        invalid_chars = ['\\', '/', '*', '?', ':', '[', ']']
+        invalid_chars = ["\\", "/", "*", "?", ":", "[", "]"]
         sanitized = name
 
         for char in invalid_chars:
-            sanitized = sanitized.replace(char, '_')
+            sanitized = sanitized.replace(char, "_")
 
         # Limit length to 31 characters (Excel limit)
         if len(sanitized) > 31:
@@ -404,6 +442,5 @@ class ExcelGenerator:
 
         except Exception as e:
             raise ExcelGenerationError(
-                f"Failed to save workbook to bytes: {e}",
-                cause=e
+                f"Failed to save workbook to bytes: {e}", cause=e
             )

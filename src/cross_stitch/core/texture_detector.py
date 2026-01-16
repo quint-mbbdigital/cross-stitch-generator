@@ -1,15 +1,15 @@
 """Texture detection module for identifying problematic background patterns."""
 
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional
 from dataclasses import dataclass, field
 import numpy as np
 from PIL import Image
-import math
 
 
 @dataclass
 class TextureWarning:
     """Model for texture detection warnings."""
+
     has_problematic_texture: bool = False
     warning_message: str = ""
     confidence_score: float = 0.0
@@ -23,7 +23,7 @@ class TextureDetector:
         """Initialize texture detector."""
         self.variance_threshold = 200.0  # High pixel-to-pixel variance
         self.unique_color_threshold = 15  # Many unique colors in small region
-        self.confidence_threshold = 0.6   # Minimum confidence for warning
+        self.confidence_threshold = 0.6  # Minimum confidence for warning
 
     def analyze_texture(self, image: Image.Image) -> TextureWarning:
         """
@@ -37,8 +37,8 @@ class TextureDetector:
         """
         try:
             # Convert to RGB if needed
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
+            if image.mode != "RGB":
+                image = image.convert("RGB")
 
             # Get image as numpy array
             img_array = np.array(image)
@@ -52,9 +52,9 @@ class TextureDetector:
             confidence = max(variance_score, cluster_score, frequency_score)
 
             detection_details = {
-                'color_variance': variance_score,
-                'clustered_colors': cluster_score,
-                'high_frequency': frequency_score
+                "color_variance": variance_score,
+                "clustered_colors": cluster_score,
+                "high_frequency": frequency_score,
             }
 
             # Determine if texture is problematic
@@ -62,13 +62,15 @@ class TextureDetector:
 
             warning_message = ""
             if has_texture:
-                warning_message = self._generate_warning_message(detection_details, confidence)
+                warning_message = self._generate_warning_message(
+                    detection_details, confidence
+                )
 
             return TextureWarning(
                 has_problematic_texture=has_texture,
                 warning_message=warning_message,
                 confidence_score=confidence,
-                detection_details=detection_details
+                detection_details=detection_details,
             )
 
         except Exception as e:
@@ -77,7 +79,7 @@ class TextureDetector:
                 has_problematic_texture=False,
                 warning_message="",
                 confidence_score=0.0,
-                detection_details={'error': str(e)}
+                detection_details={"error": str(e)},
             )
 
     def detect_color_variance(self, img_array: np.ndarray) -> float:
@@ -105,8 +107,14 @@ class TextureDetector:
                 img_array[-region_size:, :region_size],  # Bottom-left
                 img_array[-region_size:, -region_size:],  # Bottom-right
                 # Center edges
-                img_array[:region_size, width//2 - region_size//2:width//2 + region_size//2],  # Top center
-                img_array[-region_size:, width//2 - region_size//2:width//2 + region_size//2],  # Bottom center
+                img_array[
+                    :region_size,
+                    width // 2 - region_size // 2 : width // 2 + region_size // 2,
+                ],  # Top center
+                img_array[
+                    -region_size:,
+                    width // 2 - region_size // 2 : width // 2 + region_size // 2,
+                ],  # Bottom center
             ]
 
             variance_scores = []
@@ -133,8 +141,12 @@ class TextureDetector:
                 v_diff_mean = np.mean(np.abs(v_diff))
 
                 # Detect gradients: one direction has consistent change, other has minimal change
-                is_horizontal_gradient = (h_diff_mean > 5 and v_diff_mean < 2)  # Changes horizontally, not vertically
-                is_vertical_gradient = (v_diff_mean > 5 and h_diff_mean < 2)    # Changes vertically, not horizontally
+                is_horizontal_gradient = (
+                    h_diff_mean > 5 and v_diff_mean < 2
+                )  # Changes horizontally, not vertically
+                is_vertical_gradient = (
+                    v_diff_mean > 5 and h_diff_mean < 2
+                )  # Changes vertically, not horizontally
 
                 # Also check for smooth gradients with consistent direction
                 if h_diff_mean > 5 or v_diff_mean > 5:  # Significant color changes
@@ -144,12 +156,20 @@ class TextureDetector:
                     # For gradients, the changing direction should have low variance (consistent)
                     # and the non-changing direction should have minimal change
                     is_smooth_gradient = False
-                    if h_diff_mean > v_diff_mean and h_diff_variance < 50:  # Horizontal gradient
+                    if (
+                        h_diff_mean > v_diff_mean and h_diff_variance < 50
+                    ):  # Horizontal gradient
                         is_smooth_gradient = True
-                    elif v_diff_mean > h_diff_mean and v_diff_variance < 50:  # Vertical gradient
+                    elif (
+                        v_diff_mean > h_diff_mean and v_diff_variance < 50
+                    ):  # Vertical gradient
                         is_smooth_gradient = True
 
-                    if is_horizontal_gradient or is_vertical_gradient or is_smooth_gradient:
+                    if (
+                        is_horizontal_gradient
+                        or is_vertical_gradient
+                        or is_smooth_gradient
+                    ):
                         continue  # Skip this region, it's likely a gradient
 
                 # High variance with moderate color difference suggests texture
@@ -207,9 +227,11 @@ class TextureDetector:
                 return 0.0  # Too few colors to be textured
 
             for i, color1 in enumerate(unique_colors):
-                for j, color2 in enumerate(unique_colors[i+1:], i+1):
+                for j, color2 in enumerate(unique_colors[i + 1 :], i + 1):
                     # Calculate Euclidean distance in RGB space
-                    distance = np.sqrt(np.sum((color1.astype(float) - color2.astype(float)) ** 2))
+                    distance = np.sqrt(
+                        np.sum((color1.astype(float) - color2.astype(float)) ** 2)
+                    )
 
                     # Colors are "similar" if distance is small (texture creates many similar colors)
                     if distance < 25:  # Very similar colors
@@ -217,13 +239,19 @@ class TextureDetector:
 
             # High ratio of similar colors suggests texture
             # But check if this might be a smooth gradient first
-            pixels_sorted = pixels[np.lexsort((pixels[:, 2], pixels[:, 1], pixels[:, 0]))]
+            pixels_sorted = pixels[
+                np.lexsort((pixels[:, 2], pixels[:, 1], pixels[:, 0]))
+            ]
             gradient_check = np.diff(pixels_sorted.astype(float), axis=0)
             avg_gradient = np.mean(np.linalg.norm(gradient_check, axis=1))
 
             # If gradient is very smooth (consistent color progression), it's likely a gradient
-            if avg_gradient > 3 and total_colors > self.unique_color_threshold:  # Exclude smooth gradients
-                similarity_ratio = similar_color_count / (total_colors * (total_colors - 1) / 2)
+            if (
+                avg_gradient > 3 and total_colors > self.unique_color_threshold
+            ):  # Exclude smooth gradients
+                similarity_ratio = similar_color_count / (
+                    total_colors * (total_colors - 1) / 2
+                )
                 return min(similarity_ratio * 2, 1.0)  # Reduce signal strength
 
             return 0.0
@@ -272,18 +300,20 @@ class TextureDetector:
         except Exception:
             return 0.0
 
-    def _generate_warning_message(self, detection_details: Dict[str, float], confidence: float) -> str:
+    def _generate_warning_message(
+        self, detection_details: Dict[str, float], confidence: float
+    ) -> str:
         """Generate helpful warning message based on detection results."""
 
         primary_cause = max(detection_details.items(), key=lambda x: x[1])
         cause_name, cause_score = primary_cause
 
         # Base warning message
-        if cause_name == 'color_variance':
+        if cause_name == "color_variance":
             base_msg = "Detected textured background with high pixel variation"
-        elif cause_name == 'clustered_colors':
+        elif cause_name == "clustered_colors":
             base_msg = "Detected fabric-like background with many similar colors"
-        elif cause_name == 'high_frequency':
+        elif cause_name == "high_frequency":
             base_msg = "Detected patterned background with repeating elements"
         else:
             base_msg = "Detected problematic background texture"
@@ -300,7 +330,7 @@ class TextureDetector:
         suggestions = [
             "Consider pre-processing the image to blur or smooth the background",
             "Try using fewer colors with --max-colors 5-10 to reduce noise",
-            "For fabric textures, consider removing or masking the background"
+            "For fabric textures, consider removing or masking the background",
         ]
 
         suggestion_text = ". ".join(suggestions)

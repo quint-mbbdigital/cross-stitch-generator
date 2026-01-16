@@ -23,10 +23,13 @@ class ColorManager:
         self.config = config
         # Initialize DMC matcher if DMC features are enabled
         self.dmc_matcher = None
-        if (hasattr(config, 'enable_dmc') and config.enable_dmc and
-            not (hasattr(config, 'no_dmc') and config.no_dmc)):
+        if (
+            hasattr(config, "enable_dmc")
+            and config.enable_dmc
+            and not (hasattr(config, "no_dmc") and config.no_dmc)
+        ):
             try:
-                dmc_db_path = getattr(config, 'dmc_database', None)
+                dmc_db_path = getattr(config, "dmc_database", None)
                 self.dmc_matcher = DMCMatcher(dmc_db_path)
                 if not self.dmc_matcher.is_available():
                     self.dmc_matcher = None
@@ -49,8 +52,8 @@ class ColorManager:
         """
         try:
             # Convert image to numpy array
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
+            if image.mode != "RGB":
+                image = image.convert("RGB")
 
             image_array = np.array(image)
             height, width = image_array.shape[:2]
@@ -59,18 +62,22 @@ class ColorManager:
             pixels = image_array.reshape(-1, 3)
 
             # Check if we should use DMC-only mode
-            if (hasattr(self.config, 'dmc_only') and self.config.dmc_only and
-                self.dmc_matcher and self.dmc_matcher.is_available()):
-
+            if (
+                hasattr(self.config, "dmc_only")
+                and self.config.dmc_only
+                and self.dmc_matcher
+                and self.dmc_matcher.is_available()
+            ):
                 # Use only real DMC colors for quantization
-                palette_size = getattr(self.config, 'dmc_palette_size', None)
+                palette_size = getattr(self.config, "dmc_palette_size", None)
                 palette = self.dmc_matcher.create_dmc_only_palette(
-                    max_colors=self.config.max_colors,
-                    most_common_only=palette_size
+                    max_colors=self.config.max_colors, most_common_only=palette_size
                 )
 
                 # Extract RGB values for pixel mapping
-                palette_colors = [(color.r, color.g, color.b) for color in palette.colors]
+                palette_colors = [
+                    (color.r, color.g, color.b) for color in palette.colors
+                ]
 
             else:
                 # Normal quantization process
@@ -82,7 +89,7 @@ class ColorManager:
                 else:
                     raise ColorQuantizationError(
                         f"Unknown quantization method: {self.config.quantization_method}",
-                        method=self.config.quantization_method
+                        method=self.config.quantization_method,
                     )
 
                 # Create ColorPalette object
@@ -93,7 +100,7 @@ class ColorManager:
                 palette = ColorPalette(
                     colors=color_objects,
                     max_colors=self.config.max_colors,
-                    quantization_method=self.config.quantization_method
+                    quantization_method=self.config.quantization_method,
                 )
 
             # Map each pixel to closest palette color
@@ -101,12 +108,21 @@ class ColorManager:
             color_indices = color_indices.reshape(height, width)
 
             # Apply color cleanup (merge minor colors) after quantization but before DMC matching
-            if hasattr(self.config, 'min_color_percent') and self.config.min_color_percent > 0.0:
-                palette, color_indices = self.cleanup_minor_colors(palette, color_indices)
+            if (
+                hasattr(self.config, "min_color_percent")
+                and self.config.min_color_percent > 0.0
+            ):
+                palette, color_indices = self.cleanup_minor_colors(
+                    palette, color_indices
+                )
 
             # Apply DMC matching if enabled (after cleanup)
-            if (self.dmc_matcher and self.dmc_matcher.is_available() and
-                hasattr(self.config, 'enable_dmc') and self.config.enable_dmc):
+            if (
+                self.dmc_matcher
+                and self.dmc_matcher.is_available()
+                and hasattr(self.config, "enable_dmc")
+                and self.config.enable_dmc
+            ):
                 palette = self.dmc_matcher.map_palette_to_dmc(palette)
 
             return palette, color_indices
@@ -118,10 +134,12 @@ class ColorManager:
                 f"Color quantization failed: {e}",
                 method=self.config.quantization_method,
                 max_colors=self.config.max_colors,
-                cause=e
+                cause=e,
             )
 
-    def _median_cut_quantization(self, pixels: np.ndarray) -> List[Tuple[int, int, int]]:
+    def _median_cut_quantization(
+        self, pixels: np.ndarray
+    ) -> List[Tuple[int, int, int]]:
         """
         Perform median cut quantization.
 
@@ -133,7 +151,9 @@ class ColorManager:
         """
         try:
             # Remove duplicate pixels to speed up processing
-            unique_pixels, inverse_indices = np.unique(pixels, axis=0, return_inverse=True)
+            unique_pixels, inverse_indices = np.unique(
+                pixels, axis=0, return_inverse=True
+            )
 
             # Count occurrences of each unique pixel
             pixel_counts = np.bincount(inverse_indices)
@@ -168,9 +188,7 @@ class ColorManager:
 
         except Exception as e:
             raise ColorQuantizationError(
-                f"Median cut quantization failed: {e}",
-                method="median_cut",
-                cause=e
+                f"Median cut quantization failed: {e}", method="median_cut", cause=e
             )
 
     def _kmeans_quantization(self, pixels: np.ndarray) -> List[Tuple[int, int, int]]:
@@ -196,17 +214,15 @@ class ColorManager:
             # Perform K-means clustering
             # Use n_jobs=1 to avoid threading issues on macOS with OpenBLAS
             kmeans = KMeans(
-                n_clusters=n_colors,
-                random_state=42,
-                n_init=10,
-                max_iter=300,
-                n_jobs=1
+                n_clusters=n_colors, random_state=42, n_init=10, max_iter=300, n_jobs=1
             )
 
             # Use a sample of pixels if there are too many
             max_samples = 10000
             if len(pixels) > max_samples:
-                sample_indices = np.random.choice(len(pixels), max_samples, replace=False)
+                sample_indices = np.random.choice(
+                    len(pixels), max_samples, replace=False
+                )
                 sample_pixels = pixels[sample_indices]
             else:
                 sample_pixels = pixels
@@ -226,17 +242,21 @@ class ColorManager:
             # If K-means fails (often due to threading issues), fall back to median cut
             try:
                 import logging
-                logging.warning(f"K-means quantization failed ({e}), falling back to median cut")
+
+                logging.warning(
+                    f"K-means quantization failed ({e}), falling back to median cut"
+                )
                 return self._median_cut_quantization(pixels)
             except Exception as fallback_error:
                 raise ColorQuantizationError(
                     f"K-means quantization failed: {e}, median cut fallback also failed: {fallback_error}",
                     method="kmeans",
-                    cause=e
+                    cause=e,
                 )
 
-    def _map_pixels_to_palette(self, pixels: np.ndarray,
-                               palette_colors: List[Tuple[int, int, int]]) -> np.ndarray:
+    def _map_pixels_to_palette(
+        self, pixels: np.ndarray, palette_colors: List[Tuple[int, int, int]]
+    ) -> np.ndarray:
         """
         Map each pixel to the closest color in the palette.
 
@@ -252,7 +272,9 @@ class ColorManager:
 
         # Calculate squared Euclidean distances between each pixel and each palette color
         # Using broadcasting: (n_pixels, 1, 3) - (1, n_colors, 3) = (n_pixels, n_colors, 3)
-        distances = np.sum((pixels[:, np.newaxis, :] - palette_array[np.newaxis, :, :]) ** 2, axis=2)
+        distances = np.sum(
+            (pixels[:, np.newaxis, :] - palette_array[np.newaxis, :, :]) ** 2, axis=2
+        )
 
         # Find closest palette color for each pixel
         color_indices = np.argmin(distances, axis=1)
@@ -282,12 +304,12 @@ class ColorManager:
         return ColorPalette(
             colors=optimized_colors,
             max_colors=palette.max_colors,
-            quantization_method=palette.quantization_method
+            quantization_method=palette.quantization_method,
         )
 
-    def _ensure_color_distinctness(self, new_color: Color,
-                                   existing_colors: List[Color],
-                                   min_distance: float = 30.0) -> Color:
+    def _ensure_color_distinctness(
+        self, new_color: Color, existing_colors: List[Color], min_distance: float = 30.0
+    ) -> Color:
         """
         Ensure a color is distinct from existing colors.
 
@@ -306,12 +328,15 @@ class ColorManager:
         for existing_color in existing_colors:
             if new_color.distance_to(existing_color) < min_distance:
                 # Adjust color to maintain distance
-                return self._adjust_color_for_distance(new_color, existing_colors, min_distance)
+                return self._adjust_color_for_distance(
+                    new_color, existing_colors, min_distance
+                )
 
         return new_color
 
-    def _adjust_color_for_distance(self, color: Color, existing_colors: List[Color],
-                                   min_distance: float) -> Color:
+    def _adjust_color_for_distance(
+        self, color: Color, existing_colors: List[Color], min_distance: float
+    ) -> Color:
         """
         Adjust color to maintain minimum distance from existing colors.
 
@@ -341,7 +366,9 @@ class ColorManager:
             # If adjustment didn't help enough, return original color
             return color
 
-    def cleanup_minor_colors(self, palette: ColorPalette, color_indices: np.ndarray) -> Tuple[ColorPalette, np.ndarray]:
+    def cleanup_minor_colors(
+        self, palette: ColorPalette, color_indices: np.ndarray
+    ) -> Tuple[ColorPalette, np.ndarray]:
         """
         Remove colors below min_color_percent threshold by merging them into nearest neighbors.
         Only merges colors if they are visually similar (within max_merge_distance).
@@ -400,7 +427,7 @@ class ColorManager:
         colors_actually_merged = []
         for merge_idx in colors_to_merge:
             merge_color = palette.colors[merge_idx]
-            min_distance = float('inf')
+            min_distance = float("inf")
             closest_keep_idx = colors_to_keep[0]  # fallback
 
             # Find the closest color among those being kept
@@ -414,7 +441,10 @@ class ColorManager:
             # Only merge if the color distance is below the threshold
             # Exception: if min_color_percent is 100%, force merge everything regardless of distance
             # This prevents merging visually distinct colors (e.g., blue text into cream background)
-            if min_distance <= self.config.max_merge_distance or self.config.min_color_percent >= 100.0:
+            if (
+                min_distance <= self.config.max_merge_distance
+                or self.config.min_color_percent >= 100.0
+            ):
                 index_mapping[merge_idx] = closest_keep_idx
                 colors_actually_merged.append(merge_idx)
             else:
@@ -444,14 +474,14 @@ class ColorManager:
         cleaned_palette = ColorPalette(
             colors=new_colors,
             max_colors=palette.max_colors,
-            quantization_method=palette.quantization_method
+            quantization_method=palette.quantization_method,
         )
 
         return cleaned_palette, new_indices
 
-    def get_color_statistics(self, image: Image.Image,
-                             palette: ColorPalette,
-                             color_indices: np.ndarray) -> dict:
+    def get_color_statistics(
+        self, image: Image.Image, palette: ColorPalette, color_indices: np.ndarray
+    ) -> dict:
         """
         Get statistics about color usage in the quantized image.
 
@@ -468,19 +498,19 @@ class ColorManager:
         total_pixels = color_indices.size
 
         color_stats = {
-            'total_pixels': total_pixels,
-            'unique_colors_in_palette': len(palette),
-            'colors_actually_used': len(unique_indices),
-            'color_usage': {}
+            "total_pixels": total_pixels,
+            "unique_colors_in_palette": len(palette),
+            "colors_actually_used": len(unique_indices),
+            "color_usage": {},
         }
 
         for idx, count in zip(unique_indices, counts):
             color = palette[idx]
             percentage = (count / total_pixels) * 100
-            color_stats['color_usage'][idx] = {
-                'color': color.hex_code,
-                'count': int(count),
-                'percentage': round(percentage, 2)
+            color_stats["color_usage"][idx] = {
+                "color": color.hex_code,
+                "count": int(count),
+                "percentage": round(percentage, 2),
             }
 
         return color_stats
@@ -505,10 +535,12 @@ class ColorBox:
         if len(self.pixels) == 0:
             return 0
 
-        ranges = np.ptp(self.pixels, axis=0)  # peak-to-peak (max - min) for each channel
+        ranges = np.ptp(
+            self.pixels, axis=0
+        )  # peak-to-peak (max - min) for each channel
         return int(np.prod(ranges))
 
-    def split(self) -> Tuple['ColorBox', 'ColorBox']:
+    def split(self) -> Tuple["ColorBox", "ColorBox"]:
         """
         Split box along the longest dimension.
 

@@ -5,8 +5,11 @@ import numpy as np
 from pathlib import Path
 
 from src.cross_stitch.models import (
-    Color, ColorPalette, GeneratorConfig,
-    CrossStitchPattern, PatternSet
+    Color,
+    ColorPalette,
+    GeneratorConfig,
+    CrossStitchPattern,
+    PatternSet,
 )
 
 
@@ -108,7 +111,7 @@ class TestColor:
 
         # Distance from red to green
         distance = red.distance_to(green)
-        expected = ((255-0)**2 + (0-255)**2 + (0-0)**2) ** 0.5
+        expected = ((255 - 0) ** 2 + (0 - 255) ** 2 + (0 - 0) ** 2) ** 0.5
         assert abs(distance - expected) < 0.001
 
         # Distance to itself should be 0
@@ -234,7 +237,7 @@ class TestGeneratorConfig:
             resolutions=[(25, 25), (200, 200)],
             max_colors=128,
             quantization_method="kmeans",
-            preserve_aspect_ratio=False
+            preserve_aspect_ratio=False,
         )
         assert config.resolutions == [(25, 25), (200, 200)]
         assert config.max_colors == 128
@@ -248,7 +251,9 @@ class TestGeneratorConfig:
 
         # Test invalid resolutions
         config.resolutions = []
-        with pytest.raises(ValueError, match="At least one resolution must be specified"):
+        with pytest.raises(
+            ValueError, match="At least one resolution must be specified"
+        ):
             config.validate()
 
         config.resolutions = [(-1, 50)]
@@ -301,32 +306,48 @@ class TestCrossStitchPattern:
         """Test pattern validation."""
         # Valid pattern
         colors = np.array([[0, 1], [2, 3]])
-        pattern = CrossStitchPattern(
-            width=2, height=2, colors=colors,
-            palette=sample_palette, resolution_name="2x2"
+        _ = CrossStitchPattern(
+            width=2,
+            height=2,
+            colors=colors,
+            palette=sample_palette,
+            resolution_name="2x2",
         )
 
         # Invalid dimensions
         with pytest.raises(ValueError, match="Invalid dimensions"):
             CrossStitchPattern(
-                width=0, height=10, colors=colors,
-                palette=sample_palette, resolution_name="test"
+                width=0,
+                height=10,
+                colors=colors,
+                palette=sample_palette,
+                resolution_name="test",
             )
 
         # Mismatched color array shape
         colors_wrong_shape = np.array([[0, 1, 2]])  # 1x3 instead of 2x2
-        with pytest.raises(ValueError, match="Color array shape.*doesn't match dimensions"):
+        with pytest.raises(
+            ValueError, match="Color array shape.*doesn't match dimensions"
+        ):
             CrossStitchPattern(
-                width=2, height=2, colors=colors_wrong_shape,
-                palette=sample_palette, resolution_name="test"
+                width=2,
+                height=2,
+                colors=colors_wrong_shape,
+                palette=sample_palette,
+                resolution_name="test",
             )
 
         # Invalid color indices
-        colors_invalid = np.array([[99]])  # Index 99 doesn't exist in palette (shape 1x1)
+        colors_invalid = np.array(
+            [[99]]
+        )  # Index 99 doesn't exist in palette (shape 1x1)
         with pytest.raises(ValueError, match="Color indices must be between 0 and"):
             CrossStitchPattern(
-                width=1, height=1, colors=colors_invalid,
-                palette=sample_palette, resolution_name="test"
+                width=1,
+                height=1,
+                colors=colors_invalid,
+                palette=sample_palette,
+                resolution_name="test",
             )
 
     def test_pattern_properties(self, sample_pattern):
@@ -360,11 +381,11 @@ class TestCrossStitchPattern:
     def test_to_dict(self, sample_pattern):
         """Test pattern dictionary conversion."""
         pattern_dict = sample_pattern.to_dict()
-        assert pattern_dict['width'] == 10
-        assert pattern_dict['height'] == 10
-        assert pattern_dict['total_stitches'] == 100
-        assert 'unique_colors_used' in pattern_dict
-        assert 'color_usage' in pattern_dict
+        assert pattern_dict["width"] == 10
+        assert pattern_dict["height"] == 10
+        assert pattern_dict["total_stitches"] == 100
+        assert "unique_colors_used" in pattern_dict
+        assert "color_usage" in pattern_dict
 
 
 class TestPatternSet:
@@ -376,17 +397,21 @@ class TestPatternSet:
         pattern_set = PatternSet(
             patterns=patterns,
             source_image_path=sample_image_rgb,
-            metadata={"test": True}
+            metadata={"test": True},
         )
 
         assert pattern_set.pattern_count == 1
-        assert sample_image_rgb in pattern_set.source_image_path.parents or \
-               pattern_set.source_image_path == sample_image_rgb
+        assert (
+            sample_image_rgb in pattern_set.source_image_path.parents
+            or pattern_set.source_image_path == sample_image_rgb
+        )
 
     def test_pattern_set_validation(self, sample_pattern, sample_image_rgb):
         """Test pattern set validation."""
         # Empty patterns should fail
-        with pytest.raises(ValueError, match="PatternSet must contain at least one pattern"):
+        with pytest.raises(
+            ValueError, match="PatternSet must contain at least one pattern"
+        ):
             PatternSet(patterns={}, source_image_path=sample_image_rgb, metadata={})
 
         # Non-existent source path should fail
@@ -399,9 +424,7 @@ class TestPatternSet:
         """Test getting pattern by name."""
         patterns = {"10x10": sample_pattern}
         pattern_set = PatternSet(
-            patterns=patterns,
-            source_image_path=sample_image_rgb,
-            metadata={}
+            patterns=patterns, source_image_path=sample_image_rgb, metadata={}
         )
 
         retrieved_pattern = pattern_set.get_pattern("10x10")
@@ -415,9 +438,7 @@ class TestPatternSet:
         """Test getting pattern by exact dimensions."""
         patterns = {"10x10": sample_pattern}
         pattern_set = PatternSet(
-            patterns=patterns,
-            source_image_path=sample_image_rgb,
-            metadata={}
+            patterns=patterns, source_image_path=sample_image_rgb, metadata={}
         )
 
         found_pattern = pattern_set.get_pattern_by_size(10, 10)
@@ -430,9 +451,7 @@ class TestPatternSet:
         """Test pattern set properties."""
         patterns = {"10x10": sample_pattern, "test": sample_pattern}
         pattern_set = PatternSet(
-            patterns=patterns,
-            source_image_path=sample_image_rgb,
-            metadata={}
+            patterns=patterns, source_image_path=sample_image_rgb, metadata={}
         )
 
         assert pattern_set.pattern_count == 2
@@ -445,12 +464,12 @@ class TestPatternSet:
         pattern_set = PatternSet(
             patterns=patterns,
             source_image_path=sample_image_rgb,
-            metadata={"generator": "test"}
+            metadata={"generator": "test"},
         )
 
         summary = pattern_set.get_summary()
-        assert 'source_image' in summary
-        assert 'pattern_count' in summary
-        assert summary['pattern_count'] == 1
-        assert 'patterns' in summary
-        assert '10x10' in summary['patterns']
+        assert "source_image" in summary
+        assert "pattern_count" in summary
+        assert summary["pattern_count"] == 1
+        assert "patterns" in summary
+        assert "10x10" in summary["patterns"]

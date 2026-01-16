@@ -1,7 +1,11 @@
 """Utilities for cross-stitch pattern generation."""
 
 from .file_utils import save_file, load_image, validate_output_path, get_image_info
-from .validation import validate_image_file, validate_config, validate_resolution_for_image
+from .validation import (
+    validate_image_file,
+    validate_config,
+    validate_resolution_for_image,
+)
 from .exceptions import (
     CrossStitchError,
     ImageProcessingError,
@@ -10,7 +14,7 @@ from .exceptions import (
     ValidationError,
     FileOperationError,
     ConfigurationError,
-    PatternGenerationError
+    PatternGenerationError,
 )
 
 __all__ = [
@@ -28,5 +32,5 @@ __all__ = [
     "ValidationError",
     "FileOperationError",
     "ConfigurationError",
-    "PatternGenerationError"
+    "PatternGenerationError",
 ]

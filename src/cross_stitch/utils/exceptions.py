@@ -20,8 +20,9 @@ class CrossStitchError(Exception):
 class ValidationError(CrossStitchError):
     """Raised when input validation fails."""
 
-    def __init__(self, message: str, field: Optional[str] = None,
-                 value: Optional[str] = None) -> None:
+    def __init__(
+        self, message: str, field: Optional[str] = None, value: Optional[str] = None
+    ) -> None:
         super().__init__(message)
         self.field = field
         self.value = value
@@ -37,8 +38,13 @@ class ValidationError(CrossStitchError):
 class ImageProcessingError(CrossStitchError):
     """Raised when image processing operations fail."""
 
-    def __init__(self, message: str, image_path: Optional[str] = None,
-                 operation: Optional[str] = None, cause: Optional[Exception] = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        image_path: Optional[str] = None,
+        operation: Optional[str] = None,
+        cause: Optional[Exception] = None,
+    ) -> None:
         super().__init__(message, cause)
         self.image_path = image_path
         self.operation = operation
@@ -60,8 +66,13 @@ class ImageProcessingError(CrossStitchError):
 class ColorQuantizationError(CrossStitchError):
     """Raised when color quantization fails."""
 
-    def __init__(self, message: str, method: Optional[str] = None,
-                 max_colors: Optional[int] = None, cause: Optional[Exception] = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        method: Optional[str] = None,
+        max_colors: Optional[int] = None,
+        cause: Optional[Exception] = None,
+    ) -> None:
         super().__init__(message, cause)
         self.method = method
         self.max_colors = max_colors
@@ -83,8 +94,13 @@ class ColorQuantizationError(CrossStitchError):
 class ExcelGenerationError(CrossStitchError):
     """Raised when Excel file generation fails."""
 
-    def __init__(self, message: str, output_path: Optional[str] = None,
-                 sheet_name: Optional[str] = None, cause: Optional[Exception] = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        output_path: Optional[str] = None,
+        sheet_name: Optional[str] = None,
+        cause: Optional[Exception] = None,
+    ) -> None:
         super().__init__(message, cause)
         self.output_path = output_path
         self.sheet_name = sheet_name
@@ -106,8 +122,13 @@ class ExcelGenerationError(CrossStitchError):
 class FileOperationError(CrossStitchError):
     """Raised when file operations fail."""
 
-    def __init__(self, message: str, file_path: Optional[str] = None,
-                 operation: Optional[str] = None, cause: Optional[Exception] = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        file_path: Optional[str] = None,
+        operation: Optional[str] = None,
+        cause: Optional[Exception] = None,
+    ) -> None:
         super().__init__(message, cause)
         self.file_path = file_path
         self.operation = operation
@@ -142,8 +163,13 @@ class ConfigurationError(CrossStitchError):
 class PatternGenerationError(CrossStitchError):
     """Raised when pattern generation fails."""
 
-    def __init__(self, message: str, resolution: Optional[str] = None,
-                 stage: Optional[str] = None, cause: Optional[Exception] = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        resolution: Optional[str] = None,
+        stage: Optional[str] = None,
+        cause: Optional[Exception] = None,
+    ) -> None:
         super().__init__(message, cause)
         self.resolution = resolution
         self.stage = stage

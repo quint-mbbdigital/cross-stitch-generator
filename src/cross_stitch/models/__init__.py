@@ -9,5 +9,5 @@ __all__ = [
     "PatternSet",
     "Color",
     "ColorPalette",
-    "GeneratorConfig"
+    "GeneratorConfig",
 ]

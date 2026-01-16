@@ -69,13 +69,13 @@ class CrossStitchPattern:
     def to_dict(self) -> Dict[str, Any]:
         """Convert pattern to dictionary for serialization."""
         return {
-            'width': self.width,
-            'height': self.height,
-            'resolution_name': self.resolution_name,
-            'total_stitches': self.total_stitches,
-            'unique_colors_used': self.unique_colors_used,
-            'palette_size': len(self.palette),
-            'color_usage': self.get_color_usage_stats()
+            "width": self.width,
+            "height": self.height,
+            "resolution_name": self.resolution_name,
+            "total_stitches": self.total_stitches,
+            "unique_colors_used": self.unique_colors_used,
+            "palette_size": len(self.palette),
+            "color_usage": self.get_color_usage_stats(),
         }
 
 
@@ -93,16 +93,22 @@ class PatternSet:
             raise ValueError("PatternSet must contain at least one pattern")
 
         if not self.source_image_path.exists():
-            raise ValueError(f"Source image path does not exist: {self.source_image_path}")
+            raise ValueError(
+                f"Source image path does not exist: {self.source_image_path}"
+            )
 
     def get_pattern(self, resolution_name: str) -> CrossStitchPattern:
         """Get pattern by resolution name."""
         if resolution_name not in self.patterns:
             available = list(self.patterns.keys())
-            raise KeyError(f"Pattern '{resolution_name}' not found. Available: {available}")
+            raise KeyError(
+                f"Pattern '{resolution_name}' not found. Available: {available}"
+            )
         return self.patterns[resolution_name]
 
-    def get_pattern_by_size(self, width: int, height: int) -> Optional[CrossStitchPattern]:
+    def get_pattern_by_size(
+        self, width: int, height: int
+    ) -> Optional[CrossStitchPattern]:
         """Get pattern by exact dimensions."""
         for pattern in self.patterns.values():
             if pattern.width == width and pattern.height == height:
@@ -126,15 +132,15 @@ class PatternSet:
     def get_summary(self) -> Dict[str, Any]:
         """Get summary information about all patterns."""
         summary = {
-            'source_image': str(self.source_image_path),
-            'pattern_count': self.pattern_count,
-            'resolutions': self.resolution_names,
-            'metadata': self.metadata,
-            'patterns': {}
+            "source_image": str(self.source_image_path),
+            "pattern_count": self.pattern_count,
+            "resolutions": self.resolution_names,
+            "metadata": self.metadata,
+            "patterns": {},
         }
 
         for name, pattern in self.patterns.items():
-            summary['patterns'][name] = pattern.to_dict()
+            summary["patterns"][name] = pattern.to_dict()
 
         return summary
 

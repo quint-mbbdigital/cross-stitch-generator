@@ -3,7 +3,6 @@
 import pytest
 import sys
 import numpy as np
-from pathlib import Path
 from unittest.mock import patch
 from argparse import Namespace
 from PIL import Image
@@ -21,13 +20,19 @@ class TestMinColorPercentCLIFlags:
         parser = create_parser()
 
         # Should accept valid float values
-        args = parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--min-color-percent', '2.5'])
+        args = parser.parse_args(
+            ["generate", "input.jpg", "output.xlsx", "--min-color-percent", "2.5"]
+        )
         assert args.min_color_percent == 2.5
 
-        args = parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--min-color-percent', '0.0'])
+        args = parser.parse_args(
+            ["generate", "input.jpg", "output.xlsx", "--min-color-percent", "0.0"]
+        )
         assert args.min_color_percent == 0.0
 
-        args = parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--min-color-percent', '100.0'])
+        args = parser.parse_args(
+            ["generate", "input.jpg", "output.xlsx", "--min-color-percent", "100.0"]
+        )
         assert args.min_color_percent == 100.0
 
     def test_min_color_percent_flag_rejects_invalid_values(self):
@@ -36,17 +41,21 @@ class TestMinColorPercentCLIFlags:
 
         # Should reject negative values
         with pytest.raises(SystemExit):
-            parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--min-color-percent', '-1.0'])
+            parser.parse_args(
+                ["generate", "input.jpg", "output.xlsx", "--min-color-percent", "-1.0"]
+            )
 
         # Should reject values > 100
         with pytest.raises(SystemExit):
-            parser.parse_args(['generate', 'input.jpg', 'output.xlsx', '--min-color-percent', '101.0'])
+            parser.parse_args(
+                ["generate", "input.jpg", "output.xlsx", "--min-color-percent", "101.0"]
+            )
 
     def test_min_color_percent_defaults_to_zero_when_not_provided(self):
         """Test that min-color-percent defaults to 0 when flag not provided."""
         parser = create_parser()
 
-        args = parser.parse_args(['generate', 'input.jpg', 'output.xlsx'])
+        args = parser.parse_args(["generate", "input.jpg", "output.xlsx"])
         # Should have default value of 0 (no merging)
         assert args.min_color_percent == 0.0
 
@@ -54,7 +63,7 @@ class TestMinColorPercentCLIFlags:
         """Test that --min-color-percent is available in info command."""
         parser = create_parser()
 
-        args = parser.parse_args(['info', 'input.jpg', '--min-color-percent', '5.0'])
+        args = parser.parse_args(["info", "input.jpg", "--min-color-percent", "5.0"])
         assert args.min_color_percent == 5.0
 
 
@@ -63,14 +72,12 @@ class TestMinColorPercentConfiguration:
 
     def test_min_color_percent_sets_config_option(self):
         """Test that --min-color-percent properly sets configuration."""
-        args = Namespace(
-            min_color_percent=3.5
-        )
+        args = Namespace(min_color_percent=3.5)
 
         config = create_config_from_args(args)
 
         # Should have min_color_percent set
-        assert hasattr(config, 'min_color_percent')
+        assert hasattr(config, "min_color_percent")
         assert config.min_color_percent == 3.5
 
     def test_min_color_percent_default_in_generator_config(self):
@@ -78,7 +85,7 @@ class TestMinColorPercentConfiguration:
         config = GeneratorConfig()
 
         # Should have min_color_percent attribute with default value
-        assert hasattr(config, 'min_color_percent')
+        assert hasattr(config, "min_color_percent")
         assert config.min_color_percent == 0.0
 
     def test_config_validation_accepts_valid_min_color_percent(self):
@@ -95,11 +102,15 @@ class TestMinColorPercentConfiguration:
     def test_config_validation_rejects_invalid_min_color_percent(self):
         """Test that config validation rejects invalid min-color-percent values."""
         config = GeneratorConfig(min_color_percent=-1.0)
-        with pytest.raises(ValueError, match="min_color_percent must be between 0 and 100"):
+        with pytest.raises(
+            ValueError, match="min_color_percent must be between 0 and 100"
+        ):
             config.validate()
 
         config = GeneratorConfig(min_color_percent=101.0)
-        with pytest.raises(ValueError, match="min_color_percent must be between 0 and 100"):
+        with pytest.raises(
+            ValueError, match="min_color_percent must be between 0 and 100"
+        ):
             config.validate()
 
 
@@ -120,7 +131,7 @@ class TestMinColorPercentColorMerging:
         # Add pink (2% = 200 pixels) - top-left 20x10 area
         image_array[:10, :20] = [255, 192, 203]  # Pink
 
-        return Image.fromarray(image_array, mode='RGB')
+        return Image.fromarray(image_array, mode="RGB")
 
     def test_colors_below_threshold_get_merged(self, tmp_path):
         """Test that colors below threshold (2% pink) get merged into nearest neighbor (red)."""
@@ -131,11 +142,13 @@ class TestMinColorPercentColorMerging:
         config = GeneratorConfig(
             resolutions=[(20, 20)],
             max_colors=10,
-            min_color_percent=3.0  # Pink (2%) should be merged, red (5%) and blue (93%) preserved
+            min_color_percent=3.0,  # Pink (2%) should be merged, red (5%) and blue (93%) preserved
         )
 
         generator = PatternGenerator(config)
-        pattern_set = generator.generate_patterns(test_image_path, tmp_path / "merged_test.xlsx")
+        pattern_set = generator.generate_patterns(
+            test_image_path, tmp_path / "merged_test.xlsx"
+        )
 
         pattern = pattern_set.get_pattern("20x20")
         # Should have fewer colors after merging, but only if they're visually similar
@@ -152,11 +165,13 @@ class TestMinColorPercentColorMerging:
         config = GeneratorConfig(
             resolutions=[(20, 20)],
             max_colors=10,
-            min_color_percent=1.0  # All colors (2%, 5%, 93%) should be preserved
+            min_color_percent=1.0,  # All colors (2%, 5%, 93%) should be preserved
         )
 
         generator = PatternGenerator(config)
-        pattern_set = generator.generate_patterns(test_image_path, tmp_path / "preserved_test.xlsx")
+        pattern_set = generator.generate_patterns(
+            test_image_path, tmp_path / "preserved_test.xlsx"
+        )
 
         pattern = pattern_set.get_pattern("20x20")
         # Should have more colors when threshold is low (less aggressive merging)
@@ -172,11 +187,13 @@ class TestMinColorPercentColorMerging:
         config = GeneratorConfig(
             resolutions=[(20, 20)],
             max_colors=10,
-            min_color_percent=0.0  # No merging
+            min_color_percent=0.0,  # No merging
         )
 
         generator = PatternGenerator(config)
-        pattern_set = generator.generate_patterns(test_image_path, tmp_path / "zero_test.xlsx")
+        pattern_set = generator.generate_patterns(
+            test_image_path, tmp_path / "zero_test.xlsx"
+        )
 
         pattern = pattern_set.get_pattern("20x20")
         # Should preserve all colors (no merging with 0% threshold)
@@ -193,11 +210,13 @@ class TestMinColorPercentColorMerging:
         config = GeneratorConfig(
             resolutions=[(20, 20)],
             max_colors=10,
-            min_color_percent=100.0  # Merge everything
+            min_color_percent=100.0,  # Merge everything
         )
 
         generator = PatternGenerator(config)
-        pattern_set = generator.generate_patterns(test_image_path, tmp_path / "hundred_test.xlsx")
+        pattern_set = generator.generate_patterns(
+            test_image_path, tmp_path / "hundred_test.xlsx"
+        )
 
         pattern = pattern_set.get_pattern("20x20")
         # Should have only 1 color after merging everything
@@ -208,30 +227,34 @@ class TestMinColorPercentColorMerging:
         # Create image with main color + small noise pixels
         image_array = np.zeros((50, 50, 3), dtype=np.uint8)
         image_array[:, :] = [100, 100, 100]  # Gray background (96%)
-        image_array[0, 0] = [255, 0, 0]      # Single red pixel (0.04%)
-        image_array[0, 1] = [0, 255, 0]      # Single green pixel (0.04%)
+        image_array[0, 0] = [255, 0, 0]  # Single red pixel (0.04%)
+        image_array[0, 1] = [0, 255, 0]  # Single green pixel (0.04%)
         image_array[1, 0] = [200, 200, 200]  # Light gray (0.04%)
 
         # Add some blue pixels (4%)
-        image_array[:2, 45:] = [0, 0, 255]   # Blue section
+        image_array[:2, 45:] = [0, 0, 255]  # Blue section
 
-        test_image = Image.fromarray(image_array, mode='RGB')
+        test_image = Image.fromarray(image_array, mode="RGB")
         test_image_path = tmp_path / "noise_test.png"
         test_image.save(test_image_path)
 
         config = GeneratorConfig(
             resolutions=[(15, 15)],
             max_colors=20,
-            min_color_percent=1.0  # Should merge noise colors (< 1%) but keep blue (4%)
+            min_color_percent=1.0,  # Should merge noise colors (< 1%) but keep blue (4%)
         )
 
         generator = PatternGenerator(config)
-        pattern_set = generator.generate_patterns(test_image_path, tmp_path / "noise_merged.xlsx")
+        pattern_set = generator.generate_patterns(
+            test_image_path, tmp_path / "noise_merged.xlsx"
+        )
 
         pattern = pattern_set.get_pattern("15x15")
         # Should have fewer colors due to noise merging, but preserve visually distinct ones
         # With distance protection, only truly similar colors get merged
-        assert pattern.unique_colors_used <= 5  # Gray, blue, and some preserved distinct colors
+        assert (
+            pattern.unique_colors_used <= 5
+        )  # Gray, blue, and some preserved distinct colors
 
 
 class TestMinColorPercentIntegration:
@@ -242,15 +265,17 @@ class TestMinColorPercentIntegration:
         output_file = tmp_path / "min_color_test.xlsx"
 
         test_argv = [
-            'cross_stitch_generator.py',
-            'generate',
+            "cross_stitch_generator.py",
+            "generate",
             str(tiny_image),
             str(output_file),
-            '--min-color-percent', '2.0',
-            '--resolutions', '10x10'
+            "--min-color-percent",
+            "2.0",
+            "--resolutions",
+            "10x10",
         ]
 
-        with patch.object(sys, 'argv', test_argv):
+        with patch.object(sys, "argv", test_argv):
             exit_code = main()
 
             # Should complete successfully
@@ -262,16 +287,19 @@ class TestMinColorPercentIntegration:
         output_file = tmp_path / "combined_test.xlsx"
 
         test_argv = [
-            'cross_stitch_generator.py',
-            'generate',
+            "cross_stitch_generator.py",
+            "generate",
             str(tiny_image),
             str(output_file),
-            '--edge-mode', 'hard',
-            '--min-color-percent', '5.0',
-            '--resolutions', '10x10'
+            "--edge-mode",
+            "hard",
+            "--min-color-percent",
+            "5.0",
+            "--resolutions",
+            "10x10",
         ]
 
-        with patch.object(sys, 'argv', test_argv):
+        with patch.object(sys, "argv", test_argv):
             exit_code = main()
 
             # Should complete successfully
@@ -281,13 +309,14 @@ class TestMinColorPercentIntegration:
     def test_info_command_with_min_color_percent(self, tiny_image):
         """Test that info command works with min-color-percent flag."""
         test_argv = [
-            'cross_stitch_generator.py',
-            'info',
+            "cross_stitch_generator.py",
+            "info",
             str(tiny_image),
-            '--min-color-percent', '3.0'
+            "--min-color-percent",
+            "3.0",
         ]
 
-        with patch.object(sys, 'argv', test_argv):
+        with patch.object(sys, "argv", test_argv):
             exit_code = main()
 
             # Should complete successfully
@@ -300,23 +329,24 @@ class TestMinColorPercentErrorHandling:
     def test_invalid_min_color_percent_cli_error(self):
         """Test that invalid --min-color-percent value produces clear error."""
         test_argv = [
-            'cross_stitch_generator.py',
-            'generate',
-            'input.jpg',
-            'output.xlsx',
-            '--min-color-percent', '-5.0'
+            "cross_stitch_generator.py",
+            "generate",
+            "input.jpg",
+            "output.xlsx",
+            "--min-color-percent",
+            "-5.0",
         ]
 
-        with patch.object(sys, 'argv', test_argv):
+        with patch.object(sys, "argv", test_argv):
             # Should exit with error for negative value
             with pytest.raises(SystemExit):
                 main()
 
     def test_min_color_percent_help_shows_options(self, capsys):
         """Test that help output shows min-color-percent options."""
-        test_argv = ['cross_stitch_generator.py', 'generate', '--help']
+        test_argv = ["cross_stitch_generator.py", "generate", "--help"]
 
-        with patch.object(sys, 'argv', test_argv):
+        with patch.object(sys, "argv", test_argv):
             with pytest.raises(SystemExit):  # --help causes SystemExit
                 main()
 
@@ -324,8 +354,8 @@ class TestMinColorPercentErrorHandling:
         help_output = captured.out
 
         # Should contain min-color-percent in help
-        assert '--min-color-percent' in help_output
-        assert 'remove noise colors below this threshold' in help_output.lower()
+        assert "--min-color-percent" in help_output
+        assert "remove noise colors below this threshold" in help_output.lower()
 
 
 class TestMinColorPercentVisualDistinctness:
@@ -348,7 +378,7 @@ class TestMinColorPercentVisualDistinctness:
         # Add black text (5% = 500 pixels) - right side vertical strip
         image_array[:, 95:] = [0, 0, 0]  # Pure black
 
-        return Image.fromarray(image_array, mode='RGB')
+        return Image.fromarray(image_array, mode="RGB")
 
     def test_visually_distinct_colors_not_merged_despite_low_percentage(self, tmp_path):
         """Test that visually distinct colors are preserved even when below percentage threshold.
@@ -370,11 +400,13 @@ class TestMinColorPercentVisualDistinctness:
         config = GeneratorConfig(
             resolutions=[(20, 20)],
             max_colors=10,
-            min_color_percent=10.0  # Blue (5%) and black (5%) are below threshold
+            min_color_percent=10.0,  # Blue (5%) and black (5%) are below threshold
         )
 
         generator = PatternGenerator(config)
-        pattern_set = generator.generate_patterns(test_image_path, tmp_path / "distinct_test.xlsx")
+        pattern_set = generator.generate_patterns(
+            test_image_path, tmp_path / "distinct_test.xlsx"
+        )
 
         pattern = pattern_set.get_pattern("20x20")
 
@@ -387,7 +419,9 @@ class TestMinColorPercentVisualDistinctness:
         )
 
         # Verify the colors are actually distinct by checking color palette
-        palette_colors = [(color.r, color.g, color.b) for color in pattern.palette.colors]
+        palette_colors = [
+            (color.r, color.g, color.b) for color in pattern.palette.colors
+        ]
 
         # Should contain cream-like color
         has_cream = any(r > 240 and g > 240 and b > 200 for r, g, b in palette_colors)

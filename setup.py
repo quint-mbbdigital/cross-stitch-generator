@@ -5,7 +5,9 @@ from pathlib import Path
 
 # Read README for long description
 readme_path = Path(__file__).parent / "README.md"
-long_description = readme_path.read_text(encoding="utf-8") if readme_path.exists() else ""
+long_description = (
+    readme_path.read_text(encoding="utf-8") if readme_path.exists() else ""
+)
 
 # Read requirements from requirements.txt
 requirements_path = Path(__file__).parent / "requirements.txt"
@@ -16,9 +18,9 @@ if requirements_path.exists():
         for line in f:
             line = line.strip()
             # Skip comments and empty lines
-            if line and not line.startswith('#'):
+            if line and not line.startswith("#"):
                 # Extract just the package name and version
-                package = line.split('#')[0].strip()
+                package = line.split("#")[0].strip()
                 if package:
                     requirements.append(package)
 

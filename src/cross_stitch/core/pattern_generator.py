@@ -6,9 +6,15 @@ import logging
 
 from ..models import GeneratorConfig, PatternSet, CrossStitchPattern
 from ..utils import (
-    validate_config, validate_image_file, validate_resolution_for_image,
-    PatternGenerationError, ImageProcessingError, ColorQuantizationError,
-    ExcelGenerationError
+    validate_config,
+    validate_image_file,
+    validate_resolution_for_image,
+    PatternGenerationError,
+    ImageProcessingError,
+    ColorQuantizationError,
+    ExcelGenerationError,
+    get_image_info,
+    load_image,
 )
 from .image_processor import ImageProcessor
 from .color_manager import ColorManager
@@ -53,8 +59,9 @@ class PatternGenerator:
         """
         self.progress_callback = callback
 
-    def generate_patterns(self, image_path: Union[str, Path],
-                          output_path: Union[str, Path]) -> PatternSet:
+    def generate_patterns(
+        self, image_path: Union[str, Path], output_path: Union[str, Path]
+    ) -> PatternSet:
         """
         Generate complete cross-stitch pattern set from image.
 
@@ -91,7 +98,7 @@ class PatternGenerator:
             pattern_set = PatternSet(
                 patterns=patterns,
                 source_image_path=image_path,
-                metadata=self._generate_metadata(processed_image)
+                metadata=self._generate_metadata(processed_image),
             )
 
             # Generate Excel file
@@ -106,21 +113,16 @@ class PatternGenerator:
             error_msg = f"Pattern generation failed: {e}"
             logger.error(error_msg, exc_info=True)
 
-            if isinstance(e, (ImageProcessingError, ColorQuantizationError, ExcelGenerationError)):
-                raise PatternGenerationError(
-                    error_msg,
-                    stage="generation",
-                    cause=e
-                )
+            if isinstance(
+                e, (ImageProcessingError, ColorQuantizationError, ExcelGenerationError)
+            ):
+                raise PatternGenerationError(error_msg, stage="generation", cause=e)
             else:
-                raise PatternGenerationError(
-                    error_msg,
-                    stage="unknown",
-                    cause=e
-                )
+                raise PatternGenerationError(error_msg, stage="unknown", cause=e)
 
-    def generate_single_pattern(self, image_path: Union[str, Path],
-                                resolution: tuple[int, int]) -> CrossStitchPattern:
+    def generate_single_pattern(
+        self, image_path: Union[str, Path], resolution: tuple[int, int]
+    ) -> CrossStitchPattern:
         """
         Generate a single cross-stitch pattern at specified resolution.
 
@@ -162,7 +164,7 @@ class PatternGenerator:
                 height=resolution[1],
                 colors=color_indices,
                 palette=palette,
-                resolution_name=resolution_name
+                resolution_name=resolution_name,
             )
 
             self._report_progress("Pattern generation complete", 1.0)
@@ -174,7 +176,7 @@ class PatternGenerator:
                 f"Single pattern generation failed: {e}",
                 resolution=f"{resolution[0]}x{resolution[1]}",
                 stage="single_generation",
-                cause=e
+                cause=e,
             )
 
     def _validate_inputs(self, image_path: Path) -> None:
@@ -189,9 +191,7 @@ class PatternGenerator:
 
         except Exception as e:
             raise PatternGenerationError(
-                f"Input validation failed: {e}",
-                stage="validation",
-                cause=e
+                f"Input validation failed: {e}", stage="validation", cause=e
             )
 
     def _load_and_process_image(self, image_path: Path):
@@ -201,18 +201,20 @@ class PatternGenerator:
 
         except ImageProcessingError as e:
             raise PatternGenerationError(
-                f"Image processing failed: {e}",
-                stage="image_processing",
-                cause=e
+                f"Image processing failed: {e}", stage="image_processing", cause=e
             )
 
-    def _generate_all_patterns(self, image, image_path: str) -> Dict[str, CrossStitchPattern]:
+    def _generate_all_patterns(
+        self, image, image_path: str
+    ) -> Dict[str, CrossStitchPattern]:
         """Generate patterns for all configured resolutions."""
         patterns = {}
 
         try:
             # Resize image to all target resolutions
-            resized_images = self.image_processor.resize_to_resolutions(image, image_path)
+            resized_images = self.image_processor.resize_to_resolutions(
+                image, image_path
+            )
 
             total_resolutions = len(resized_images)
             for i, (resolution, resized_image) in enumerate(resized_images):
@@ -224,7 +226,9 @@ class PatternGenerator:
                     self._report_progress(f"Processing {resolution_name}...", progress)
 
                     # Quantize colors for this resolution
-                    palette, color_indices = self.color_manager.quantize_image(resized_image)
+                    palette, color_indices = self.color_manager.quantize_image(
+                        resized_image
+                    )
 
                     # Create pattern object
                     pattern = CrossStitchPattern(
@@ -232,7 +236,7 @@ class PatternGenerator:
                         height=resolution[1],
                         colors=color_indices,
                         palette=palette,
-                        resolution_name=resolution_name
+                        resolution_name=resolution_name,
                     )
 
                     patterns[resolution_name] = pattern
@@ -242,7 +246,7 @@ class PatternGenerator:
                         f"Failed to generate pattern for {resolution_name}: {e}",
                         resolution=resolution_name,
                         stage="pattern_creation",
-                        cause=e
+                        cause=e,
                     )
 
             return patterns
@@ -251,37 +255,35 @@ class PatternGenerator:
             if isinstance(e, PatternGenerationError):
                 raise
             raise PatternGenerationError(
-                f"Pattern generation failed: {e}",
-                stage="pattern_generation",
-                cause=e
+                f"Pattern generation failed: {e}", stage="pattern_generation", cause=e
             )
 
-    def _generate_excel_output(self, pattern_set: PatternSet, output_path: Path) -> None:
+    def _generate_excel_output(
+        self, pattern_set: PatternSet, output_path: Path
+    ) -> None:
         """Generate Excel file from pattern set."""
         try:
             self.excel_generator.generate_excel_file(pattern_set, output_path)
 
         except ExcelGenerationError as e:
             raise PatternGenerationError(
-                f"Excel generation failed: {e}",
-                stage="excel_generation",
-                cause=e
+                f"Excel generation failed: {e}", stage="excel_generation", cause=e
             )
 
     def _generate_metadata(self, processed_image) -> Dict[str, Any]:
         """Generate metadata about the processing."""
         return {
-            'config': {
-                'resolutions': self.config.resolutions,
-                'max_colors': self.config.max_colors,
-                'quantization_method': self.config.quantization_method,
-                'preserve_aspect_ratio': self.config.preserve_aspect_ratio,
-                'handle_transparency': self.config.handle_transparency
+            "config": {
+                "resolutions": self.config.resolutions,
+                "max_colors": self.config.max_colors,
+                "quantization_method": self.config.quantization_method,
+                "preserve_aspect_ratio": self.config.preserve_aspect_ratio,
+                "handle_transparency": self.config.handle_transparency,
             },
-            'processing_info': {
-                'original_size': (processed_image.width, processed_image.height),
-                'original_mode': processed_image.mode
-            }
+            "processing_info": {
+                "original_size": (processed_image.width, processed_image.height),
+                "original_mode": processed_image.mode,
+            },
         }
 
     def _report_progress(self, message: str, progress: float) -> None:
@@ -306,7 +308,6 @@ class PatternGenerator:
             image_path = Path(image_path)
 
             # Load image info without full processing
-            from ..utils import get_image_info
             image_info = get_image_info(image_path)
 
             # Calculate target sizes for each resolution
@@ -314,9 +315,9 @@ class PatternGenerator:
             for resolution in self.config.resolutions:
                 resolution_name = self.config.get_resolution_name(*resolution)
                 target_info[resolution_name] = {
-                    'target_size': resolution,
-                    'scale_factor_x': resolution[0] / image_info['width'],
-                    'scale_factor_y': resolution[1] / image_info['height']
+                    "target_size": resolution,
+                    "scale_factor_x": resolution[0] / image_info["width"],
+                    "scale_factor_y": resolution[1] / image_info["height"],
                 }
 
             # Add texture analysis if enabled
@@ -324,41 +325,41 @@ class PatternGenerator:
             if self.config.check_for_texture:
                 texture_result = self.analyze_image_texture(image_path)
                 texture_info = {
-                    'enabled': True,
-                    'has_problematic_texture': texture_result.has_problematic_texture,
-                    'warning_message': texture_result.warning_message,
-                    'confidence_score': texture_result.confidence_score
+                    "enabled": True,
+                    "has_problematic_texture": texture_result.has_problematic_texture,
+                    "warning_message": texture_result.warning_message,
+                    "confidence_score": texture_result.confidence_score,
                 }
             else:
-                texture_info = {'enabled': False}
+                texture_info = {"enabled": False}
 
             return {
-                'source_image': {
-                    'path': str(image_path),
-                    'size': (image_info['width'], image_info['height']),
-                    'mode': image_info['mode'],
-                    'format': image_info['format'],
-                    'file_size': image_info['file_size'],
-                    'has_transparency': image_info['has_transparency']
+                "source_image": {
+                    "path": str(image_path),
+                    "size": (image_info["width"], image_info["height"]),
+                    "mode": image_info["mode"],
+                    "format": image_info["format"],
+                    "file_size": image_info["file_size"],
+                    "has_transparency": image_info["has_transparency"],
                 },
-                'target_resolutions': target_info,
-                'config': {
-                    'max_colors': self.config.max_colors,
-                    'quantization_method': self.config.quantization_method,
-                    'transparency_handling': self.config.handle_transparency,
-                    'preserve_aspect_ratio': self.config.preserve_aspect_ratio
+                "target_resolutions": target_info,
+                "config": {
+                    "max_colors": self.config.max_colors,
+                    "quantization_method": self.config.quantization_method,
+                    "transparency_handling": self.config.handle_transparency,
+                    "preserve_aspect_ratio": self.config.preserve_aspect_ratio,
                 },
-                'texture_analysis': texture_info
+                "texture_analysis": texture_info,
             }
 
         except Exception as e:
             raise PatternGenerationError(
-                f"Failed to get processing info: {e}",
-                stage="info_gathering",
-                cause=e
+                f"Failed to get processing info: {e}", stage="info_gathering", cause=e
             )
 
-    def estimate_processing_time(self, image_path: Union[str, Path]) -> Dict[str, float]:
+    def estimate_processing_time(
+        self, image_path: Union[str, Path]
+    ) -> Dict[str, float]:
         """
         Estimate processing time for the image (rough estimates).
 
@@ -369,7 +370,6 @@ class PatternGenerator:
             Dictionary with time estimates in seconds
         """
         try:
-            from ..utils import get_image_info
             image_info = get_image_info(image_path)
 
             # Base estimates (very rough)
@@ -377,32 +377,35 @@ class PatternGenerator:
             base_resize_time = 0.1 * len(self.config.resolutions)
 
             # Scale based on image size (pixels)
-            total_pixels = image_info['width'] * image_info['height']
+            total_pixels = image_info["width"] * image_info["height"]
             pixel_factor = total_pixels / (1024 * 768)  # Relative to ~800K pixels
 
             # Scale based on number of target colors
             color_factor = self.config.max_colors / 64
 
             estimates = {
-                'image_loading': base_load_time * pixel_factor,
-                'image_resizing': base_resize_time * pixel_factor,
-                'color_quantization': 1.0 * pixel_factor * color_factor * len(self.config.resolutions),
-                'excel_generation': 0.5 * len(self.config.resolutions),
-                'total': 0
+                "image_loading": base_load_time * pixel_factor,
+                "image_resizing": base_resize_time * pixel_factor,
+                "color_quantization": 1.0
+                * pixel_factor
+                * color_factor
+                * len(self.config.resolutions),
+                "excel_generation": 0.5 * len(self.config.resolutions),
+                "total": 0,
             }
 
-            estimates['total'] = sum(estimates.values())
+            estimates["total"] = sum(estimates.values())
 
             return estimates
 
         except Exception:
             # Return default estimates if calculation fails
             return {
-                'image_loading': 1.0,
-                'image_resizing': 1.0,
-                'color_quantization': 5.0,
-                'excel_generation': 2.0,
-                'total': 9.0
+                "image_loading": 1.0,
+                "image_resizing": 1.0,
+                "color_quantization": 5.0,
+                "excel_generation": 2.0,
+                "total": 9.0,
             }
 
     def analyze_image_texture(self, image_path: Union[str, Path]) -> TextureWarning:
@@ -416,8 +419,6 @@ class PatternGenerator:
             TextureWarning object with analysis results
         """
         try:
-            from ..utils import load_image
-
             # Load the image
             image = load_image(image_path)
 
@@ -434,5 +435,5 @@ class PatternGenerator:
                 has_problematic_texture=False,
                 warning_message="",
                 confidence_score=0.0,
-                detection_details={'error': str(e)}
+                detection_details={"error": str(e)},
             )

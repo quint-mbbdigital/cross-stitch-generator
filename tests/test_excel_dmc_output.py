@@ -1,10 +1,6 @@
 """Tests for DMC-enhanced Excel output functionality."""
 
-import pytest
-from pathlib import Path
 from openpyxl import load_workbook
-from openpyxl.styles import Font
-import tempfile
 
 from src.cross_stitch.core.pattern_generator import PatternGenerator
 from src.cross_stitch.models.config import GeneratorConfig
@@ -18,16 +14,14 @@ class TestDMCExcelOutput:
     def test_pattern_cells_display_dmc_codes_when_available(self, tiny_image, temp_dir):
         """Test that pattern cells show DMC codes as text when Color has thread info."""
         config = GeneratorConfig(
-            resolutions=[(6, 6)],
-            max_colors=3,
-            include_color_legend=True
+            resolutions=[(6, 6)], max_colors=3, include_color_legend=True
         )
 
         generator = PatternGenerator(config)
         output_path = temp_dir / "dmc_pattern_test.xlsx"
 
         # Generate pattern
-        pattern_set = generator.generate_patterns(tiny_image, output_path)
+        _ = generator.generate_patterns(tiny_image, output_path)
 
         # Load the Excel file with openpyxl to inspect contents
         workbook = load_workbook(output_path)
@@ -48,18 +42,20 @@ class TestDMCExcelOutput:
 
         workbook.close()
 
-    def test_dmc_text_uses_contrasting_colors_for_readability(self, tiny_image, temp_dir):
+    def test_dmc_text_uses_contrasting_colors_for_readability(
+        self, tiny_image, temp_dir
+    ):
         """Test that DMC code text uses contrasting colors against cell backgrounds."""
         config = GeneratorConfig(
             resolutions=[(8, 8)],  # Minimum 5x5 required
             max_colors=2,  # Force black and white colors for testing
-            include_color_legend=True
+            include_color_legend=True,
         )
 
         generator = PatternGenerator(config)
         output_path = temp_dir / "contrast_test.xlsx"
 
-        pattern_set = generator.generate_patterns(tiny_image, output_path)
+        _ = generator.generate_patterns(tiny_image, output_path)
 
         workbook = load_workbook(output_path)
         pattern_sheet = workbook["8x8"]
@@ -73,24 +69,24 @@ class TestDMCExcelOutput:
                     assert font_color is not None  # Should have explicit font color
 
                     # Font color should be either black (000000) or white (FFFFFF) for contrast
-                    if hasattr(font_color, 'rgb'):
+                    if hasattr(font_color, "rgb"):
                         color_value = font_color.rgb
-                        assert color_value in ["000000", "FFFFFF"], f"Font color {color_value} not contrastive"
+                        assert color_value in ["000000", "FFFFFF"], (
+                            f"Font color {color_value} not contrastive"
+                        )
 
         workbook.close()
 
     def test_color_legend_includes_dmc_codes_and_names(self, tiny_image, temp_dir):
         """Test that Color Legend sheet includes DMC code and thread name columns."""
         config = GeneratorConfig(
-            resolutions=[(5, 5)],
-            max_colors=4,
-            include_color_legend=True
+            resolutions=[(5, 5)], max_colors=4, include_color_legend=True
         )
 
         generator = PatternGenerator(config)
         output_path = temp_dir / "dmc_legend_test.xlsx"
 
-        pattern_set = generator.generate_patterns(tiny_image, output_path)
+        _ = generator.generate_patterns(tiny_image, output_path)
 
         workbook = load_workbook(output_path)
         legend_sheet = workbook["Color Legend"]
@@ -131,18 +127,20 @@ class TestDMCExcelOutput:
 
         workbook.close()
 
-    def test_legend_shows_accurate_stitch_counts_per_dmc_color(self, tiny_image, temp_dir):
+    def test_legend_shows_accurate_stitch_counts_per_dmc_color(
+        self, tiny_image, temp_dir
+    ):
         """Test that Color Legend shows correct number of stitches for each DMC color."""
         config = GeneratorConfig(
             resolutions=[(5, 5)],  # Minimum 5x5 = 25 total stitches
             max_colors=2,  # Force simple palette
-            include_color_legend=True
+            include_color_legend=True,
         )
 
         generator = PatternGenerator(config)
         output_path = temp_dir / "stitch_count_test.xlsx"
 
-        pattern_set = generator.generate_patterns(tiny_image, output_path)
+        _ = generator.generate_patterns(tiny_image, output_path)
 
         workbook = load_workbook(output_path)
         legend_sheet = workbook["Color Legend"]
@@ -168,19 +166,19 @@ class TestDMCExcelOutput:
 
         workbook.close()
 
-    def test_dmc_features_gracefully_handle_colors_without_thread_info(self, tiny_image, temp_dir):
+    def test_dmc_features_gracefully_handle_colors_without_thread_info(
+        self, tiny_image, temp_dir
+    ):
         """Test that Excel generation handles Colors without DMC thread info gracefully."""
         config = GeneratorConfig(
-            resolutions=[(8, 8)],
-            max_colors=3,
-            include_color_legend=True
+            resolutions=[(8, 8)], max_colors=3, include_color_legend=True
         )
 
         generator = PatternGenerator(config)
         output_path = temp_dir / "mixed_dmc_test.xlsx"
 
         # Generate patterns (some colors might not have DMC mapping)
-        pattern_set = generator.generate_patterns(tiny_image, output_path)
+        _ = generator.generate_patterns(tiny_image, output_path)
 
         # File should be created successfully without errors
         assert output_path.exists()
@@ -199,7 +197,7 @@ class TestDMCExcelOutput:
         # Should not crash when accessing legend data
         for row in range(1, 6):
             for col in range(1, 8):
-                cell_value = legend_sheet.cell(row=row, column=col).value
+                _ = legend_sheet.cell(row=row, column=col).value
                 # Just accessing values should not raise exceptions
 
         workbook.close()
@@ -207,15 +205,13 @@ class TestDMCExcelOutput:
     def test_dmc_enhanced_legend_maintains_existing_columns(self, tiny_image, temp_dir):
         """Test that DMC enhancements preserve existing legend functionality."""
         config = GeneratorConfig(
-            resolutions=[(5, 5)],
-            max_colors=3,
-            include_color_legend=True
+            resolutions=[(5, 5)], max_colors=3, include_color_legend=True
         )
 
         generator = PatternGenerator(config)
         output_path = temp_dir / "compatibility_test.xlsx"
 
-        pattern_set = generator.generate_patterns(tiny_image, output_path)
+        _ = generator.generate_patterns(tiny_image, output_path)
 
         workbook = load_workbook(output_path)
         legend_sheet = workbook["Color Legend"]
@@ -260,27 +256,29 @@ class TestDMCExcelOutput:
         """Test that only Colors with DMC thread info show DMC codes in cells."""
         # Create a test pattern with mixed Color types
         colors = [
-            Color(r=0, g=0, b=0, name="Black", thread_code="310"),      # Has DMC info
-            Color(r=255, g=0, b=0),                                     # No DMC info
-            Color(r=255, g=255, b=255, name="White", thread_code="BLANC") # Has DMC info
+            Color(r=0, g=0, b=0, name="Black", thread_code="310"),  # Has DMC info
+            Color(r=255, g=0, b=0),  # No DMC info
+            Color(
+                r=255, g=255, b=255, name="White", thread_code="BLANC"
+            ),  # Has DMC info
         ]
 
         palette = ColorPalette(colors=colors, max_colors=3, quantization_method="test")
 
         # Create pattern with known color placement using numpy array
         import numpy as np
-        color_data = np.array([
-            [0, 1, 0],  # DMC, non-DMC, DMC
-            [1, 2, 1],  # non-DMC, DMC, non-DMC
-            [0, 0, 2]   # DMC, DMC, DMC
-        ])
 
-        from src.cross_stitch.models.pattern import CrossStitchPattern
+        color_data = np.array(
+            [
+                [0, 1, 0],  # DMC, non-DMC, DMC
+                [1, 2, 1],  # non-DMC, DMC, non-DMC
+                [0, 0, 2],  # DMC, DMC, DMC
+            ]
+        )
+
+
         pattern = CrossStitchPattern(
-            width=3, height=3,
-            colors=color_data,
-            palette=palette,
-            resolution_name="3x3"
+            width=3, height=3, colors=color_data, palette=palette, resolution_name="3x3"
         )
 
         # For now, just verify the pattern structure is correct
@@ -297,31 +295,32 @@ class TestDMCExcelOutput:
         colors = [
             Color(r=0, g=0, b=0, name="Black", thread_code="310"),
             Color(r=255, g=255, b=255, name="White", thread_code="BLANC"),
-            Color(r=227, g=29, b=66, name="Bright Red", thread_code="666")
+            Color(r=227, g=29, b=66, name="Bright Red", thread_code="666"),
         ]
 
-        palette = ColorPalette(colors=colors, max_colors=3, quantization_method="manual")
+        palette = ColorPalette(
+            colors=colors, max_colors=3, quantization_method="manual"
+        )
 
         # Create 5x5 pattern (minimum size)
         import numpy as np
-        color_data = np.array([
-            [0, 1, 0, 1, 0],  # Alternating black/white
-            [1, 2, 1, 2, 1],  # Alternating white/red
-            [0, 1, 0, 1, 0],  # Alternating black/white
-            [1, 2, 1, 2, 1],  # Alternating white/red
-            [0, 1, 0, 1, 0]   # Alternating black/white
-        ])
 
-        from src.cross_stitch.models.pattern import CrossStitchPattern
+        color_data = np.array(
+            [
+                [0, 1, 0, 1, 0],  # Alternating black/white
+                [1, 2, 1, 2, 1],  # Alternating white/red
+                [0, 1, 0, 1, 0],  # Alternating black/white
+                [1, 2, 1, 2, 1],  # Alternating white/red
+                [0, 1, 0, 1, 0],  # Alternating black/white
+            ]
+        )
+
         from src.cross_stitch.models import PatternSet
         from src.cross_stitch.core.excel_generator import ExcelGenerator
         from src.cross_stitch.models.config import GeneratorConfig
 
         pattern = CrossStitchPattern(
-            width=5, height=5,
-            colors=color_data,
-            palette=palette,
-            resolution_name="5x5"
+            width=5, height=5, colors=color_data, palette=palette, resolution_name="5x5"
         )
 
         # Create dummy image file and pattern set
@@ -331,7 +330,7 @@ class TestDMCExcelOutput:
         pattern_set = PatternSet(
             patterns={"5x5": pattern},
             source_image_path=dummy_image_path,
-            metadata={"test": "manual_dmc_test"}
+            metadata={"test": "manual_dmc_test"},
         )
 
         # Generate Excel with DMC-enabled ExcelGenerator
@@ -346,6 +345,7 @@ class TestDMCExcelOutput:
 
         # Load and verify Excel content
         from openpyxl import load_workbook
+
         workbook = load_workbook(output_path)
 
         # Check pattern sheet has DMC codes
@@ -359,7 +359,11 @@ class TestDMCExcelOutput:
 
         # Should find DMC codes in cells
         assert len(found_dmc_codes) > 0
-        assert "310" in found_dmc_codes or "BLANC" in found_dmc_codes or "666" in found_dmc_codes
+        assert (
+            "310" in found_dmc_codes
+            or "BLANC" in found_dmc_codes
+            or "666" in found_dmc_codes
+        )
 
         # Check legend has DMC columns
         legend_sheet = workbook["Color Legend"]

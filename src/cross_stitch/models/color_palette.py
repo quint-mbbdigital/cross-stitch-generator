@@ -16,9 +16,11 @@ class Color:
 
     def __post_init__(self) -> None:
         """Validate color values."""
-        for component, name in [(self.r, 'r'), (self.g, 'g'), (self.b, 'b')]:
+        for component, name in [(self.r, "r"), (self.g, "g"), (self.b, "b")]:
             if not 0 <= component <= 255:
-                raise ValueError(f"Color component {name} must be 0-255, got {component}")
+                raise ValueError(
+                    f"Color component {name} must be 0-255, got {component}"
+                )
 
     @property
     def hex_code(self) -> str:
@@ -31,11 +33,15 @@ class Color:
         return (self.r, self.g, self.b)
 
     @classmethod
-    def from_hex(cls, hex_code: str, name: Optional[str] = None,
-                 thread_code: Optional[str] = None) -> 'Color':
+    def from_hex(
+        cls,
+        hex_code: str,
+        name: Optional[str] = None,
+        thread_code: Optional[str] = None,
+    ) -> "Color":
         """Create Color from hexadecimal string."""
         # Remove '#' if present
-        hex_code = hex_code.lstrip('#')
+        hex_code = hex_code.lstrip("#")
 
         if len(hex_code) != 6:
             raise ValueError(f"Invalid hex color code: {hex_code}")
@@ -50,16 +56,20 @@ class Color:
         return cls(r=r, g=g, b=b, name=name, thread_code=thread_code)
 
     @classmethod
-    def from_rgb(cls, rgb: Tuple[int, int, int], name: Optional[str] = None,
-                 thread_code: Optional[str] = None) -> 'Color':
+    def from_rgb(
+        cls,
+        rgb: Tuple[int, int, int],
+        name: Optional[str] = None,
+        thread_code: Optional[str] = None,
+    ) -> "Color":
         """Create Color from RGB tuple."""
         return cls(r=rgb[0], g=rgb[1], b=rgb[2], name=name, thread_code=thread_code)
 
-    def distance_to(self, other: 'Color') -> float:
+    def distance_to(self, other: "Color") -> float:
         """Calculate Euclidean distance to another color."""
-        return ((self.r - other.r) ** 2 +
-                (self.g - other.g) ** 2 +
-                (self.b - other.b) ** 2) ** 0.5
+        return (
+            (self.r - other.r) ** 2 + (self.g - other.g) ** 2 + (self.b - other.b) ** 2
+        ) ** 0.5
 
     def __str__(self) -> str:
         """String representation."""
@@ -84,7 +94,9 @@ class ColorPalette:
     def add_color(self, color: Color) -> int:
         """Add a color to the palette and return its index."""
         if len(self.colors) >= self.max_colors:
-            raise ValueError(f"Cannot add color: palette full ({self.max_colors} colors)")
+            raise ValueError(
+                f"Cannot add color: palette full ({self.max_colors} colors)"
+            )
 
         # Check if color already exists
         for i, existing_color in enumerate(self.colors):

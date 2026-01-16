@@ -38,16 +38,14 @@ class DMCMatcher:
             raise ValueError("No DMC color palette available")
 
         r, g, b = rgb
-        min_distance = float('inf')
+        min_distance = float("inf")
         closest_color = None
 
         # Find closest color using Euclidean distance in RGB space
         for dmc_code, dmc_color in self.dmc_palette.items():
             # Calculate Euclidean distance
             distance = math.sqrt(
-                (r - dmc_color.r) ** 2 +
-                (g - dmc_color.g) ** 2 +
-                (b - dmc_color.b) ** 2
+                (r - dmc_color.r) ** 2 + (g - dmc_color.g) ** 2 + (b - dmc_color.b) ** 2
             )
 
             if distance < min_distance:
@@ -85,7 +83,7 @@ class DMCMatcher:
                 g=color.g,
                 b=color.b,
                 name=closest_dmc.name,
-                thread_code=closest_dmc.thread_code
+                thread_code=closest_dmc.thread_code,
             )
 
             dmc_colors.append(dmc_matched_color)
@@ -94,11 +92,12 @@ class DMCMatcher:
         return ColorPalette(
             colors=dmc_colors,
             max_colors=palette.max_colors,
-            quantization_method=palette.quantization_method
+            quantization_method=palette.quantization_method,
         )
 
-    def create_dmc_only_palette(self, max_colors: int,
-                               most_common_only: Optional[int] = None) -> ColorPalette:
+    def create_dmc_only_palette(
+        self, max_colors: int, most_common_only: Optional[int] = None
+    ) -> ColorPalette:
         """Create a palette using only actual DMC colors.
 
         Args:
@@ -125,7 +124,7 @@ class DMCMatcher:
         return ColorPalette(
             colors=selected_colors,
             max_colors=max_colors,
-            quantization_method="dmc_only"
+            quantization_method="dmc_only",
         )
 
     def get_palette_info(self) -> Dict[str, int]:
@@ -134,7 +133,4 @@ class DMCMatcher:
         Returns:
             Dictionary with palette statistics
         """
-        return {
-            'total_colors': len(self.dmc_palette),
-            'available': self.is_available()
-        }
+        return {"total_colors": len(self.dmc_palette), "available": self.is_available()}

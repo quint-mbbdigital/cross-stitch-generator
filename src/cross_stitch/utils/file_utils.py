@@ -10,11 +10,18 @@ from .exceptions import FileOperationError, ImageProcessingError
 
 # Supported image formats
 SUPPORTED_IMAGE_FORMATS = {
-    '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.tif', '.webp'
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".bmp",
+    ".tiff",
+    ".tif",
+    ".webp",
 }
 
 # Excel file extension
-EXCEL_EXTENSION = '.xlsx'
+EXCEL_EXTENSION = ".xlsx"
 
 
 def validate_output_path(output_path: Union[str, Path]) -> Path:
@@ -47,7 +54,7 @@ def validate_output_path(output_path: Union[str, Path]) -> Path:
                     f"Cannot create output directory: {e}",
                     file_path=str(parent_dir),
                     operation="create_directory",
-                    cause=e
+                    cause=e,
                 )
 
         # Check if parent directory is writable
@@ -55,7 +62,7 @@ def validate_output_path(output_path: Union[str, Path]) -> Path:
             raise FileOperationError(
                 "Output directory is not writable",
                 file_path=str(parent_dir),
-                operation="check_permissions"
+                operation="check_permissions",
             )
 
         # Check if file exists and is writable (if it exists)
@@ -63,7 +70,7 @@ def validate_output_path(output_path: Union[str, Path]) -> Path:
             raise FileOperationError(
                 "Output file exists but is not writable",
                 file_path=str(path),
-                operation="check_permissions"
+                operation="check_permissions",
             )
 
         return path
@@ -75,7 +82,7 @@ def validate_output_path(output_path: Union[str, Path]) -> Path:
             f"Invalid output path: {e}",
             file_path=str(output_path),
             operation="validate_path",
-            cause=e
+            cause=e,
         )
 
 
@@ -99,9 +106,7 @@ def load_image(image_path: Union[str, Path]) -> Image.Image:
         # Check if file exists
         if not path.exists():
             raise FileOperationError(
-                "Image file does not exist",
-                file_path=str(path),
-                operation="load_image"
+                "Image file does not exist", file_path=str(path), operation="load_image"
             )
 
         # Check if file is readable
@@ -109,7 +114,7 @@ def load_image(image_path: Union[str, Path]) -> Image.Image:
             raise FileOperationError(
                 "Image file is not readable",
                 file_path=str(path),
-                operation="load_image"
+                operation="load_image",
             )
 
         # Check file extension
@@ -118,7 +123,7 @@ def load_image(image_path: Union[str, Path]) -> Image.Image:
             raise ImageProcessingError(
                 f"Unsupported image format '{path.suffix}'. Supported formats: {supported}",
                 image_path=str(path),
-                operation="validate_format"
+                operation="validate_format",
             )
 
         # Load the image
@@ -133,7 +138,7 @@ def load_image(image_path: Union[str, Path]) -> Image.Image:
                 "Cannot identify image file - file may be corrupted or in unsupported format",
                 image_path=str(path),
                 operation="load_image",
-                cause=e
+                cause=e,
             )
 
         except OSError as e:
@@ -141,7 +146,7 @@ def load_image(image_path: Union[str, Path]) -> Image.Image:
                 f"Cannot open image file: {e}",
                 image_path=str(path),
                 operation="load_image",
-                cause=e
+                cause=e,
             )
 
     except Exception as e:
@@ -151,12 +156,13 @@ def load_image(image_path: Union[str, Path]) -> Image.Image:
             f"Unexpected error loading image: {e}",
             image_path=str(image_path),
             operation="load_image",
-            cause=e
+            cause=e,
         )
 
 
-def save_file(data: bytes, output_path: Union[str, Path],
-              backup_existing: bool = True) -> Path:
+def save_file(
+    data: bytes, output_path: Union[str, Path], backup_existing: bool = True
+) -> Path:
     """
     Save binary data to file with optional backup of existing file.
 
@@ -177,7 +183,7 @@ def save_file(data: bytes, output_path: Union[str, Path],
         # Create backup if file exists and backup is requested
         backup_path = None
         if backup_existing and path.exists():
-            backup_path = path.with_suffix(f'{path.suffix}.backup')
+            backup_path = path.with_suffix(f"{path.suffix}.backup")
             try:
                 backup_path.write_bytes(path.read_bytes())
             except OSError as e:
@@ -185,7 +191,7 @@ def save_file(data: bytes, output_path: Union[str, Path],
                     f"Cannot create backup file: {e}",
                     file_path=str(backup_path),
                     operation="create_backup",
-                    cause=e
+                    cause=e,
                 )
 
         # Save the data
@@ -204,7 +210,7 @@ def save_file(data: bytes, output_path: Union[str, Path],
                 f"Cannot save file: {e}",
                 file_path=str(path),
                 operation="save_file",
-                cause=e
+                cause=e,
             )
 
         # Clean up backup if save was successful
@@ -224,7 +230,7 @@ def save_file(data: bytes, output_path: Union[str, Path],
             f"Unexpected error saving file: {e}",
             file_path=str(output_path),
             operation="save_file",
-            cause=e
+            cause=e,
         )
 
 
@@ -248,17 +254,18 @@ def get_image_info(image_path: Union[str, Path]) -> dict:
             raise FileOperationError(
                 "Image file does not exist",
                 file_path=str(path),
-                operation="get_image_info"
+                operation="get_image_info",
             )
 
         with Image.open(path) as image:
             info = {
-                'width': image.width,
-                'height': image.height,
-                'mode': image.mode,
-                'format': image.format,
-                'file_size': path.stat().st_size,
-                'has_transparency': image.mode in ('RGBA', 'LA') or 'transparency' in image.info
+                "width": image.width,
+                "height": image.height,
+                "mode": image.mode,
+                "format": image.format,
+                "file_size": path.stat().st_size,
+                "has_transparency": image.mode in ("RGBA", "LA")
+                or "transparency" in image.info,
             }
 
         return info
@@ -270,7 +277,7 @@ def get_image_info(image_path: Union[str, Path]) -> dict:
             f"Cannot get image info: {e}",
             image_path=str(image_path),
             operation="get_image_info",
-            cause=e
+            cause=e,
         )
 
 
@@ -297,5 +304,5 @@ def ensure_directory(directory_path: Union[str, Path]) -> Path:
             f"Cannot create directory: {e}",
             file_path=str(directory_path),
             operation="create_directory",
-            cause=e
+            cause=e,
         )

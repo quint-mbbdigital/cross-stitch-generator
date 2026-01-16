@@ -1,7 +1,6 @@
 """Integration tests for cross-stitch pattern generator."""
 
 import pytest
-from pathlib import Path
 import numpy as np
 from PIL import Image
 
@@ -14,14 +13,16 @@ from tests.conftest import assert_valid_pattern
 class TestPatternGeneratorIntegration:
     """Integration tests for the complete pattern generation workflow."""
 
-    def test_generate_patterns_rgb_image(self, sample_image_rgb, sample_excel_output, mock_progress_callback):
+    def test_generate_patterns_rgb_image(
+        self, sample_image_rgb, sample_excel_output, mock_progress_callback
+    ):
         """Test complete pattern generation with RGB image."""
         # Create a simple config for faster testing
         config = GeneratorConfig(
             resolutions=[(20, 20), (30, 30)],
             max_colors=16,
             quantization_method="median_cut",
-            preserve_aspect_ratio=True
+            preserve_aspect_ratio=True,
         )
 
         generator = PatternGenerator(config)
@@ -58,9 +59,7 @@ class TestPatternGeneratorIntegration:
     def test_generate_patterns_rgba_image(self, sample_image_rgba, temp_dir):
         """Test pattern generation with RGBA (transparent) image."""
         config = GeneratorConfig(
-            resolutions=[(15, 15)],
-            max_colors=8,
-            handle_transparency="white_background"
+            resolutions=[(15, 15)], max_colors=8, handle_transparency="white_background"
         )
 
         generator = PatternGenerator(config)
@@ -78,9 +77,7 @@ class TestPatternGeneratorIntegration:
     def test_generate_patterns_grayscale_image(self, sample_image_grayscale, temp_dir):
         """Test pattern generation with grayscale image."""
         config = GeneratorConfig(
-            resolutions=[(25, 25)],
-            max_colors=32,
-            quantization_method="kmeans"
+            resolutions=[(25, 25)], max_colors=32, quantization_method="kmeans"
         )
 
         generator = PatternGenerator(config)
@@ -108,23 +105,23 @@ class TestPatternGeneratorIntegration:
         """Test different color quantization methods."""
         # Test median cut
         config_median = GeneratorConfig(
-            resolutions=[(10, 10)],
-            max_colors=4,
-            quantization_method="median_cut"
+            resolutions=[(10, 10)], max_colors=4, quantization_method="median_cut"
         )
         generator_median = PatternGenerator(config_median)
         output_median = temp_dir / "median_output.xlsx"
-        pattern_set_median = generator_median.generate_patterns(tiny_image, output_median)
+        pattern_set_median = generator_median.generate_patterns(
+            tiny_image, output_median
+        )
 
         # Test k-means
         config_kmeans = GeneratorConfig(
-            resolutions=[(10, 10)],
-            max_colors=4,
-            quantization_method="kmeans"
+            resolutions=[(10, 10)], max_colors=4, quantization_method="kmeans"
         )
         generator_kmeans = PatternGenerator(config_kmeans)
         output_kmeans = temp_dir / "kmeans_output.xlsx"
-        pattern_set_kmeans = generator_kmeans.generate_patterns(tiny_image, output_kmeans)
+        pattern_set_kmeans = generator_kmeans.generate_patterns(
+            tiny_image, output_kmeans
+        )
 
         # Both should succeed and create valid patterns
         assert_valid_pattern(pattern_set_median.get_pattern("10x10"))
@@ -137,29 +134,29 @@ class TestPatternGeneratorIntegration:
     def test_aspect_ratio_preservation(self, temp_dir):
         """Test aspect ratio preservation vs stretching."""
         # Create a rectangular image (2:1 aspect ratio)
-        rect_image = Image.new('RGB', (60, 30), color=(100, 150, 200))
+        rect_image = Image.new("RGB", (60, 30), color=(100, 150, 200))
         rect_path = temp_dir / "rectangular.png"
         rect_image.save(rect_path)
 
         # Test with aspect ratio preservation
         config_preserve = GeneratorConfig(
-            resolutions=[(20, 20)],
-            preserve_aspect_ratio=True,
-            max_colors=4
+            resolutions=[(20, 20)], preserve_aspect_ratio=True, max_colors=4
         )
         generator_preserve = PatternGenerator(config_preserve)
         output_preserve = temp_dir / "preserve_output.xlsx"
-        pattern_set_preserve = generator_preserve.generate_patterns(rect_path, output_preserve)
+        pattern_set_preserve = generator_preserve.generate_patterns(
+            rect_path, output_preserve
+        )
 
         # Test without aspect ratio preservation
         config_stretch = GeneratorConfig(
-            resolutions=[(20, 20)],
-            preserve_aspect_ratio=False,
-            max_colors=4
+            resolutions=[(20, 20)], preserve_aspect_ratio=False, max_colors=4
         )
         generator_stretch = PatternGenerator(config_stretch)
         output_stretch = temp_dir / "stretch_output.xlsx"
-        pattern_set_stretch = generator_stretch.generate_patterns(rect_path, output_stretch)
+        pattern_set_stretch = generator_stretch.generate_patterns(
+            rect_path, output_stretch
+        )
 
         # Both should create valid patterns
         pattern_preserve = pattern_set_preserve.get_pattern("20x20")
@@ -180,15 +177,15 @@ class TestPatternGeneratorIntegration:
 
         for method in transparency_methods:
             config = GeneratorConfig(
-                resolutions=[(15, 15)],
-                max_colors=8,
-                handle_transparency=method
+                resolutions=[(15, 15)], max_colors=8, handle_transparency=method
             )
             generator = PatternGenerator(config)
             output_path = temp_dir / f"transparency_{method}.xlsx"
 
             try:
-                pattern_set = generator.generate_patterns(sample_image_rgba, output_path)
+                pattern_set = generator.generate_patterns(
+                    sample_image_rgba, output_path
+                )
                 pattern = pattern_set.get_pattern("15x15")
                 assert_valid_pattern(pattern)
                 assert output_path.exists()
@@ -200,8 +197,7 @@ class TestPatternGeneratorIntegration:
     def test_multiple_resolutions(self, tiny_image, temp_dir):
         """Test generating multiple resolutions in one pass."""
         config = GeneratorConfig(
-            resolutions=[(8, 8), (12, 12), (16, 16), (20, 20)],
-            max_colors=8
+            resolutions=[(8, 8), (12, 12), (16, 16), (20, 20)], max_colors=8
         )
 
         generator = PatternGenerator(config)
@@ -223,16 +219,16 @@ class TestPatternGeneratorIntegration:
 
         info = generator.get_processing_info(sample_image_rgb)
 
-        assert 'source_image' in info
-        assert 'target_resolutions' in info
-        assert 'config' in info
+        assert "source_image" in info
+        assert "target_resolutions" in info
+        assert "config" in info
 
-        source_info = info['source_image']
-        assert source_info['size'] == (100, 100)  # Known size of sample image
+        source_info = info["source_image"]
+        assert source_info["size"] == (100, 100)  # Known size of sample image
 
-        target_info = info['target_resolutions']
-        assert '25x25' in target_info
-        assert '50x50' in target_info
+        target_info = info["target_resolutions"]
+        assert "25x25" in target_info
+        assert "50x50" in target_info
 
     def test_estimate_processing_time(self, sample_image_rgb):
         """Test processing time estimation."""
@@ -241,11 +237,11 @@ class TestPatternGeneratorIntegration:
 
         estimates = generator.estimate_processing_time(sample_image_rgb)
 
-        assert 'image_loading' in estimates
-        assert 'image_resizing' in estimates
-        assert 'color_quantization' in estimates
-        assert 'excel_generation' in estimates
-        assert 'total' in estimates
+        assert "image_loading" in estimates
+        assert "image_resizing" in estimates
+        assert "color_quantization" in estimates
+        assert "excel_generation" in estimates
+        assert "total" in estimates
 
         # All estimates should be positive numbers
         for key, value in estimates.items():
@@ -271,12 +267,11 @@ class TestPatternGeneratorIntegration:
         with pytest.raises(PatternGenerationError):
             generator.generate_patterns(tiny_image, output_path)
 
-    def test_progress_callback_coverage(self, sample_image_rgb, temp_dir, mock_progress_callback):
+    def test_progress_callback_coverage(
+        self, sample_image_rgb, temp_dir, mock_progress_callback
+    ):
         """Test that progress callback covers the full workflow."""
-        config = GeneratorConfig(
-            resolutions=[(20, 20)],
-            max_colors=8
-        )
+        config = GeneratorConfig(resolutions=[(20, 20)], max_colors=8)
 
         generator = PatternGenerator(config)
         generator.set_progress_callback(mock_progress_callback)
@@ -297,15 +292,12 @@ class TestPatternGeneratorIntegration:
         # Progress should be monotonically increasing
         for i in range(1, len(mock_progress_callback.calls)):
             current_progress = mock_progress_callback.calls[i][1]
-            previous_progress = mock_progress_callback.calls[i-1][1]
+            previous_progress = mock_progress_callback.calls[i - 1][1]
             assert current_progress >= previous_progress
 
     def test_pattern_color_consistency(self, tiny_image, temp_dir):
         """Test that patterns use colors consistently."""
-        config = GeneratorConfig(
-            resolutions=[(10, 10)],
-            max_colors=4
-        )
+        config = GeneratorConfig(resolutions=[(10, 10)], max_colors=4)
 
         generator = PatternGenerator(config)
         output_path = temp_dir / "consistency_test.xlsx"
@@ -326,15 +318,13 @@ class TestPatternGeneratorIntegration:
     def test_excel_file_structure(self, tiny_image, temp_dir):
         """Test that generated Excel file has correct structure."""
         config = GeneratorConfig(
-            resolutions=[(8, 8), (12, 12)],
-            max_colors=4,
-            include_color_legend=True
+            resolutions=[(8, 8), (12, 12)], max_colors=4, include_color_legend=True
         )
 
         generator = PatternGenerator(config)
         output_path = temp_dir / "structure_test.xlsx"
 
-        pattern_set = generator.generate_patterns(tiny_image, output_path)
+        _ = generator.generate_patterns(tiny_image, output_path)
 
         # Verify Excel file exists and has content
         assert output_path.exists()
@@ -345,10 +335,7 @@ class TestPatternGeneratorIntegration:
 
     def test_pattern_set_summary(self, tiny_image, temp_dir):
         """Test pattern set summary information."""
-        config = GeneratorConfig(
-            resolutions=[(6, 6), (10, 10)],
-            max_colors=8
-        )
+        config = GeneratorConfig(resolutions=[(6, 6), (10, 10)], max_colors=8)
 
         generator = PatternGenerator(config)
         output_path = temp_dir / "summary_test.xlsx"
@@ -356,22 +343,22 @@ class TestPatternGeneratorIntegration:
         pattern_set = generator.generate_patterns(tiny_image, output_path)
         summary = pattern_set.get_summary()
 
-        assert 'source_image' in summary
-        assert 'pattern_count' in summary
-        assert 'resolutions' in summary
-        assert 'patterns' in summary
+        assert "source_image" in summary
+        assert "pattern_count" in summary
+        assert "resolutions" in summary
+        assert "patterns" in summary
 
-        assert summary['pattern_count'] == 2
-        assert '6x6' in summary['resolutions']
-        assert '10x10' in summary['resolutions']
+        assert summary["pattern_count"] == 2
+        assert "6x6" in summary["resolutions"]
+        assert "10x10" in summary["resolutions"]
 
         # Each pattern should have detailed info
-        for res_name in ['6x6', '10x10']:
-            assert res_name in summary['patterns']
-            pattern_info = summary['patterns'][res_name]
-            assert 'width' in pattern_info
-            assert 'height' in pattern_info
-            assert 'total_stitches' in pattern_info
+        for res_name in ["6x6", "10x10"]:
+            assert res_name in summary["patterns"]
+            pattern_info = summary["patterns"][res_name]
+            assert "width" in pattern_info
+            assert "height" in pattern_info
+            assert "total_stitches" in pattern_info
 
     def test_dmc_workflow_integration(self, tiny_image, temp_dir):
         """Test complete DMC workflow: image → quantize → DMC config → Excel with DMC features."""
@@ -381,7 +368,7 @@ class TestPatternGeneratorIntegration:
             max_colors=6,
             enable_dmc=True,
             include_color_legend=True,
-            quantization_method="median_cut"
+            quantization_method="median_cut",
         )
 
         generator = PatternGenerator(config)
@@ -397,6 +384,7 @@ class TestPatternGeneratorIntegration:
 
         # Verify Excel file structure for DMC features
         from openpyxl import load_workbook
+
         workbook = load_workbook(output_path)
 
         # Check that pattern sheets exist
@@ -430,7 +418,7 @@ class TestPatternGeneratorIntegration:
         # Test that cells can be accessed without errors
         for row in range(1, 9):
             for col in range(1, 9):
-                cell = pattern_sheet_8x8.cell(row=row, column=col)
+                _ = pattern_sheet_8x8.cell(row=row, column=col)
                 # Just accessing should not raise exceptions
 
         workbook.close()

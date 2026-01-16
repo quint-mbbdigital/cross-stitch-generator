@@ -1,14 +1,20 @@
 """Tests for cross-stitch utility functions."""
 
 import pytest
-from pathlib import Path
 from PIL import Image
 import os
 
 from src.cross_stitch.utils import (
-    load_image, save_file, validate_output_path, get_image_info,
-    validate_image_file, validate_config, validate_resolution_for_image,
-    ValidationError, ImageProcessingError, FileOperationError
+    load_image,
+    save_file,
+    validate_output_path,
+    get_image_info,
+    validate_image_file,
+    validate_config,
+    validate_resolution_for_image,
+    ValidationError,
+    ImageProcessingError,
+    FileOperationError,
 )
 from src.cross_stitch.models import GeneratorConfig
 
@@ -21,21 +27,21 @@ class TestFileUtils:
         image = load_image(sample_image_rgb)
         assert isinstance(image, Image.Image)
         assert image.size == (100, 100)
-        assert image.mode in ['RGB', 'RGBA']
+        assert image.mode in ["RGB", "RGBA"]
 
     def test_load_image_rgba(self, sample_image_rgba):
         """Test loading RGBA image."""
         image = load_image(sample_image_rgba)
         assert isinstance(image, Image.Image)
         assert image.size == (50, 50)
-        assert image.mode == 'RGBA'
+        assert image.mode == "RGBA"
 
     def test_load_image_grayscale(self, sample_image_grayscale):
         """Test loading grayscale image."""
         image = load_image(sample_image_grayscale)
         assert isinstance(image, Image.Image)
         assert image.size == (75, 75)
-        assert image.mode == 'L'
+        assert image.mode == "L"
 
     def test_load_image_nonexistent(self, nonexistent_image_path):
         """Test loading non-existent image."""
@@ -85,7 +91,7 @@ class TestFileUtils:
 
     def test_validate_output_path_not_writable(self, temp_dir):
         """Test handling non-writable directory."""
-        if os.name == 'posix':  # Unix-like systems
+        if os.name == "posix":  # Unix-like systems
             # Create directory and remove write permission
             read_only_dir = temp_dir / "readonly"
             read_only_dir.mkdir()
@@ -127,19 +133,19 @@ class TestFileUtils:
         """Test getting image information."""
         info = get_image_info(sample_image_rgb)
 
-        assert info['width'] == 100
-        assert info['height'] == 100
-        assert info['mode'] in ['RGB', 'RGBA']
-        assert info['format'] is not None
-        assert info['file_size'] > 0
-        assert isinstance(info['has_transparency'], bool)
+        assert info["width"] == 100
+        assert info["height"] == 100
+        assert info["mode"] in ["RGB", "RGBA"]
+        assert info["format"] is not None
+        assert info["file_size"] > 0
+        assert isinstance(info["has_transparency"], bool)
 
     def test_get_image_info_rgba(self, sample_image_rgba):
         """Test getting info for RGBA image."""
         info = get_image_info(sample_image_rgba)
 
-        assert info['has_transparency'] is True
-        assert info['mode'] == 'RGBA'
+        assert info["has_transparency"] is True
+        assert info["mode"] == "RGBA"
 
     def test_get_image_info_nonexistent(self, nonexistent_image_path):
         """Test getting info for non-existent image."""
@@ -174,7 +180,7 @@ class TestValidation:
         # Create a fake large file
         large_file = temp_dir / "large.png"
         # Write 150MB of data (over the 100MB limit)
-        large_data = b'x' * (150 * 1024 * 1024)
+        large_data = b"x" * (150 * 1024 * 1024)
         large_file.write_bytes(large_data)
 
         with pytest.raises(ValidationError, match="Image file too large"):
@@ -183,7 +189,7 @@ class TestValidation:
     def test_validate_image_file_too_small(self, temp_dir):
         """Test validating image that's too small."""
         # Create a very small image (3x3, below minimum of 5x5)
-        small_image = Image.new('RGB', (3, 3), color=(255, 0, 0))
+        small_image = Image.new("RGB", (3, 3), color=(255, 0, 0))
         small_path = temp_dir / "small.png"
         small_image.save(small_path)
 
@@ -197,7 +203,9 @@ class TestValidation:
     def test_validate_config_empty_resolutions(self):
         """Test validating config with empty resolutions."""
         config = GeneratorConfig(resolutions=[])
-        with pytest.raises(ValidationError, match="At least one resolution must be specified"):
+        with pytest.raises(
+            ValidationError, match="At least one resolution must be specified"
+        ):
             validate_config(config)
 
     def test_validate_config_invalid_resolution(self):
@@ -254,13 +262,17 @@ class TestValidation:
 
         # Invalid characters
         config = GeneratorConfig(legend_sheet_name="Sheet[1]")
-        with pytest.raises(ValidationError, match="Legend sheet name contains invalid characters"):
+        with pytest.raises(
+            ValidationError, match="Legend sheet name contains invalid characters"
+        ):
             validate_config(config)
 
     def test_validate_config_invalid_filename_template(self):
         """Test validating config with invalid filename template."""
         config = GeneratorConfig(output_filename_template="no_placeholder.xlsx")
-        with pytest.raises(ValidationError, match="Output filename template must contain"):
+        with pytest.raises(
+            ValidationError, match="Output filename template must contain"
+        ):
             validate_config(config)
 
     def test_validate_resolution_for_image_success(self, sample_image_rgb):
@@ -315,9 +327,7 @@ class TestExceptions:
     def test_image_processing_error_details(self):
         """Test ImageProcessingError with details."""
         error = ImageProcessingError(
-            "Processing failed",
-            image_path="/path/to/image.jpg",
-            operation="resize"
+            "Processing failed", image_path="/path/to/image.jpg", operation="resize"
         )
 
         error_str = str(error)
@@ -328,9 +338,7 @@ class TestExceptions:
     def test_file_operation_error_details(self):
         """Test FileOperationError with details."""
         error = FileOperationError(
-            "Cannot save file",
-            file_path="/path/to/output.xlsx",
-            operation="save"
+            "Cannot save file", file_path="/path/to/output.xlsx", operation="save"
         )
 
         error_str = str(error)
@@ -371,20 +379,20 @@ class TestUtilityHelpers:
         from tests.conftest import create_test_image
 
         # Create RGB image
-        image = create_test_image(50, 30, 'RGB')
+        image = create_test_image(50, 30, "RGB")
         assert image.size == (50, 30)
-        assert image.mode == 'RGB'
+        assert image.mode == "RGB"
 
         # Create RGBA image
-        image = create_test_image(25, 25, 'RGBA')
+        image = create_test_image(25, 25, "RGBA")
         assert image.size == (25, 25)
-        assert image.mode == 'RGBA'
+        assert image.mode == "RGBA"
 
         # Create grayscale image
-        image = create_test_image(40, 60, 'L')
+        image = create_test_image(40, 60, "L")
         assert image.size == (40, 60)
-        assert image.mode == 'L'
+        assert image.mode == "L"
 
         # Invalid mode should raise error
         with pytest.raises(ValueError, match="Unsupported mode"):
-            create_test_image(10, 10, 'INVALID')
+            create_test_image(10, 10, "INVALID")

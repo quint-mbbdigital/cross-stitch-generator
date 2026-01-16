@@ -1,10 +1,6 @@
 """Tests for DMC color database loader."""
 
 import pytest
-from pathlib import Path
-from unittest.mock import patch, mock_open
-import tempfile
-import os
 
 from src.cross_stitch.data.dmc_loader import load_dmc_palette
 from src.cross_stitch.models.color_palette import Color
@@ -107,9 +103,15 @@ BLANC,White,255,255,255,FFFFFF
 
         # Check every color has valid RGB range
         for dmc_code, color in palette.items():
-            assert 0 <= color.r <= 255, f"DMC {dmc_code} has invalid red value: {color.r}"
-            assert 0 <= color.g <= 255, f"DMC {dmc_code} has invalid green value: {color.g}"
-            assert 0 <= color.b <= 255, f"DMC {dmc_code} has invalid blue value: {color.b}"
+            assert 0 <= color.r <= 255, (
+                f"DMC {dmc_code} has invalid red value: {color.r}"
+            )
+            assert 0 <= color.g <= 255, (
+                f"DMC {dmc_code} has invalid green value: {color.g}"
+            )
+            assert 0 <= color.b <= 255, (
+                f"DMC {dmc_code} has invalid blue value: {color.b}"
+            )
 
     def test_missing_csv_file_handled_gracefully(self):
         """Test that missing CSV file is handled gracefully without crashing."""
@@ -200,5 +202,7 @@ BLANC,White,255,255,255,FFFFFF"""
 
         # Should be able to calculate distance (existing Color method)
         distance = black.distance_to(white)
-        expected_distance = (255**2 + 255**2 + 255**2)**0.5  # Distance from black to white
+        expected_distance = (
+            255**2 + 255**2 + 255**2
+        ) ** 0.5  # Distance from black to white
         assert abs(distance - expected_distance) < 0.001
