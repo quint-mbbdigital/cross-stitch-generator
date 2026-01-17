@@ -243,6 +243,23 @@
                     localStorage.setItem('showSubtitles', this.showSubtitles);
                 },
 
+                // Clean config to only include fields expected by PatternConfig model
+                getCleanConfig() {
+                    const cleanConfig = {
+                        resolution: this.config.resolution,
+                        max_colors: this.config.max_colors,
+                        quantization: this.config.quantization,
+                        edge_mode: this.config.edge_mode,
+                        transparency: this.config.transparency,
+                        min_color_percent: this.config.min_color_percent,
+                        enable_dmc: this.config.enable_dmc,
+                        dmc_only: this.config.dmc_only
+                    };
+
+                    console.log('🧹 [FRONTEND] Cleaned config (removed extra fields):', cleanConfig);
+                    return cleanConfig;
+                },
+
                 async regeneratePattern() {
                     if (!this.jobId) {
                         showNotification('Please upload an image first', 'error');
@@ -253,18 +270,64 @@
                     this.processingStatus = 'Regenerating pattern...';
 
                     try {
+                        // Enhanced logging for config debugging
+                        console.log('🎨 [FRONTEND] Starting pattern regeneration');
+                        console.log('📋 [FRONTEND] Job ID:', this.jobId);
+                        console.log('⚙️ [FRONTEND] Raw config object (with extra fields):', this.config);
+
+                        // Get clean config (only fields expected by PatternConfig model)
+                        const cleanConfig = this.getCleanConfig();
+                        console.log('📐 [FRONTEND] Clean config details:');
+                        console.log('   Resolution:', cleanConfig.resolution, '(type:', typeof cleanConfig.resolution, ')');
+                        console.log('   Max Colors:', cleanConfig.max_colors, '(type:', typeof cleanConfig.max_colors, ')');
+                        console.log('   Quantization:', cleanConfig.quantization, '(type:', typeof cleanConfig.quantization, ')');
+                        console.log('   Edge Mode:', cleanConfig.edge_mode, '(type:', typeof cleanConfig.edge_mode, ')');
+                        console.log('   Transparency:', cleanConfig.transparency, '(type:', typeof cleanConfig.transparency, ')');
+                        console.log('   Min Color %:', cleanConfig.min_color_percent, '(type:', typeof cleanConfig.min_color_percent, ')');
+                        console.log('   Enable DMC:', cleanConfig.enable_dmc, '(type:', typeof cleanConfig.enable_dmc, ')');
+                        console.log('   DMC Only:', cleanConfig.dmc_only, '(type:', typeof cleanConfig.dmc_only, ')');
+
+                        const configJson = JSON.stringify(cleanConfig);
+                        console.log('📤 [FRONTEND] Stringified clean config:', configJson);
+                        console.log('📏 [FRONTEND] Config JSON length:', configJson.length);
+
                         const response = await fetch(`/api/generate/${this.jobId}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(this.config)
+                            body: configJson
                         });
 
+                        console.log('📡 [FRONTEND] Response status:', response.status, response.statusText);
+                        console.log('📡 [FRONTEND] Response headers:', Object.fromEntries(response.headers.entries()));
+
                         if (!response.ok) {
-                            const error = await response.json();
-                            throw new Error(error.detail || 'Generation failed');
+                            const errorText = await response.text();
+                            console.error('❌ [FRONTEND] Error response body:', errorText);
+
+                            let errorMessage = 'Generation failed';
+                            try {
+                                const error = JSON.parse(errorText);
+                                errorMessage = error.detail || error.message || 'Generation failed';
+                            } catch (parseError) {
+                                console.error('❌ [FRONTEND] Failed to parse error response as JSON:', parseError);
+                                errorMessage = errorText || 'Generation failed';
+                            }
+
+                            throw new Error(errorMessage);
                         }
 
-                        const patternData = await response.json();
+                        const responseText = await response.text();
+                        console.log('✅ [FRONTEND] Success response body (first 200 chars):', responseText.substring(0, 200));
+
+                        const patternData = JSON.parse(responseText);
+                        console.log('✅ [FRONTEND] Parsed pattern data:', {
+                            width: patternData.width,
+                            height: patternData.height,
+                            palette_length: patternData.palette?.length,
+                            grid_length: patternData.grid?.length,
+                            threads_length: patternData.threads?.length
+                        });
+
                         this.patternData = patternData;
                         this.isGenerating = false;
                         this.processingStatus = 'complete';
@@ -280,6 +343,7 @@
                     } catch (error) {
                         this.isGenerating = false;
                         this.processingStatus = 'error';
+                        console.error('❌ [FRONTEND] Pattern generation failed:', error);
                         showNotification(error.message, 'error');
                     }
                 },

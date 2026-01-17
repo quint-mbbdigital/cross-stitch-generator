@@ -65,10 +65,60 @@ async def upload_image(file: UploadFile = File(...)):
 
 
 @router.post("/generate/{job_id}")
-async def generate_pattern(job_id: str, config: PatternConfig, request: Request):
+async def generate_pattern(job_id: str, request: Request):
     """Generate pattern from previously uploaded image."""
     logger.info(f"🎨 Pattern generation started - job_id: {job_id}")
-    logger.info(f"⚙️ Config: {config.resolution}x{config.resolution}, {config.max_colors} colors, {config.quantization.value}")
+
+    # Enhanced config parsing and logging to debug 422 errors
+    try:
+        # Log request headers for debugging
+        logger.info(f"🔍 Request headers: Content-Type: {request.headers.get('content-type')}")
+        logger.info(f"🔍 Request method: {request.method}")
+
+        # Read and parse request body manually for better error handling
+        body = await request.body()
+        logger.info(f"📤 Raw request body: {body.decode('utf-8')}")
+
+        try:
+            import json
+            raw_config = json.loads(body.decode('utf-8'))
+            logger.info(f"📋 Raw parsed JSON config: {raw_config}")
+        except json.JSONDecodeError as e:
+            logger.error(f"❌ Invalid JSON in request body: {str(e)}")
+            raise HTTPException(422, f"Invalid JSON format: {str(e)}")
+
+        # Try to create PatternConfig with detailed validation error handling
+        try:
+            from pydantic import ValidationError
+            config = PatternConfig.model_validate(raw_config)
+        except ValidationError as e:
+            logger.error(f"❌ Pydantic validation failed: {str(e)}")
+            error_details = []
+            for error in e.errors():
+                error_details.append(f"{'.'.join(str(x) for x in error['loc'])}: {error['msg']}")
+            raise HTTPException(422, f"Configuration validation failed: {'; '.join(error_details)}")
+
+        # Log parsed config in detail
+        logger.info(f"✅ Successfully parsed config:")
+        logger.info(f"   📐 Resolution: {config.resolution} (type: {type(config.resolution)})")
+        logger.info(f"   🎨 Max Colors: {config.max_colors} (type: {type(config.max_colors)})")
+        logger.info(f"   🔧 Quantization: {config.quantization} -> {config.quantization.value}")
+        logger.info(f"   🖼️ Edge Mode: {config.edge_mode} -> {config.edge_mode.value}")
+        logger.info(f"   🫥 Transparency: {config.transparency} -> {config.transparency.value}")
+        logger.info(f"   🧹 Min Color %: {config.min_color_percent} (type: {type(config.min_color_percent)})")
+        logger.info(f"   🧵 Enable DMC: {config.enable_dmc} (type: {type(config.enable_dmc)})")
+        logger.info(f"   🎯 DMC Only: {config.dmc_only} (type: {type(config.dmc_only)})")
+
+        # Log the full config as JSON for debugging
+        logger.info(f"📋 Full validated config JSON: {config.model_dump_json()}")
+
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions as-is
+    except Exception as e:
+        logger.error(f"❌ Unexpected error during config parsing: {str(e)}", exc_info=True)
+        raise HTTPException(500, f"Internal error processing configuration: {str(e)}")
+
+    logger.info(f"⚙️ Config Summary: {config.resolution}x{config.resolution}, {config.max_colors} colors, {config.quantization.value}")
 
     if job_id not in _jobs:
         logger.warning(f"❌ Job not found: {job_id}")
