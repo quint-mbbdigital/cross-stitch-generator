@@ -1,7 +1,7 @@
 <!-- Canvas Header -->
 <div class="flex items-center justify-between px-4 h-14 border-b border-slate-200 bg-white">
     <!-- Segmented Control (Cold Utility Design) -->
-    <div class="flex items-center gap-4" x-show="patternData">
+    <div class="flex items-center gap-4 ml-4" x-show="patternData">
         <div class="bg-zinc-100 p-1 rounded-lg flex">
             <button
                 @click="setViewMode('stitch')"
@@ -85,7 +85,7 @@
         class="h-full flex items-center justify-center p-8"
     >
         <div
-            class="w-full max-w-lg aspect-square border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center gap-6 transition-colors"
+            class="w-full max-w-lg aspect-square border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center gap-8 transition-colors"
             :class="{ 'border-indigo-500 bg-indigo-50/20': isDragging }"
             x-data="{ isDragging: false }"
             @dragover.prevent="isDragging = true"

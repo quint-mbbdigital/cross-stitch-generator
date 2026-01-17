@@ -166,7 +166,7 @@
       <div class="flex items-center justify-between cursor-pointer" @click="toggleAdvanced">
         <div>
           <h3 class="text-sm font-medium text-slate-700">Advanced Settings</h3>
-          <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-1 mb-1 leading-relaxed">Fine-tune algorithms, export options, and professional thread matching</p>
+          <p class="text-sm text-slate-500">Algorithm and export options</p>
         </div>
         <i :class="advancedOpen ? 'rotate-180' : ''" class="w-4 h-4 text-slate-400 hover:text-slate-600 transform transition-all duration-200" data-lucide="chevron-down"></i>
       </div>
@@ -339,11 +339,11 @@
   <div class="sticky bottom-0 p-4 border-t border-slate-200 bg-white">
     <!-- Generate/Regenerate Button with HTMX -->
     <button
-      x-show="hasImage && jobId"
-      :disabled="isGenerating"
-      class="w-full py-4 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center text-sm tracking-wide bg-slate-700 hover:bg-slate-800 text-white shadow-sm border border-slate-600"
+      :disabled="isGenerating || !hasImage"
+      class="w-full py-4 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center text-sm tracking-wide"
       :class="{
-        'opacity-50 cursor-not-allowed bg-slate-500 hover:bg-slate-500': isGenerating
+        'bg-slate-700 hover:bg-slate-800 text-white shadow-sm border border-slate-600': !isGenerating && hasImage,
+        'opacity-50 cursor-not-allowed bg-slate-300 text-slate-500 border border-slate-200': isGenerating || !hasImage
       }"
       @click="regeneratePattern()"
     >
@@ -362,7 +362,7 @@
       <template x-if="!isGenerating">
         <div class="flex items-center">
           <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
-          <span x-text="patternData ? 'Regenerate Pattern' : 'Generate Pattern'"></span>
+          <span x-text="hasImage && patternData ? 'Regenerate Pattern' : 'Generate Pattern'"></span>
         </div>
       </template>
     </button>
