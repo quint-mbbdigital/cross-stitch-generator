@@ -216,6 +216,29 @@
                     }
                 },
 
+                // Check if symbols are available (cells large enough to render symbols)
+                symbolsAvailable() {
+                    if (!this.patternData) return false;
+
+                    // Calculate the same cell size as PatternStore
+                    const maxCanvasSize = Math.min(window.innerWidth - 400, window.innerHeight - 100);
+                    const maxDimension = Math.max(this.patternData.width, this.patternData.height);
+                    const cellSize = Math.max(2, Math.floor(maxCanvasSize / maxDimension));
+
+                    return cellSize >= 8; // Same threshold as pattern-store.js
+                },
+
+                symbolsTooltipText() {
+                    if (!this.patternData) return '';
+
+                    if (this.symbolsAvailable()) {
+                        return 'Show pattern with symbols for color identification';
+                    } else {
+                        const maxDimension = Math.max(this.patternData.width, this.patternData.height);
+                        return `Symbols not available for ${maxDimension}×${maxDimension} patterns. Try a smaller resolution (≤120×120) to enable symbols.`;
+                    }
+                },
+
                 zoomIn() {
                     this.zoom = Math.min(this.zoom * 1.25, 5);
                 },
