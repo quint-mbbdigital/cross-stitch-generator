@@ -363,6 +363,9 @@
                         // Trigger magic moment reveal
                         this.$dispatch('magic-moment', { data: patternData });
 
+                        // Preserve current view mode (symbols/colors) after regeneration
+                        this.$dispatch('render-pattern', { mode: this.viewMode });
+
                     } catch (error) {
                         this.isGenerating = false;
                         this.processingStatus = 'error';
