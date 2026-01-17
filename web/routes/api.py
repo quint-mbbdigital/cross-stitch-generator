@@ -34,9 +34,9 @@ async def upload_image(file: UploadFile = File(...)):
     file_size_mb = len(contents) / (1024 * 1024)
     logger.info(f"📊 File size: {file_size_mb:.2f}MB")
 
-    if len(contents) > 10 * 1024 * 1024:  # 10MB limit
-        logger.warning(f"📁 File too large: {file_size_mb:.2f}MB > 10MB")
-        raise HTTPException(413, "Image too large (max 10MB)")
+    if len(contents) > 15 * 1024 * 1024:  # 15MB limit
+        logger.warning(f"📁 File too large: {file_size_mb:.2f}MB > 15MB")
+        raise HTTPException(413, "Image too large (max 15MB)")
 
     try:
         logger.info("🔄 Starting image processing...")

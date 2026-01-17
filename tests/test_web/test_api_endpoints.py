@@ -100,8 +100,8 @@ class TestAPIEndpoints:
 
     def test_upload_oversized_file(self):
         """Test upload size limit."""
-        # Create a large file (11MB > 10MB limit)
-        large_data = b"x" * (11 * 1024 * 1024)
+        # Create a large file (16MB > 15MB limit)
+        large_data = b"x" * (16 * 1024 * 1024)
         files = {"file": ("large.jpg", large_data, "image/jpeg")}
 
         response = client.post("/api/upload", files=files)
