@@ -12,11 +12,13 @@
                 Colors
             </button>
             <button
-                @click="setViewMode('symbol')"
-                :class="viewMode === 'symbol' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-600 hover:text-zinc-900'"
+                @click="symbolsAvailable() ? setViewMode('symbol') : null"
+                :class="viewMode === 'symbol' ? 'bg-white text-zinc-900 shadow-sm' : symbolsAvailable() ? 'text-zinc-600 hover:text-zinc-900' : 'text-zinc-400 cursor-not-allowed'"
+                :disabled="!symbolsAvailable()"
+                :title="symbolsTooltipText()"
                 class="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 flex items-center gap-2"
             >
-                <i data-lucide="map" class="w-4 h-4"></i>
+                <i data-lucide="map" :class="symbolsAvailable() ? 'w-4 h-4' : 'w-4 h-4 opacity-50'"></i>
                 Symbols
             </button>
         </div>
