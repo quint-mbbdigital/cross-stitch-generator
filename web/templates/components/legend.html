@@ -6,7 +6,7 @@
             <i data-lucide="x" class="w-4 h-4"></i>
         </button>
     </div>
-    <div class="text-xs text-slate-500 mt-1">
+    <div class="text-xs text-slate-400 mt-1">
         <span x-text="patternData?.threads?.length || 0"></span> colors •
         <span x-text="patternData?.total_stitches?.toLocaleString() || 0"></span> stitches
     </div>
@@ -31,13 +31,13 @@
                         <template x-if="thread.dmc_code && thread.dmc_code !== ''">
                             <div class="flex items-baseline gap-2">
                                 <span class="text-sm font-medium text-slate-800" x-text="thread.dmc_code"></span>
-                                <span class="text-xs text-slate-500 truncate" x-text="thread.name || ''"></span>
+                                <span class="text-xs text-slate-400 truncate" x-text="thread.name || ''"></span>
                             </div>
                         </template>
                         <template x-if="!thread.dmc_code || thread.dmc_code === ''">
                             <div class="flex items-baseline gap-2">
                                 <span class="text-sm font-medium text-slate-800" x-text="thread.name"></span>
-                                <span class="text-xs text-slate-500 font-mono" x-text="thread.hex_color"></span>
+                                <span class="text-xs text-slate-400 font-mono" x-text="thread.hex_color"></span>
                             </div>
                         </template>
                     </div>

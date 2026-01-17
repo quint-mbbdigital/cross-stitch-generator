@@ -1,5 +1,5 @@
 <!-- Canvas Header -->
-<div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white">
+<div class="flex items-center justify-between px-4 h-14 border-b border-slate-200 bg-white">
     <!-- Segmented Control (Cold Utility Design) -->
     <div class="flex items-center gap-4" x-show="patternData">
         <div class="bg-zinc-100 p-1 rounded-lg flex">
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Zoom Controls (Subtle, Cold Utility) -->
-    <div class="flex items-center gap-1" x-show="patternData">
+    <div class="flex items-center gap-2" x-show="patternData">
         <button @click="zoomOut" class="p-2 text-zinc-500 hover:text-zinc-700 transition-colors">
             <i data-lucide="minus" class="w-4 h-4"></i>
         </button>
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Actions (Cold Utility) -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-3">
         <button
             x-show="hasImage"
             @click="document.getElementById('new-file-input').click()"
@@ -85,14 +85,14 @@
         class="h-full flex items-center justify-center p-8"
     >
         <div
-            class="w-full max-w-md aspect-square border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center gap-4 transition-colors"
+            class="w-full max-w-lg aspect-square border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center gap-6 transition-colors"
             :class="{ 'border-indigo-500 bg-indigo-50/20': isDragging }"
             x-data="{ isDragging: false }"
             @dragover.prevent="isDragging = true"
             @dragleave.prevent="isDragging = false"
             @drop.prevent="handleFileDrop($event)"
         >
-            <i data-lucide="image-plus" class="w-12 h-12 text-slate-400"></i>
+            <i data-lucide="image-plus" class="w-16 h-16 text-slate-400"></i>
             <div class="text-center">
                 <p class="text-slate-600 font-medium">Drop your image here</p>
                 <p class="text-sm text-slate-400 mt-1">or click to browse</p>

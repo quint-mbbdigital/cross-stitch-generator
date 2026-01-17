@@ -39,6 +39,15 @@
 
     <!-- Custom Styles -->
     <style>
+        /* Systematic Spacing Variables */
+        :root {
+            --spacing-1: 4px;   /* Micro spacing (icon-to-text) */
+            --spacing-2: 8px;   /* Tight spacing (label-to-control) */
+            --spacing-3: 16px;  /* Standard spacing (within sections) */
+            --spacing-4: 24px;  /* Section spacing (between control groups) */
+            --spacing-5: 32px;  /* Major spacing (sidebar padding) */
+        }
+
         body { font-family: 'Inter', sans-serif; }
 
         /* Aida cloth grid pattern */
@@ -51,9 +60,9 @@
         .label-data {
             font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-            color: #475569;
+            letter-spacing: 0.025em;
+            font-weight: 500;
+            color: #64748b;
         }
 
         /* Custom range slider styling for Modern Atelier */
