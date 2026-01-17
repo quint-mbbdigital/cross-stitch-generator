@@ -1,0 +1,21 @@
+# Web Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+jinja2>=3.1.2
+
+# Async Support
+aiofiles>=23.2.1
+
+# FIXED: Compatible numpy version that works with pandas/sklearn
+numpy>=1.24.0,<2.0.0
+
+# Core Dependencies (fixed versions)
+pillow>=10.0.0,<13.0.0
+openpyxl>=3.1.0
+scikit-learn>=1.3.0,<2.0.0
+
+# Development/Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0
