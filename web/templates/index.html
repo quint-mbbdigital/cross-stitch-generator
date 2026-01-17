@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="h-full flex">
+    <!-- Sidebar (Control Rail) -->
+    <aside
+        x-show="sidebarOpen"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="-translate-x-full"
+        x-transition:enter-end="translate-x-0"
+        class="w-80 flex-shrink-0 bg-slate-50 border-r border-slate-200 flex flex-col h-full overflow-hidden"
+    >
+        {% include "components/sidebar.html" %}
+    </aside>
+
+    <!-- Main Canvas -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
+        {% include "components/canvas.html" %}
+    </main>
+
+    <!-- Legend Drawer -->
+    <div
+        x-show="showLegend && patternData"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="translate-x-full"
+        x-transition:enter-end="translate-x-0"
+        class="w-80 flex-shrink-0 bg-white border-l border-slate-200 overflow-y-auto"
+    >
+        {% include "components/legend.html" %}
+    </div>
+</div>
+
+<!-- Mobile Sidebar Toggle -->
+<button
+    @click="toggleSidebar"
+    class="lg:hidden fixed bottom-4 left-4 z-50 btn btn-circle btn-primary shadow-lg"
+    :class="{ 'hidden': sidebarOpen }"
+>
+    <i data-lucide="settings" class="w-5 h-5"></i>
+</button>
+{% endblock %}

@@ -1,0 +1,363 @@
+<!-- Pattern Settings Sidebar - Modern Atelier Design -->
+<div class="w-80 bg-slate-50 border-r border-slate-200 flex flex-col h-full">
+
+  <!-- Controls -->
+  <div class="flex-1 overflow-y-auto p-6 space-y-8">
+    <!-- Pattern Controls -->
+    <div class="space-y-6 pb-6">
+      <div class="border-b border-slate-200 pb-4 mb-6">
+        <div class="flex items-center justify-between cursor-pointer" @click="toggleEssentials">
+          <div>
+            <h2 class="text-lg font-semibold text-slate-800 mb-1">Pattern Controls</h2>
+            <p class="text-sm text-slate-600">Adjust size, colors, and image enhancement for your cross-stitch pattern</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              @click.stop="toggleSubtitles()"
+              :class="showSubtitles ? 'text-slate-700 bg-slate-100' : 'text-slate-500 hover:text-slate-700'"
+              class="p-1.5 rounded-md transition-all duration-200 flex items-center justify-center"
+              title="Toggle detailed descriptions"
+            >
+              <i data-lucide="info" class="w-4 h-4"></i>
+            </button>
+            <i :class="essentialsOpen ? 'rotate-180' : ''" class="w-5 h-5 text-slate-600 transform transition-transform duration-200" data-lucide="chevron-down"></i>
+          </div>
+        </div>
+      </div>
+
+      <div x-show="essentialsOpen" x-transition class="space-y-6">
+
+      <!-- Pattern Size (Resolution) -->
+      <div class="space-y-3">
+        <div class="flex items-baseline justify-between">
+          <div>
+            <label class="label-data">Pattern Size</label>
+            <p x-show="showSubtitles" x-transition class="text-xs text-slate-500 mt-1">Higher values create more detailed patterns with smaller stitches</p>
+          </div>
+          <span x-text="config.resolution + 'x' + config.resolution + ' stitches'" class="text-xs font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded"></span>
+        </div>
+      <input
+        type="range"
+        x-model.number="config.resolution"
+        min="30"
+        max="300"
+        step="10"
+        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer focus:ring-2 focus:ring-slate-400 focus:outline-none"
+        style="background: linear-gradient(to right, #64748b 0%, #64748b var(--value), #cbd5e1 var(--value), #cbd5e1 100%)"
+        x-bind:style="`--value: ${((config.resolution - 30) / (300 - 30)) * 100}%`"
+      >
+      <div class="flex justify-between text-xs font-medium text-slate-500">
+        <span>30</span>
+        <span>300</span>
+      </div>
+    </div>
+
+      <!-- Number of Colors (Max Colors) -->
+      <div class="space-y-3">
+        <div class="flex items-baseline justify-between">
+          <div>
+            <label class="label-data">Number of Colors</label>
+            <p x-show="showSubtitles" x-transition class="text-xs text-slate-500 mt-1">Maximum thread colors to use - fewer colors simplify stitching</p>
+          </div>
+          <span x-text="config.max_colors" class="text-xs font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded"></span>
+        </div>
+      <input
+        type="range"
+        x-model.number="config.max_colors"
+        min="2"
+        max="256"
+        step="2"
+        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer focus:ring-2 focus:ring-slate-400 focus:outline-none"
+        style="background: linear-gradient(to right, #64748b 0%, #64748b var(--value), #cbd5e1 var(--value), #cbd5e1 100%)"
+        x-bind:style="`--value: ${((config.max_colors - 2) / (256 - 2)) * 100}%`"
+      >
+      <div class="flex justify-between text-xs font-medium text-slate-500">
+        <span>2</span>
+        <span>256</span>
+      </div>
+    </div>
+
+      <!-- Edge Sharpening -->
+      <div class="space-y-3">
+        <div>
+          <label class="label-data">Edge Sharpening</label>
+          <p x-show="showSubtitles" x-transition class="text-xs text-slate-500 mt-1">Enhance edges and fine details for clearer pattern definition</p>
+        </div>
+      <div class="space-y-2">
+        <label class="flex items-center p-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+          <input
+            type="radio"
+            x-model="config.edge_mode"
+            value="smooth"
+            class="h-4 w-4 text-slate-600 focus:ring-slate-500 border-slate-300"
+          >
+          <span class="ml-3 text-sm font-medium text-slate-700">None</span>
+        </label>
+        <label class="flex items-center p-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+          <input
+            type="radio"
+            x-model="config.edge_mode"
+            value="hard"
+            class="h-4 w-4 text-slate-600 focus:ring-slate-500 border-slate-300"
+          >
+          <span class="ml-3 text-sm font-medium text-slate-700">Light Enhancement</span>
+        </label>
+        <label class="flex items-center p-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+          <input
+            type="radio"
+            x-model="config.edge_mode"
+            value="strong"
+            class="h-4 w-4 text-slate-600 focus:ring-slate-500 border-slate-300"
+          >
+          <span class="ml-3 text-sm font-medium text-slate-700">Strong Enhancement</span>
+        </label>
+      </div>
+    </div>
+
+
+      <!-- Color Cleanup -->
+      <div class="space-y-3">
+        <div class="flex items-baseline justify-between">
+          <div>
+            <label class="label-data">Color Cleanup</label>
+            <p x-show="showSubtitles" x-transition class="text-xs text-slate-500 mt-1">Remove isolated areas smaller than this percentage</p>
+          </div>
+          <span x-text="config.min_color_percent + '%'" class="text-xs font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded"></span>
+        </div>
+        <input
+          type="range"
+          x-model.number="config.min_color_percent"
+          min="0"
+          max="10"
+          step="0.1"
+          class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer focus:ring-2 focus:ring-slate-400 focus:outline-none"
+          style="background: linear-gradient(to right, #64748b 0%, #64748b var(--value), #cbd5e1 var(--value), #cbd5e1 100%)"
+          x-bind:style="`--value: ${(config.min_color_percent / 10) * 100}%`"
+        >
+        <div class="flex justify-between text-xs font-medium text-slate-500">
+          <span>0%</span>
+          <span>10%</span>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Advanced Settings -->
+    <div class="space-y-4 border-t border-slate-200 pt-6">
+      <div class="flex items-center justify-between cursor-pointer" @click="toggleAdvanced">
+        <div>
+          <h3 class="text-md font-semibold text-slate-700">Advanced Settings</h3>
+          <p x-show="showSubtitles" x-transition class="text-xs text-slate-500">Fine-tune algorithms, export options, and professional thread matching</p>
+        </div>
+        <i :class="advancedOpen ? 'rotate-180' : ''" class="w-5 h-5 text-slate-600 transform transition-transform duration-200" data-lucide="chevron-down"></i>
+      </div>
+
+      <div x-show="advancedOpen" x-transition class="space-y-6">
+        <!-- Quantization Algorithm -->
+        <div class="space-y-3">
+          <div>
+            <label class="label-data">Quantization Algorithm</label>
+            <p x-show="showSubtitles" x-transition class="text-xs text-slate-500 mt-1">Method for reducing image colors - Median Cut for balanced results, K-means for smoother gradients</p>
+          </div>
+          <div class="space-y-2">
+            <label class="flex items-center p-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+              <input
+                type="radio"
+                x-model="config.quantization"
+                value="median_cut"
+                class="h-4 w-4 text-slate-600 focus:ring-slate-500 border-slate-300"
+              >
+              <span class="ml-3 text-sm text-slate-700">Median Cut</span>
+            </label>
+            <label class="flex items-center p-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+              <input
+                type="radio"
+                x-model="config.quantization"
+                value="kmeans"
+                class="h-4 w-4 text-slate-600 focus:ring-slate-500 border-slate-300"
+              >
+              <span class="ml-3 text-sm text-slate-700">K-means Clustering</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Color Merge Distance -->
+        <div class="space-y-3">
+          <div class="flex items-baseline justify-between">
+            <div>
+              <label class="label-data">Color Merge Distance</label>
+              <p x-show="showSubtitles" x-transition class="text-xs text-slate-500 mt-1">Automatically combine very similar colors to reduce thread variety</p>
+            </div>
+            <span x-text="config.max_merge_distance" class="text-xs font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded"></span>
+          </div>
+          <input
+            type="range"
+            x-model.number="config.max_merge_distance"
+            min="0"
+            max="100"
+            step="5"
+            class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer focus:ring-2 focus:ring-slate-400 focus:outline-none"
+            style="background: linear-gradient(to right, #64748b 0%, #64748b var(--value), #cbd5e1 var(--value), #cbd5e1 100%)"
+            x-bind:style="`--value: ${(config.max_merge_distance / 100) * 100}%`"
+          >
+          <div class="flex justify-between text-xs font-medium text-slate-500">
+            <span>0</span>
+            <span>100</span>
+          </div>
+        </div>
+
+        <!-- Multi-Resolution Export -->
+        <div class="space-y-3">
+          <div>
+            <label class="label-data">Multi-Resolution Export</label>
+            <p x-show="showSubtitles" x-transition class="text-xs text-slate-500 mt-1">Export multiple pattern sizes in one file for different project scales</p>
+          </div>
+          <label class="flex items-center p-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+            <input
+              type="checkbox"
+              x-model="multiResolution"
+              class="h-4 w-4 text-slate-600 focus:ring-slate-500 border-slate-300 rounded"
+            >
+            <span class="ml-3 text-sm text-slate-700">Enable multi-resolution</span>
+          </label>
+          <div x-show="multiResolution" x-transition class="ml-6 space-y-2 border-l-2 border-slate-200 pl-4">
+            <input
+              type="text"
+              x-model="config.resolutions"
+              placeholder="e.g., 50x50,100x100,150x150"
+              class="w-full text-sm border border-slate-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
+            >
+          </div>
+        </div>
+
+        <!-- Excel Options -->
+        <div class="space-y-3">
+          <div>
+            <label class="label-data">Excel Formatting</label>
+            <p x-show="showSubtitles" x-transition class="text-xs text-slate-500 mt-1">Control how your pattern appears in the exported Excel file</p>
+          </div>
+
+          <!-- Excel Cell Size -->
+          <div class="space-y-2">
+            <div class="flex items-baseline justify-between">
+              <label class="text-sm font-medium text-slate-700">Cell Size</label>
+              <span x-text="config.excel_cell_size + 'px'" class="text-xs font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded"></span>
+            </div>
+            <input
+              type="range"
+              x-model.number="config.excel_cell_size"
+              min="10"
+              max="50"
+              step="5"
+              class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer focus:ring-2 focus:ring-slate-400 focus:outline-none"
+              style="background: linear-gradient(to right, #64748b 0%, #64748b var(--value), #cbd5e1 var(--value), #cbd5e1 100%)"
+              x-bind:style="`--value: ${((config.excel_cell_size - 10) / (50 - 10)) * 100}%`"
+            >
+          </div>
+
+          <!-- Include Color Legend -->
+          <label class="flex items-center p-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+            <input
+              type="checkbox"
+              x-model="config.include_color_legend"
+              class="h-4 w-4 text-slate-600 focus:ring-slate-500 border-slate-300 rounded"
+            >
+            <span class="ml-3 text-sm text-slate-700">Include color legend sheet</span>
+          </label>
+        </div>
+
+        <!-- Real Thread Colors (DMC) -->
+        <div class="space-y-3">
+          <div>
+            <label class="label-data">Real Thread Colors</label>
+            <p x-show="showSubtitles" x-transition class="text-xs text-slate-500 mt-1">Match colors to actual DMC embroidery floss for accurate shopping lists</p>
+          </div>
+          <div class="space-y-3">
+            <label class="flex items-center p-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+              <input
+                type="checkbox"
+                x-model="config.enable_dmc"
+                class="h-4 w-4 text-slate-600 focus:ring-slate-500 border-slate-300 rounded"
+              >
+              <span class="ml-3 text-sm font-medium text-slate-700">Match to DMC colors</span>
+            </label>
+
+            <div x-show="config.enable_dmc" x-transition class="ml-6 space-y-3 border-l-2 border-slate-200 pl-4">
+              <label class="flex items-center p-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  x-model="config.dmc_only"
+                  class="h-4 w-4 text-slate-600 focus:ring-slate-500 border-slate-300 rounded"
+                >
+                <span class="ml-3 text-sm text-slate-600">DMC colors only</span>
+              </label>
+
+              <!-- DMC Palette Size Limit -->
+              <div class="space-y-2">
+                <div class="flex items-baseline justify-between">
+                  <label class="text-sm font-medium text-slate-700">DMC Palette Limit</label>
+                  <span x-text="config.dmc_palette_size || 'Unlimited'" class="text-xs font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded"></span>
+                </div>
+                <input
+                  type="range"
+                  x-model.number="config.dmc_palette_size"
+                  min="10"
+                  max="100"
+                  step="5"
+                  class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer focus:ring-2 focus:ring-slate-400 focus:outline-none"
+                  style="background: linear-gradient(to right, #64748b 0%, #64748b var(--value), #cbd5e1 var(--value), #cbd5e1 100%)"
+                  x-bind:style="`--value: ${((config.dmc_palette_size - 10) / (100 - 10)) * 100}%`"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Action Button (Quiet Studio Approach) -->
+  <div class="p-6 border-t border-slate-200 bg-white">
+    <!-- Generate/Regenerate Button with HTMX -->
+    <button
+      x-show="hasImage && jobId"
+      :disabled="isGenerating"
+      class="w-full py-4 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center text-sm tracking-wide bg-slate-700 hover:bg-slate-800 text-white shadow-sm border border-slate-600"
+      :class="{
+        'opacity-50 cursor-not-allowed bg-slate-500 hover:bg-slate-500': isGenerating
+      }"
+      @click="regeneratePattern()"
+    >
+      <!-- Loading State -->
+      <template x-if="isGenerating">
+        <div class="flex items-center">
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-current" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span x-text="processingStatus || 'Processing...'"></span>
+        </div>
+      </template>
+
+      <!-- Default State -->
+      <template x-if="!isGenerating">
+        <div class="flex items-center">
+          <i data-lucide="refresh-cw" class="w-5 h-5 mr-2"></i>
+          <span x-text="patternData ? 'Regenerate Pattern' : 'Generate Pattern'"></span>
+        </div>
+      </template>
+    </button>
+
+
+    <!-- Pattern Stats (Subtle) -->
+    <div
+      x-show="patternData && !isGenerating"
+      class="text-center mt-3 pt-3 border-t border-slate-100"
+    >
+      <p class="text-xs text-slate-500">
+        <span x-text="patternData?.width || ''"></span>×<span x-text="patternData?.height || ''"></span> stitches •
+        <span x-text="patternData?.palette?.length || 0"></span> colors
+      </p>
+    </div>
+  </div>
+</div>

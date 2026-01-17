@@ -1,0 +1,33 @@
+<!-- Thread List Content (Used for HTMX OOB Updates) -->
+<div class="p-4 space-y-2" {% if pattern_data %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+    {% if pattern_data and pattern_data.threads %}
+        {% for thread in pattern_data.threads %}
+        <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+            <!-- Color Swatch -->
+            <div
+                class="w-8 h-8 rounded-md shadow-inner flex-shrink-0 border border-slate-200"
+                style="background-color: {{ thread.hex_color }};"
+            ></div>
+
+            <!-- Thread Info -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-baseline gap-2">
+                    <span class="text-sm font-medium text-slate-800">{{ thread.dmc_code if thread.dmc_code else "Color " + loop.index|string }}</span>
+                    <span class="text-xs text-slate-500 truncate">{{ thread.name }}</span>
+                </div>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-xs text-slate-400">{{ "{:,}".format(thread.stitch_count) }} stitches</span>
+                    <span class="text-xs text-slate-300">•</span>
+                    <span class="text-xs text-slate-400">{{ thread.percentage }}%</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- Empty Legend State -->
+<div class="p-8 text-center" {% if pattern_data %}style="display: none;"{% else %}style="display: block;"{% endif %}>
+    <i data-lucide="palette" class="w-8 h-8 text-slate-300 mx-auto"></i>
+    <p class="text-sm text-slate-400 mt-2">Generate a pattern to see the thread legend</p>
+</div>

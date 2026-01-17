@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cross-Stitch Generator{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS + DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            },
+            daisyui: {
+                themes: ["light"],
+            },
+        }
+    </script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@0.312.0/dist/umd/lucide.min.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Aida cloth grid pattern */
+        .canvas-grid {
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Modern Atelier data labels */
+        .label-data {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* Custom range slider styling for Modern Atelier */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #475569;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #334155;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #475569;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #334155;
+        }
+
+        /* HTMX loading indicator */
+        .htmx-indicator {
+            opacity: 0;
+            transition: opacity 200ms ease-in;
+        }
+        .htmx-request .htmx-indicator {
+            opacity: 1;
+        }
+        .htmx-request.htmx-indicator {
+            opacity: 1;
+        }
+
+        /* Magic Moment Reveal (Darkroom Effect) */
+        .magic-moment {
+            animation: magicReveal 1.2s ease-out;
+        }
+        @keyframes magicReveal {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+                filter: blur(8px);
+            }
+            60% {
+                opacity: 0.7;
+                filter: blur(2px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        /* Button success state animation */
+        .success-flash {
+            animation: successFlash 0.8s ease-out;
+        }
+        @keyframes successFlash {
+            0% { background-color: rgb(16 185 129); }
+            50% { background-color: rgb(5 150 105); transform: scale(1.02); }
+            100% { background-color: rgb(16 185 129); transform: scale(1); }
+        }
+
+        /* Modern form focus states */
+        input:focus, button:focus {
+            outline: 2px solid #94a3b8;
+            outline-offset: 2px;
+        }
+
+        /* Enhanced radio and checkbox styling */
+        input[type="radio"]:checked, input[type="checkbox"]:checked {
+            background-color: #475569;
+            border-color: #475569;
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-white font-sans antialiased" x-data="appState()">
+    {% block body %}{% endblock %}
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Alpine.js application state
+        function appState() {
+            return {
+                // UI State
+                sidebarOpen: true,
+                viewMode: 'stitch', // 'stitch' | 'map' (segmented control)
+                showLegend: false,
+                zoom: 1,
+
+                // Configuration State (maps 1:1 to PatternConfig Pydantic model)
+                config: {
+                    // Current 8 parameters
+                    resolution: 100,
+                    max_colors: 64,
+                    quantization: 'median_cut',
+                    edge_mode: 'smooth',
+                    transparency: 'white_background',
+                    min_color_percent: 1.0,
+                    enable_dmc: true,
+                    dmc_only: false,
+
+                    // Added 7 missing CLI parameters
+                    max_merge_distance: 50.0,
+                    resolutions: null,
+                    excel_cell_size: 20.0,
+                    include_color_legend: true,
+                    legend_sheet_name: 'Color Legend',
+                    dmc_palette_size: null,
+                    dmc_database: null,
+                },
+
+                // Application State
+                jobId: null,
+                hasImage: false,
+                isGenerating: false,
+                processingStatus: 'idle', // 'idle' | 'uploading' | 'generating' | 'complete' | 'error'
+                patternData: null,
+
+                // Panel State
+                essentialsOpen: true,
+                advancedOpen: false,
+                multiResolution: false,
+                customDmcFile: null,
+                showSubtitles: false, // Hide subtitles by default for cleaner look
+
+                // Methods
+                toggleSidebar() {
+                    this.sidebarOpen = !this.sidebarOpen;
+                },
+
+                setViewMode(mode) {
+                    this.viewMode = mode;
+                    if (this.patternData) {
+                        this.$dispatch('render-pattern', { mode });
+                    }
+                },
+
+                zoomIn() {
+                    this.zoom = Math.min(this.zoom * 1.25, 5);
+                },
+
+                zoomOut() {
+                    this.zoom = Math.max(this.zoom / 1.25, 0.25);
+                },
+
+                resetZoom() {
+                    this.zoom = 1;
+                },
+
+                toggleAdvanced() {
+                    this.advancedOpen = !this.advancedOpen;
+                    localStorage.setItem('advancedOpen', this.advancedOpen);
+                },
+
+                toggleEssentials() {
+                    this.essentialsOpen = !this.essentialsOpen;
+                    localStorage.setItem('essentialsOpen', this.essentialsOpen);
+                },
+
+                toggleSubtitles() {
+                    this.showSubtitles = !this.showSubtitles;
+                    localStorage.setItem('showSubtitles', this.showSubtitles);
+                },
+
+                async regeneratePattern() {
+                    if (!this.jobId) {
+                        showNotification('Please upload an image first', 'error');
+                        return;
+                    }
+
+                    this.isGenerating = true;
+                    this.processingStatus = 'Regenerating pattern...';
+
+                    try {
+                        const response = await fetch(`/api/generate/${this.jobId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.config)
+                        });
+
+                        if (!response.ok) {
+                            const error = await response.json();
+                            throw new Error(error.detail || 'Generation failed');
+                        }
+
+                        const patternData = await response.json();
+                        this.patternData = patternData;
+                        this.isGenerating = false;
+                        this.processingStatus = 'complete';
+
+                        // Reset to normal after 1.5 seconds
+                        setTimeout(() => {
+                            this.processingStatus = 'idle';
+                        }, 1500);
+
+                        // Trigger magic moment reveal
+                        this.$dispatch('magic-moment', { data: patternData });
+
+                    } catch (error) {
+                        this.isGenerating = false;
+                        this.processingStatus = 'error';
+                        showNotification(error.message, 'error');
+                    }
+                },
+
+                init() {
+                    const savedAdvanced = localStorage.getItem('advancedOpen');
+                    this.advancedOpen = savedAdvanced === 'true';
+
+                    const savedEssentials = localStorage.getItem('essentialsOpen');
+                    this.essentialsOpen = savedEssentials !== 'false'; // Default to true
+
+                    const savedSubtitles = localStorage.getItem('showSubtitles');
+                    this.showSubtitles = savedSubtitles === 'true'; // Default to false for cleaner look
+                },
+            };
+        }
+    </script>
+
+    <!-- Pattern Store and Interactions -->
+    <script src="/static/js/pattern-store.js"></script>
+    <script src="/static/js/upload-handler.js"></script>
+    <script src="/static/js/interactions.js"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

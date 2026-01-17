@@ -1,0 +1,48 @@
+<!-- Legend Header -->
+<div class="p-4 border-b border-slate-200 sticky top-0 bg-white z-10">
+    <div class="flex items-center justify-between">
+        <h2 class="text-sm font-medium text-slate-800">Thread Legend</h2>
+        <button @click="showLegend = false" class="p-1 text-slate-400 hover:text-slate-600 transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
+    <div class="text-xs text-slate-500 mt-1">
+        <span x-text="patternData?.threads?.length || 0"></span> colors •
+        <span x-text="patternData?.total_stitches?.toLocaleString() || 0"></span> stitches
+    </div>
+</div>
+
+<!-- Thread List -->
+<div class="legend-content">
+    <!-- Thread Legend with Data -->
+    <div x-show="patternData" class="p-4 space-y-2">
+        <template x-for="(thread, index) in patternData?.threads || []" :key="thread.dmc_code || index">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                <!-- Color Swatch -->
+                <div
+                    class="w-8 h-8 rounded-md shadow-inner flex-shrink-0 border border-slate-200"
+                    :style="{ backgroundColor: thread.hex_color }"
+                ></div>
+
+                <!-- Thread Info -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-sm font-medium text-slate-800" x-text="thread.dmc_code || ('Color ' + (index + 1))"></span>
+                        <span class="text-xs text-slate-500 truncate" x-text="thread.name || ''"></span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span class="text-xs text-slate-400" x-text="(thread.stitch_count || 0).toLocaleString() + ' stitches'"></span>
+                        <span class="text-xs text-slate-300">•</span>
+                        <span class="text-xs text-slate-400" x-text="(thread.percentage || 0) + '%'"></span>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <!-- Empty Legend State -->
+    <div class="p-8 text-center" x-show="!patternData">
+        <i data-lucide="palette" class="w-8 h-8 text-slate-300 mx-auto"></i>
+        <p class="text-sm text-slate-400 mt-2">Generate a pattern to see the thread legend</p>
+    </div>
+</div>

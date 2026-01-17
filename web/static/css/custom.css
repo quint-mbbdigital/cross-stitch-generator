@@ -1,0 +1,693 @@
+/**
+ * Modern Atelier - Custom CSS Styles
+ * Enhanced styling for the Cross-Stitch Pattern Generator
+ * Focus: Mobile responsiveness, touch interactions, professional aesthetic
+ */
+
+/* ==========================================================================
+   AIDA CLOTH GRID PATTERNS & VARIATIONS
+   ========================================================================== */
+
+/* Default grid pattern (defined in base template, enhanced here) */
+.canvas-grid {
+    background-image:
+        radial-gradient(circle at 1px 1px, rgba(156, 163, 175, 0.4) 1px, transparent 0),
+        linear-gradient(rgba(229, 231, 235, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(229, 231, 235, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px, 20px 20px, 20px 20px;
+    background-position: 0 0, 0 0, 0 0;
+}
+
+/* Fine grid pattern for detailed work */
+.canvas-grid--fine {
+    background-image:
+        radial-gradient(circle at 0.5px 0.5px, rgba(156, 163, 175, 0.3) 0.5px, transparent 0),
+        linear-gradient(rgba(229, 231, 235, 0.08) 0.5px, transparent 0.5px),
+        linear-gradient(90deg, rgba(229, 231, 235, 0.08) 0.5px, transparent 0.5px);
+    background-size: 10px 10px, 10px 10px, 10px 10px;
+}
+
+/* Coarse grid pattern for overview */
+.canvas-grid--coarse {
+    background-image:
+        radial-gradient(circle at 2px 2px, rgba(156, 163, 175, 0.5) 2px, transparent 0),
+        linear-gradient(rgba(229, 231, 235, 0.15) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(229, 231, 235, 0.15) 2px, transparent 2px);
+    background-size: 40px 40px, 40px 40px, 40px 40px;
+}
+
+/* Pattern grid overlay for stitch counting */
+.pattern-grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(79, 70, 229, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 70, 229, 0.1) 1px, transparent 1px);
+    background-size: var(--grid-size, 20px) var(--grid-size, 20px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.pattern-grid-overlay.visible {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE STYLES & TOUCH-FRIENDLY CONTROLS
+   ========================================================================== */
+
+/* Touch-friendly button sizing */
+@media (max-width: 768px) {
+    .btn-sm {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 8px 12px;
+    }
+
+    .btn-square {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* Larger tap targets for sliders */
+    input[type="range"] {
+        height: 8px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-track {
+        background: #e5e7eb;
+        height: 8px;
+        border-radius: 4px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="range"]::-moz-range-track {
+        background: #e5e7eb;
+        height: 8px;
+        border-radius: 4px;
+        border: none;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Mobile sidebar adjustments */
+@media (max-width: 1024px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 40;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* Canvas zoom controls for mobile */
+.canvas-zoom-mobile {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 30;
+}
+
+@media (min-width: 768px) {
+    .canvas-zoom-mobile {
+        display: none;
+    }
+}
+
+/* ==========================================================================
+   ENHANCED BUTTON & FORM CONTROL STYLING
+   ========================================================================== */
+
+/* Enhanced button styles with Modern Atelier aesthetic */
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border: none;
+    color: white;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: white;
+    border: 2px solid #e5e7eb;
+    color: #374151;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Button loading state enhancement */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid;
+    border-color: currentColor transparent currentColor transparent;
+    border-radius: 50%;
+    animation: btn-loading-spin 1s linear infinite;
+}
+
+@keyframes btn-loading-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Enhanced form controls */
+.form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.form-control:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-control:hover {
+    border-color: #d1d5db;
+}
+
+/* Radio button and checkbox enhancements */
+.radio-enhanced,
+.checkbox-enhanced {
+    position: relative;
+    cursor: pointer;
+}
+
+.radio-enhanced input[type="radio"],
+.checkbox-enhanced input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.checkbox-enhanced input[type="checkbox"] {
+    border-radius: 4px;
+}
+
+.radio-enhanced input[type="radio"]:checked,
+.checkbox-enhanced input[type="checkbox"]:checked {
+    background: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.radio-enhanced input[type="radio"]:checked::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+.checkbox-enhanced input[type="checkbox"]:checked::before {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   ANIMATION KEYFRAMES FOR LOADING STATES
+   ========================================================================== */
+
+/* Enhanced fade-in animation */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Pattern generation loading animation */
+@keyframes patternGenerate {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+}
+
+/* Spinner variations */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Loading skeleton animation */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Canvas loading state */
+.canvas-loading {
+    background: linear-gradient(45deg, #f9fafb 25%, transparent 25%),
+                linear-gradient(-45deg, #f9fafb 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #f9fafb 75%),
+                linear-gradient(-45deg, transparent 75%, #f9fafb 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    animation: pattern-loading 2s linear infinite;
+}
+
+@keyframes pattern-loading {
+    0% {
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+    100% {
+        background-position: 20px 0, 20px 10px, 30px -10px, 10px 0px;
+    }
+}
+
+/* ==========================================================================
+   PRINT STYLES FOR PATTERN PRINTING
+   ========================================================================== */
+
+@media print {
+    /* Hide UI elements */
+    .sidebar,
+    .canvas-header,
+    .btn,
+    .navbar {
+        display: none !important;
+    }
+
+    /* Reset page layout */
+    body {
+        margin: 0;
+        padding: 0;
+        background: white !important;
+    }
+
+    /* Pattern canvas adjustments */
+    .canvas-grid {
+        background: none !important;
+    }
+
+    .pattern-container {
+        page-break-inside: avoid;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Legend styling for print */
+    .legend-print {
+        page-break-before: always;
+        margin-top: 2cm;
+    }
+
+    .legend-item {
+        break-inside: avoid;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border: 1px solid #000;
+        flex-shrink: 0;
+    }
+
+    .legend-text {
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        color: #000;
+    }
+
+    /* Pattern info header for print */
+    .pattern-info-print {
+        margin-bottom: 1cm;
+        border-bottom: 2px solid #000;
+        padding-bottom: 0.5cm;
+    }
+
+    .pattern-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .pattern-details {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+}
+
+/* ==========================================================================
+   CUSTOM UTILITY CLASSES - MODERN ATELIER AESTHETIC
+   ========================================================================== */
+
+/* Spacing utilities */
+.space-y-tight > * + * {
+    margin-top: 0.5rem;
+}
+
+.space-y-relaxed > * + * {
+    margin-top: 1.5rem;
+}
+
+/* Typography utilities */
+.text-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+}
+
+.text-value {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #3b82f6;
+}
+
+.text-muted {
+    color: #9ca3af;
+}
+
+/* Layout utilities */
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.aspect-square {
+    aspect-ratio: 1 / 1;
+}
+
+/* Shadow utilities */
+.shadow-soft {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-medium {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-strong {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Border utilities */
+.border-soft {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.border-medium {
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.border-dashed-soft {
+    border: 2px dashed rgba(0, 0, 0, 0.15);
+}
+
+/* Background utilities */
+.bg-pattern {
+    background-image:
+        linear-gradient(45deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%);
+    background-size: 8px 8px;
+    background-position: 0 0, 4px 4px;
+}
+
+.bg-subtle {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* Interactive states */
+.interactive {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.interactive:hover {
+    transform: translateY(-1px);
+}
+
+.interactive:active {
+    transform: translateY(0);
+}
+
+/* Focus states for accessibility */
+.focus-ring {
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Animation classes */
+.animate-fade-in {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.animate-scale-in {
+    animation: fadeInScale 0.2s ease-out;
+}
+
+.animate-slide-in {
+    animation: slideInRight 0.3s ease-out;
+}
+
+.animate-pulse-slow {
+    animation: pulse 3s infinite;
+}
+
+/* State indicators */
+.state-success {
+    color: #10b981;
+}
+
+.state-warning {
+    color: #f59e0b;
+}
+
+.state-error {
+    color: #ef4444;
+}
+
+.state-info {
+    color: #3b82f6;
+}
+
+/* Pattern-specific utilities */
+.stitch-cell {
+    position: relative;
+    aspect-ratio: 1;
+    min-width: 8px;
+    min-height: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.1);
+}
+
+.stitch-symbol {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.6em;
+    font-weight: bold;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.color-swatch--large {
+    width: 32px;
+    height: 32px;
+}
+
+.color-swatch--small {
+    width: 16px;
+    height: 16px;
+    border-width: 1px;
+}
+
+/* DMC-specific styling */
+.dmc-code {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(59, 130, 246, 0.1);
+    color: #1e40af;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.dmc-name {
+    font-size: 0.875rem;
+    color: #374151;
+    font-weight: 500;
+}
