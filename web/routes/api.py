@@ -188,24 +188,10 @@ def _generate_pattern_sync(image, config: PatternConfig) -> PatternData:
     # Import existing modules
     from src.cross_stitch.core.color_manager import ColorManager
     from src.cross_stitch.core.dmc_matcher import DMCMatcher
+    from src.cross_stitch.core.image_processor import ImageProcessor
     from src.cross_stitch.models.config import GeneratorConfig
 
-    # Resize to target resolution
-    target_size = (config.resolution, config.resolution)
-    resample = Image.Resampling.NEAREST if config.edge_mode.value == "hard" else Image.Resampling.LANCZOS
-
-    # Resize to exact target size (allows both enlarging and shrinking)
-    image = image.resize(target_size, resample)
-
-    # Handle transparency
-    if image.mode == 'RGBA' and config.transparency.value == "white_background":
-        background = Image.new('RGB', image.size, (255, 255, 255))
-        background.paste(image, mask=image.split()[3])
-        image = background
-    else:
-        image = image.convert('RGB')
-
-    # Create GeneratorConfig from PatternConfig
+    # Create GeneratorConfig with proper aspect ratio preservation
     generator_config = GeneratorConfig(
         resolutions=[(config.resolution, config.resolution)],
         max_colors=config.max_colors,
@@ -214,8 +200,27 @@ def _generate_pattern_sync(image, config: PatternConfig) -> PatternData:
         handle_transparency=config.transparency.value,
         min_color_percent=config.min_color_percent,
         enable_dmc=config.enable_dmc,
-        dmc_only=config.dmc_only
+        dmc_only=config.dmc_only,
+        preserve_aspect_ratio=True  # Use CLI default for proper aspect ratio handling
     )
+
+    # Use proper CLI ImageProcessor for aspect ratio preservation
+    image_processor = ImageProcessor(generator_config)
+    target_resolution = (config.resolution, config.resolution)
+
+    # Log original dimensions and aspect ratio handling
+    original_size = image.size
+    aspect_ratio = original_size[0] / original_size[1]
+    logger.info(f"📐 Original image: {original_size[0]}x{original_size[1]} (aspect ratio: {aspect_ratio:.2f})")
+    logger.info(f"🎯 Target resolution: {target_resolution[0]}x{target_resolution[1]}")
+    logger.info(f"✅ Using aspect ratio preservation (no distortion)")
+
+    # This will preserve aspect ratio and pad with white background (CLI behavior)
+    image = image_processor._resize_image(image, target_resolution)
+
+    # Log final dimensions
+    logger.info(f"📏 Final processed image: {image.size[0]}x{image.size[1]}")
+
 
     # Quantize colors using proper ColorManager API
     color_manager = ColorManager(generator_config)
@@ -313,26 +318,13 @@ async def download_excel(
         def _generate_excel():
             from src.cross_stitch.core.excel_generator import ExcelGenerator
             from src.cross_stitch.core.color_manager import ColorManager
+            from src.cross_stitch.core.image_processor import ImageProcessor
             from src.cross_stitch.models.config import GeneratorConfig
             from src.cross_stitch.models.pattern import CrossStitchPattern, PatternSet
             from pathlib import Path
             from PIL import Image as PILImage
 
-            # Process image (same as generate endpoint)
-            target_size = (config.resolution, config.resolution)
-            resample = PILImage.Resampling.NEAREST if config.edge_mode.value == "hard" else PILImage.Resampling.LANCZOS
-
-            work_image = image.copy()
-            work_image.thumbnail(target_size, resample)
-
-            if work_image.mode == 'RGBA' and config.transparency.value == "white_background":
-                background = PILImage.new('RGB', work_image.size, (255, 255, 255))
-                background.paste(work_image, mask=work_image.split()[3])
-                work_image = background
-            else:
-                work_image = work_image.convert('RGB')
-
-            # Create GeneratorConfig from PatternConfig
+            # Create GeneratorConfig with proper aspect ratio preservation
             generator_config = GeneratorConfig(
                 resolutions=[(config.resolution, config.resolution)],
                 max_colors=config.max_colors,
@@ -341,8 +333,16 @@ async def download_excel(
                 handle_transparency=config.transparency.value,
                 min_color_percent=config.min_color_percent,
                 enable_dmc=config.enable_dmc,
-                dmc_only=config.dmc_only
+                dmc_only=config.dmc_only,
+                preserve_aspect_ratio=True  # Use CLI default for proper aspect ratio handling
             )
+
+            # Use proper CLI ImageProcessor for aspect ratio preservation
+            image_processor = ImageProcessor(generator_config)
+            target_resolution = (config.resolution, config.resolution)
+
+            # This will preserve aspect ratio and pad with white background (CLI behavior)
+            work_image = image_processor._resize_image(image.copy(), target_resolution)
 
             # Quantize using proper ColorManager API
             color_manager = ColorManager(generator_config)
