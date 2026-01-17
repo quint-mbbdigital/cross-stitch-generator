@@ -1,6 +1,17 @@
 <!-- Pattern Settings Sidebar - Modern Atelier Design -->
 <div class="w-80 bg-slate-50 border-r border-slate-200 flex flex-col h-full">
 
+  <!-- App Title Bar -->
+  <div class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4">
+    <div class="flex items-center gap-2">
+      <div class="w-5 h-5 bg-slate-600 rounded-sm flex items-center justify-center">
+        <span class="text-white text-xs font-semibold">✕</span>
+      </div>
+      <span class="text-sm font-medium text-slate-700">Cross-Stitch Generator</span>
+    </div>
+    <span class="text-xs text-slate-400">v1.0</span>
+  </div>
+
   <!-- Controls -->
   <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
     <!-- Essential Controls Section - Always Visible -->
@@ -8,8 +19,8 @@
       <div class="border-b border-slate-200 pb-2 mb-3">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-base font-medium text-slate-800 mb-1">Essential Controls</h2>
-            <p class="text-sm text-slate-600">Core pattern settings for size and colors</p>
+            <h2 class="text-base font-semibold text-slate-800 mb-1">Essential Controls</h2>
+            <p class="text-sm text-slate-500">Core pattern settings for size and colors</p>
           </div>
           <div class="flex items-center gap-2">
             <button
@@ -29,9 +40,9 @@
         <div class="flex items-baseline justify-between">
           <div>
             <label class="label-data">Pattern Size</label>
-            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-1 leading-relaxed">Higher values create more detailed patterns with smaller stitches</p>
+            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-3 leading-relaxed">Higher values create more detailed patterns with smaller stitches</p>
           </div>
-          <span x-text="config.resolution + 'x' + config.resolution + ' stitches'" class="text-xs font-mono font-semibold text-slate-800 bg-slate-100 px-2 py-1 rounded"></span>
+          <span x-text="config.resolution + '×' + config.resolution" class="text-xs font-mono font-semibold text-slate-800 bg-slate-100 px-2 py-1 rounded whitespace-nowrap"></span>
         </div>
         <input
           type="range"
@@ -54,7 +65,7 @@
         <div class="flex items-baseline justify-between">
           <div>
             <label class="label-data">Number of Colors</label>
-            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-1 leading-relaxed">Maximum thread colors to use - fewer colors simplify stitching</p>
+            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-3 leading-relaxed">Maximum thread colors to use - fewer colors simplify stitching</p>
           </div>
           <span x-text="config.max_colors" class="text-xs font-mono font-semibold text-slate-800 bg-slate-100 px-2 py-1 rounded"></span>
         </div>
@@ -76,13 +87,13 @@
     </div>
 
     <!-- Enhancement Controls Section - Collapsible -->
-    <div class="space-y-4 border-b border-slate-100 pb-4">
+    <div class="space-y-4 border-b border-slate-100 pb-4 mt-6">
       <div class="flex items-center justify-between cursor-pointer" @click="toggleEssentials">
         <div>
           <h3 class="text-sm font-medium text-slate-700">Enhancement Controls</h3>
-          <p class="text-sm text-slate-600">Edge sharpening and color cleanup options</p>
+          <p class="text-sm text-slate-500">Edge sharpening and color cleanup options</p>
         </div>
-        <i :class="essentialsOpen ? 'rotate-180' : ''" class="w-4 h-4 text-slate-600 transform transition-transform duration-200" data-lucide="chevron-down"></i>
+        <i :class="essentialsOpen ? 'rotate-180' : ''" class="w-4 h-4 text-slate-400 hover:text-slate-600 transform transition-all duration-200" data-lucide="chevron-down"></i>
       </div>
 
       <div x-show="essentialsOpen" x-transition class="space-y-4">
@@ -91,7 +102,7 @@
       <div class="space-y-3">
         <div>
           <label class="label-data">Edge Sharpening</label>
-          <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-1 leading-relaxed">Enhance edges and fine details for clearer pattern definition</p>
+          <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-3 leading-relaxed">Enhance edges and fine details for clearer pattern definition</p>
         </div>
       <div class="space-y-2">
         <label class="flex items-center py-1.5 px-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
@@ -130,7 +141,7 @@
         <div class="flex items-baseline justify-between">
           <div>
             <label class="label-data">Color Cleanup</label>
-            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-1 leading-relaxed">Remove isolated areas smaller than this percentage</p>
+            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-3 leading-relaxed">Remove isolated areas smaller than this percentage</p>
           </div>
           <span x-text="config.min_color_percent + '%'" class="text-xs font-mono font-semibold text-slate-800 bg-slate-100 px-2 py-1 rounded"></span>
         </div>
@@ -153,13 +164,13 @@
     </div>
 
     <!-- Advanced Settings -->
-    <div class="space-y-4 pt-4">
+    <div class="space-y-4 mt-6">
       <div class="flex items-center justify-between cursor-pointer" @click="toggleAdvanced">
         <div>
           <h3 class="text-sm font-medium text-slate-700">Advanced Settings</h3>
           <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-1 mb-1 leading-relaxed">Fine-tune algorithms, export options, and professional thread matching</p>
         </div>
-        <i :class="advancedOpen ? 'rotate-180' : ''" class="w-4 h-4 text-slate-600 transform transition-transform duration-200" data-lucide="chevron-down"></i>
+        <i :class="advancedOpen ? 'rotate-180' : ''" class="w-4 h-4 text-slate-400 hover:text-slate-600 transform transition-all duration-200" data-lucide="chevron-down"></i>
       </div>
 
       <div x-show="advancedOpen" x-transition class="space-y-4">
@@ -167,7 +178,7 @@
         <div class="space-y-3">
           <div>
             <label class="label-data">Quantization Algorithm</label>
-            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-1 leading-relaxed">Method for reducing image colors - Median Cut for balanced results, K-means for smoother gradients</p>
+            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-3 leading-relaxed">Method for reducing image colors - Median Cut for balanced results, K-means for smoother gradients</p>
           </div>
           <div class="space-y-2">
             <label class="flex items-center py-1.5 px-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
@@ -196,7 +207,7 @@
           <div class="flex items-baseline justify-between">
             <div>
               <label class="label-data">Color Merge Distance</label>
-              <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-1 leading-relaxed">Automatically combine very similar colors to reduce thread variety</p>
+              <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-3 leading-relaxed">Automatically combine very similar colors to reduce thread variety</p>
             </div>
             <span x-text="config.max_merge_distance" class="text-xs font-mono font-semibold text-slate-800 bg-slate-100 px-2 py-1 rounded"></span>
           </div>
@@ -220,7 +231,7 @@
         <div class="space-y-3">
           <div>
             <label class="label-data">Multi-Resolution Export</label>
-            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-1 leading-relaxed">Export multiple pattern sizes in one file for different project scales</p>
+            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-3 leading-relaxed">Export multiple pattern sizes in one file for different project scales</p>
           </div>
           <label class="flex items-center py-1.5 px-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
             <input
@@ -244,7 +255,7 @@
         <div class="space-y-3">
           <div>
             <label class="label-data">Excel Formatting</label>
-            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-1 leading-relaxed">Control how your pattern appears in the exported Excel file</p>
+            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-3 leading-relaxed">Control how your pattern appears in the exported Excel file</p>
           </div>
 
           <!-- Excel Cell Size -->
@@ -280,7 +291,7 @@
         <div class="space-y-3">
           <div>
             <label class="label-data">Real Thread Colors</label>
-            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-1 leading-relaxed">Match colors to actual DMC embroidery floss for accurate shopping lists</p>
+            <p x-show="showSubtitles" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="text-sm text-slate-500 mt-2 mb-3 leading-relaxed">Match colors to actual DMC embroidery floss for accurate shopping lists</p>
           </div>
           <div class="space-y-3">
             <label class="flex items-center py-1.5 px-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
