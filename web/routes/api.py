@@ -190,13 +190,24 @@ def _generate_pattern_sync(image, config: PatternConfig) -> PatternData:
     from src.cross_stitch.core.dmc_matcher import DMCMatcher
     from src.cross_stitch.core.image_processor import ImageProcessor
     from src.cross_stitch.models.config import GeneratorConfig
+    from PIL import ImageFilter, ImageEnhance
+
+    # Handle web-specific "strong" edge mode (not supported by CLI)
+    cli_edge_mode = config.edge_mode.value
+    apply_strong_enhancement = False
+
+    if config.edge_mode.value == "strong":
+        # Map to "hard" for CLI, but apply additional enhancement
+        cli_edge_mode = "hard"
+        apply_strong_enhancement = True
+        logger.info("🔥 Strong enhancement mode: will apply sharpening + hard edges")
 
     # Create GeneratorConfig with proper aspect ratio preservation
     generator_config = GeneratorConfig(
         resolutions=[(config.resolution, config.resolution)],
         max_colors=config.max_colors,
         quantization_method=config.quantization.value,
-        edge_mode=config.edge_mode.value,
+        edge_mode=cli_edge_mode,  # Use mapped value for CLI compatibility
         handle_transparency=config.transparency.value,
         min_color_percent=config.min_color_percent,
         enable_dmc=config.enable_dmc,
@@ -217,6 +228,19 @@ def _generate_pattern_sync(image, config: PatternConfig) -> PatternData:
 
     # This will preserve aspect ratio and pad with white background (CLI behavior)
     image = image_processor._resize_image(image, target_resolution)
+
+    # Apply strong enhancement if requested
+    if apply_strong_enhancement:
+        logger.info("🔪 Applying strong enhancement: sharpening + contrast boost")
+
+        # Apply unsharp mask for edge enhancement
+        image = image.filter(ImageFilter.UnsharpMask(radius=1.0, percent=150, threshold=3))
+
+        # Slight contrast boost for more defined edges
+        enhancer = ImageEnhance.Contrast(image)
+        image = enhancer.enhance(1.1)  # 10% contrast increase
+
+        logger.info("✨ Strong enhancement applied successfully")
 
     # Log final dimensions
     logger.info(f"📏 Final processed image: {image.size[0]}x{image.size[1]}")
@@ -322,14 +346,22 @@ async def download_excel(
             from src.cross_stitch.models.config import GeneratorConfig
             from src.cross_stitch.models.pattern import CrossStitchPattern, PatternSet
             from pathlib import Path
-            from PIL import Image as PILImage
+            from PIL import Image as PILImage, ImageFilter, ImageEnhance
+
+            # Handle web-specific "strong" edge mode (same logic as pattern generation)
+            cli_edge_mode = config.edge_mode.value
+            apply_strong_enhancement = False
+
+            if config.edge_mode.value == "strong":
+                cli_edge_mode = "hard"
+                apply_strong_enhancement = True
 
             # Create GeneratorConfig with proper aspect ratio preservation
             generator_config = GeneratorConfig(
                 resolutions=[(config.resolution, config.resolution)],
                 max_colors=config.max_colors,
                 quantization_method=config.quantization.value,
-                edge_mode=config.edge_mode.value,
+                edge_mode=cli_edge_mode,  # Use mapped value for CLI compatibility
                 handle_transparency=config.transparency.value,
                 min_color_percent=config.min_color_percent,
                 enable_dmc=config.enable_dmc,
@@ -343,6 +375,12 @@ async def download_excel(
 
             # This will preserve aspect ratio and pad with white background (CLI behavior)
             work_image = image_processor._resize_image(image.copy(), target_resolution)
+
+            # Apply strong enhancement if requested (same as pattern generation)
+            if apply_strong_enhancement:
+                work_image = work_image.filter(ImageFilter.UnsharpMask(radius=1.0, percent=150, threshold=3))
+                enhancer = ImageEnhance.Contrast(work_image)
+                work_image = enhancer.enhance(1.1)
 
             # Quantize using proper ColorManager API
             color_manager = ColorManager(generator_config)

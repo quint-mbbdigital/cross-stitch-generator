@@ -12,6 +12,7 @@ class QuantizationMethod(str, Enum):
 class EdgeMode(str, Enum):
     SMOOTH = "smooth"
     HARD = "hard"
+    STRONG = "strong"
 
 
 class TransparencyMode(str, Enum):
