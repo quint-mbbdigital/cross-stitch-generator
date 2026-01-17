@@ -113,7 +113,7 @@ class ExcelGenerator:
     def _setup_pattern_worksheet(
         self, worksheet: Worksheet, pattern: CrossStitchPattern
     ) -> None:
-        """Set up basic structure of pattern worksheet."""
+        """Set up basic structure of pattern worksheet with professional rulers."""
         # Set cell dimensions to make them square
         cell_size_points = self.config.excel_cell_size
 
@@ -122,13 +122,73 @@ class ExcelGenerator:
         # More accurate conversion: points / 7.5 works better for square cells
         excel_width = cell_size_points / 7.5
 
-        for col in range(1, pattern.width + 1):
+        # Pattern is offset by 1 row and 1 column for rulers
+        # Column A is reserved for row rulers, Row 1 for column rulers
+        for col in range(1, pattern.width + 2):  # +2 for ruler column
             column_letter = get_column_letter(col)
             worksheet.column_dimensions[column_letter].width = excel_width
 
-        # Set row heights (in points)
-        for row in range(1, pattern.height + 1):
+        # Set row heights (in points) - +2 for ruler row
+        for row in range(1, pattern.height + 2):
             worksheet.row_dimensions[row].height = cell_size_points
+
+        # Add professional rulers
+        self._add_custom_rulers(worksheet, pattern)
+
+    def _add_custom_rulers(self, worksheet: Worksheet, pattern: CrossStitchPattern) -> None:
+        """Add custom ruler system for professional cross-stitch counting."""
+        # Ruler styling
+        ruler_fill = PatternFill(start_color="F0F0F0", end_color="F0F0F0", fill_type="solid")
+        ruler_font = Font(bold=True, size=10)
+        ruler_alignment = Alignment(horizontal="center", vertical="center")
+
+        # Column rulers (Row 1): Show stitch numbers every 10 stitches
+        for col in range(10, pattern.width + 1, 10):
+            excel_col = col + 1  # +1 for offset (ruler column A)
+            cell = worksheet.cell(row=1, column=excel_col, value=col)
+            cell.fill = ruler_fill
+            cell.font = ruler_font
+            cell.alignment = ruler_alignment
+
+        # Row rulers (Column A): Show row numbers every 10 rows
+        for row in range(10, pattern.height + 1, 10):
+            excel_row = row + 1  # +1 for offset (ruler row 1)
+            cell = worksheet.cell(row=excel_row, column=1, value=row)
+            cell.fill = ruler_fill
+            cell.font = ruler_font
+            cell.alignment = ruler_alignment
+
+        # Leave A1 blank as recommended
+        a1_cell = worksheet.cell(row=1, column=1)
+        a1_cell.fill = ruler_fill
+
+    def _generate_symbol_map(self, pattern: CrossStitchPattern) -> Dict[int, str]:
+        """Generate symbol map for color indices with high-contrast characters."""
+        # Professional cross-stitch symbols (high contrast, easily distinguishable)
+        symbols = [
+            "●", "○", "■", "□", "▲", "△", "♦", "♢", "★", "☆",
+            "▼", "▽", "◆", "◇", "♠", "♣", "♥", "♪", "※", "⊕",
+            "⊗", "⊙", "⊚", "⊛", "◉", "◎", "◯", "◐", "◑", "◒",
+            "◓", "◔", "◕", "◖", "◗", "◘", "◙", "◚", "◛", "◜",
+            "◝", "◞", "◟", "◠", "◡", "◢", "◣", "◤", "◥", "◦"
+        ]
+
+        # Create mapping for each unique color in the pattern
+        symbol_map = {}
+        unique_colors = set()
+
+        # Collect unique color indices from pattern
+        for y in range(pattern.height):
+            for x in range(pattern.width):
+                color_index = pattern.get_color_at(x, y)
+                unique_colors.add(color_index)
+
+        # Assign symbols to colors
+        sorted_colors = sorted(list(unique_colors))
+        for i, color_index in enumerate(sorted_colors):
+            symbol_map[color_index] = symbols[i % len(symbols)]
+
+        return symbol_map
 
     def _get_contrasting_font_color(self, background_color) -> str:
         """Calculate contrasting font color (black or white) for background color.
@@ -153,16 +213,19 @@ class ExcelGenerator:
     def _apply_pattern_colors(
         self, worksheet: Worksheet, pattern: CrossStitchPattern
     ) -> None:
-        """Apply background colors and DMC codes to cells based on pattern."""
+        """Apply background colors and symbols to cells based on pattern (with ruler offset)."""
         try:
+            # Generate symbol map for this pattern
+            symbol_map = self._generate_symbol_map(pattern)
+
             for y in range(pattern.height):
                 for x in range(pattern.width):
                     # Get color for this position
                     color_index = pattern.get_color_at(x, y)
                     color = pattern.palette[color_index]
 
-                    # Convert to Excel cell reference (1-based)
-                    cell = worksheet.cell(row=y + 1, column=x + 1)
+                    # Convert to Excel cell reference (offset by 1 for rulers)
+                    cell = worksheet.cell(row=y + 2, column=x + 2)
 
                     # Create fill pattern with the color
                     fill_color = color.hex_code.lstrip("#")  # Remove # if present
@@ -173,16 +236,17 @@ class ExcelGenerator:
                     # Apply fill to cell
                     cell.fill = fill
 
-                    # Add DMC code as cell text if Color has thread info
-                    if color.thread_code:
-                        # Set cell format and data type to text to prevent Excel warnings
-                        cell.number_format = "@"  # '@' is Excel's text format
-                        cell.data_type = "s"  # Explicitly set as string type
-                        cell.value = color.thread_code
+                    # Add symbol instead of DMC code for better readability
+                    symbol = symbol_map[color_index]
 
-                        # Calculate contrasting font color for readability
-                        font_color = self._get_contrasting_font_color(color)
-                        cell.font = Font(color=font_color, size=8, bold=True)
+                    # Set cell format and data type to text
+                    cell.number_format = "@"  # '@' is Excel's text format
+                    cell.data_type = "s"  # Explicitly set as string type
+                    cell.value = symbol
+
+                    # Calculate contrasting font color for readability
+                    font_color = self._get_contrasting_font_color(color)
+                    cell.font = Font(color=font_color, size=12, bold=True)  # Larger font for symbols
 
         except Exception as e:
             raise ExcelGenerationError(
@@ -194,25 +258,41 @@ class ExcelGenerator:
     def _apply_cell_styling(
         self, worksheet: Worksheet, pattern: CrossStitchPattern
     ) -> None:
-        """Apply additional styling to pattern cells."""
+        """Apply additional styling to pattern cells with Rule of 10 major grid lines."""
         try:
-            # Define border style for grid effect
+            # Define border styles for professional cross-stitch grid
             thin_border = Side(border_style="thin", color="000000")
-            border = Border(
-                top=thin_border, left=thin_border, right=thin_border, bottom=thin_border
-            )
+            medium_border = Side(border_style="medium", color="000000")  # Major grid lines
 
             # Define center alignment
             center_alignment = Alignment(horizontal="center", vertical="center")
 
-            # Apply styling to all pattern cells
+            # Apply styling to all pattern cells with Rule of 10 implementation (offset for rulers)
             for y in range(1, pattern.height + 1):
                 for x in range(1, pattern.width + 1):
-                    cell = worksheet.cell(row=y, column=x)
+                    cell = worksheet.cell(row=y + 1, column=x + 1)  # +1 offset for rulers
+
+                    # Start with thin borders
+                    top = thin_border
+                    left = thin_border
+                    right = thin_border
+                    bottom = thin_border
+
+                    # Rule of 10: Apply medium borders every 10th row/column
+                    if x % 10 == 0:  # Every 10th column gets thick right border
+                        right = medium_border
+                    if y % 10 == 0:  # Every 10th row gets thick bottom border
+                        bottom = medium_border
+
+                    # Create border with appropriate thickness
+                    border = Border(top=top, left=left, right=right, bottom=bottom)
 
                     # Apply border and alignment
                     cell.border = border
                     cell.alignment = center_alignment
+
+            # Add professional freeze panes and print preparation
+            self._setup_freeze_panes_and_print(worksheet, pattern)
 
         except Exception as e:
             raise ExcelGenerationError(
@@ -221,14 +301,37 @@ class ExcelGenerator:
                 cause=e,
             )
 
+    def _setup_freeze_panes_and_print(self, worksheet: Worksheet, pattern: CrossStitchPattern) -> None:
+        """Set up freeze panes and print preparation for professional cross-stitch charts."""
+        # Freeze panes at B2 (after rulers) so headers never disappear when scrolling
+        worksheet.freeze_panes = "B2"
+
+        # Print preparation: Ensure rulers appear on every printed page
+        worksheet.print_title_rows = "1:1"  # Row 1 (column rulers) on every page
+        worksheet.print_title_cols = "A:A"   # Column A (row rulers) on every page
+
+        # Set print orientation to landscape for better cross-stitch chart viewing
+        worksheet.page_setup.orientation = "landscape"
+
+        # Set print scaling to fit more on page
+        worksheet.page_setup.fitToWidth = 1
+        worksheet.page_setup.fitToHeight = 0  # Let height scale naturally
+
+        # Add margins appropriate for cross-stitch charts
+        worksheet.page_margins.left = 0.5
+        worksheet.page_margins.right = 0.5
+        worksheet.page_margins.top = 0.5
+        worksheet.page_margins.bottom = 0.5
+
     def _create_legend_sheet(self, workbook: Workbook, pattern_set: PatternSet) -> None:
         """Create color legend sheet showing all colors used."""
         try:
             sheet_name = self._sanitize_sheet_name(self.config.legend_sheet_name)
             legend_sheet = workbook.create_sheet(title=sheet_name)
 
-            # Set up legend headers (include DMC information)
+            # Set up legend headers (include Symbol and DMC information)
             headers = [
+                "Symbol",
                 "Color",
                 "Hex Code",
                 "RGB",
@@ -251,14 +354,32 @@ class ExcelGenerator:
             for pattern in pattern_set.patterns.values():
                 total_stitches += pattern.total_stitches
 
-            # Add each color to the legend
+            # Add each color to the legend with symbols
             for color_data in color_usage:
                 color = color_data["color"]
                 count = color_data["count"]
                 percentage = (count / total_stitches * 100) if total_stitches > 0 else 0
 
-                # Color sample cell
-                color_cell = legend_sheet.cell(row=row, column=1)
+                # Get symbol for this color from first pattern that uses it
+                symbol = "●"  # Default symbol
+                for pattern in pattern_set.patterns.values():
+                    symbol_map = self._generate_symbol_map(pattern)
+                    # Find this color in the pattern
+                    for color_idx, pattern_color in enumerate(pattern.palette):
+                        if (pattern_color.hex_code == color.hex_code and
+                            color_idx in symbol_map):
+                            symbol = symbol_map[color_idx]
+                            break
+                    if symbol != "●":  # Found a symbol, break
+                        break
+
+                # Symbol column
+                symbol_cell = legend_sheet.cell(row=row, column=1, value=symbol)
+                symbol_cell.font = Font(size=16, bold=True)
+                symbol_cell.alignment = Alignment(horizontal="center", vertical="center")
+
+                # Color sample cell (moved to column 2)
+                color_cell = legend_sheet.cell(row=row, column=2)
                 fill_color = color.hex_code.lstrip("#")
                 color_cell.fill = PatternFill(
                     start_color=fill_color, end_color=fill_color, fill_type="solid"
@@ -266,15 +387,15 @@ class ExcelGenerator:
                 color_cell.value = "■"  # Color block symbol
                 color_cell.alignment = Alignment(horizontal="center", vertical="center")
 
-                # Hex code
-                legend_sheet.cell(row=row, column=2, value=color.hex_code)
+                # Hex code (column 3)
+                legend_sheet.cell(row=row, column=3, value=color.hex_code)
 
-                # RGB values
+                # RGB values (column 4)
                 rgb_text = f"({color.r}, {color.g}, {color.b})"
-                legend_sheet.cell(row=row, column=3, value=rgb_text)
+                legend_sheet.cell(row=row, column=4, value=rgb_text)
 
-                # DMC Code
-                dmc_cell = legend_sheet.cell(row=row, column=4)
+                # DMC Code (column 5)
+                dmc_cell = legend_sheet.cell(row=row, column=5)
                 if color.thread_code:
                     dmc_cell.number_format = (
                         "@"  # Text format to prevent Excel warnings
@@ -284,16 +405,16 @@ class ExcelGenerator:
                 else:
                     dmc_cell.value = ""
 
-                # Thread Name
+                # Thread Name (column 6)
                 legend_sheet.cell(
-                    row=row, column=5, value=color.name if color.name else ""
+                    row=row, column=6, value=color.name if color.name else ""
                 )
 
-                # Usage count
-                legend_sheet.cell(row=row, column=6, value=count)
+                # Usage count (column 7)
+                legend_sheet.cell(row=row, column=7, value=count)
 
-                # Usage percentage
-                legend_sheet.cell(row=row, column=7, value=f"{percentage:.1f}%")
+                # Usage percentage (column 8)
+                legend_sheet.cell(row=row, column=8, value=f"{percentage:.1f}%")
 
                 row += 1
 
