@@ -34,13 +34,14 @@ class TestLegendFormatting:
         assert "x-text=\"thread.dmc_code\"" in content
         assert "x-text=\"thread.name || ''\"" in content
 
-    def test_legend_shows_only_color_n_when_no_dmc(self):
-        """Test that when no DMC code, only 'Color N' is shown."""
+    def test_legend_shows_descriptive_name_when_no_dmc(self):
+        """Test that when no DMC code, descriptive color name + hex code is shown."""
         response = client.get("/")
         content = response.text
 
-        # Check for generic color display logic
-        assert "x-text=\"'Color ' + (index + 1)\"" in content
+        # Check for descriptive color name display logic
+        assert "x-text=\"thread.name\"" in content
+        assert "x-text=\"thread.hex_color\"" in content
 
     def test_legend_structure_contains_thread_info(self):
         """Test that legend has the expected structure for thread information."""
