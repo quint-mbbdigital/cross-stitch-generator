@@ -27,7 +27,7 @@
                 <!-- Thread Info -->
                 <div class="flex-1 min-w-0">
                     <div class="flex items-baseline gap-2">
-                        <!-- Show DMC code + name if available, otherwise just Color N -->
+                        <!-- Show DMC code + name if available, otherwise show descriptive color name -->
                         <template x-if="thread.dmc_code && thread.dmc_code !== ''">
                             <div class="flex items-baseline gap-2">
                                 <span class="text-sm font-medium text-slate-800" x-text="thread.dmc_code"></span>
@@ -35,7 +35,10 @@
                             </div>
                         </template>
                         <template x-if="!thread.dmc_code || thread.dmc_code === ''">
-                            <span class="text-sm font-medium text-slate-800" x-text="'Color ' + (index + 1)"></span>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-sm font-medium text-slate-800" x-text="thread.name"></span>
+                                <span class="text-xs text-slate-500 font-mono" x-text="thread.hex_color"></span>
+                            </div>
                         </template>
                     </div>
                     <div class="flex items-center gap-2 mt-0.5">

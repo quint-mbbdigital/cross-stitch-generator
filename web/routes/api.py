@@ -278,10 +278,12 @@ def _generate_pattern_sync(image, config: PatternConfig) -> PatternData:
                         percentage=round(count / total * 100, 1)
                     ))
                 else:
-                    # Fallback: create thread info without DMC code
+                    # Fallback: create thread info with descriptive color name
+                    from web.utils.color_names import generate_color_name
+                    color_name = generate_color_name(color.hex_code)
                     threads.append(ThreadInfo(
                         dmc_code="",
-                        name=f"Color {idx + 1}",
+                        name=color_name,
                         hex_color=color.hex_code,
                         stitch_count=count,
                         percentage=round(count / total * 100, 1)
