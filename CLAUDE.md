@@ -201,3 +201,37 @@ The codebase is solid but missing the key feature for real-world use. Next phase
 4. CLI flags for DMC options
 
 **Critical**: Implement with TDD - write tests for DMC functionality BEFORE implementation.
+
+## Web Development Context
+
+### Stack
+- Backend: FastAPI + Jinja2
+- Frontend: HTMX + Alpine.js + Tailwind CSS + DaisyUI
+- Deployment: Replit (ephemeral filesystem)
+
+### Architecture Principles
+- **Non-blocking I/O**: Use `run_in_threadpool` for CPU-bound image processing
+- **Stateless Design**: Accept `BytesIO` streams, not file paths
+- **Memory Management**: Pre-resize images > 2000px to prevent OOM
+
+### File Conventions
+- Web code lives in `web/` directory
+- Templates use Jinja2 blocks for layout inheritance
+- Static assets served from `web/static/`
+
+### Testing Commands
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run web-specific tests
+pytest tests/test_web/ -v
+
+# Start development server
+uvicorn web.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Critical Constraints
+- DO NOT modify `src/cross_stitch/` core logic
+- All image processing must be wrapped in `run_in_threadpool`
+- Temporary files must use `TemporaryDirectory` context managers
