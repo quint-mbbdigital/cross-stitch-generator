@@ -1,0 +1,15 @@
+# Web application dependencies for FastAPI server
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+jinja2==3.1.4
+python-multipart==0.0.20
+aiofiles==24.1.0
+
+# Additional web-specific dependencies
+pydantic==2.10.6
+pydantic-settings==2.7.0
+
+# Optional performance improvements
+# python-multipart is needed for file uploads
+# aiofiles for async file operations
+# uvicorn[standard] includes all optional performance dependencies
