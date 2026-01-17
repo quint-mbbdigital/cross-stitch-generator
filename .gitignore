@@ -61,9 +61,48 @@ htmlcov/
 ehthumbs.db
 Thumbs.db
 
+# Web development
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+.next/
+.nuxt/
+dist/
+*.min.js
+*.min.css
+
+# Web build artifacts
+web/static/build/
+web/static/dist/
+web/uploads/
+web/tmp/
+web/temp/
+
+# Replit specific
+.replit
+.nix
+.upm/
+replit.nix
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+temp_*/
+tmp_*/
+
 # Project specific
 *.xlsx
 *.xls
 test_images/
 sample_output/
 data/sample_*
+uploads/
+downloads/
+patterns/
+generated_*/

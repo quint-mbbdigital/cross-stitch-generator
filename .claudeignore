@@ -139,6 +139,65 @@ node_modules/
 package-lock.json
 yarn.lock
 
+# Web development artifacts
+.next/
+.nuxt/
+.vercel/
+.netlify/
+build/
+dist/
+out/
+
+# FastAPI/Web specific
+web/uploads/
+web/tmp/
+web/temp/
+web/static/build/
+web/static/dist/
+uvicorn.log
+*.pid
+
+# Replit specific files
+.replit
+.nix
+.upm/
+replit.nix
+
+# Additional Python patterns (newer)
+*.pyd
+*.pyo
+*.pdb
+.pyc
+__pypackages__/
+
+# More temporary patterns
+*.tmp
+*.temp
+.tmp/
+.temp/
+temp_*/
+tmp_*/
+*_temp*
+*_tmp*
+
+# Pattern generation artifacts (specific to our app)
+uploads/
+downloads/
+patterns/
+generated_*/
+pattern_cache/
+
+# Large binary files that shouldn't be analyzed
+*.woff
+*.woff2
+*.ttf
+*.otf
+*.eot
+
 # Generated/compiled files that don't need review
 *.min.js
 *.min.css
+*.bundle.js
+*.chunk.js
+manifest.json
+*.map
