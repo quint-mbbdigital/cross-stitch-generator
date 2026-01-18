@@ -7,13 +7,18 @@
 
 // Regenerate pattern functionality moved to Alpine.js app state in base.html
 
-// Listen for magic-moment events - Stabilized animation enabled
+// Listen for magic-moment events - Stabilized animation enabled with pre-sizing
 document.addEventListener('magic-moment', (event) => {
     const detail = event.detail || {};
 
     if (detail.data && PatternStore) {
-        // Initialize and load pattern with stabilized animation
+        // Initialize PatternStore
         PatternStore.init('pattern-canvas');
+
+        // PRE-SIZE: Set canvas dimensions while still hidden to prevent visible resize
+        PatternStore.preSize(detail.data);
+
+        // Now load pattern data (no resizing, just content rendering)
         PatternStore.load(detail.data);
 
         // Apply gentle, stabilized animation effect

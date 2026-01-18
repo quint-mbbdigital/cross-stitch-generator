@@ -28,8 +28,32 @@ const PatternStore = {
     },
 
     /**
+     * Pre-size canvas based on pattern data without rendering content.
+     * Call this before showing the canvas to prevent visible resize effects.
+     */
+    preSize(patternData) {
+        if (!this.canvas) return;
+
+        const { width, height } = patternData;
+
+        // Diagnostic logging to confirm fix
+        console.log('🔍 Canvas size BEFORE preSize:', this.canvas.width, 'x', this.canvas.height);
+
+        // Calculate optimal cell size (same logic as render)
+        const maxCanvasSize = Math.min(window.innerWidth - 400, window.innerHeight - 100);
+        this.cellSize = Math.max(2, Math.floor(maxCanvasSize / Math.max(width, height)));
+
+        // Size canvas BEFORE it becomes visible
+        this.canvas.width = width * this.cellSize;
+        this.canvas.height = height * this.cellSize;
+
+        console.log('✅ Canvas size AFTER preSize:', this.canvas.width, 'x', this.canvas.height);
+    },
+
+    /**
      * Load pattern data from API response.
      * Converts grid array to Uint8ClampedArray for performance.
+     * Note: Canvas should be pre-sized before calling this.
      */
     load(patternData) {
         this.data = patternData;
@@ -38,25 +62,24 @@ const PatternStore = {
         // This is CRITICAL for 200x200+ patterns (40,000 cells)
         this.gridBuffer = new Uint8ClampedArray(patternData.grid);
 
-        this.render('color');
+        this.renderIntoCurrentSize('color');
     },
 
     /**
-     * Render pattern to canvas using optimized buffer access.
+     * Render pattern into current canvas size without resizing.
      * @param {'color'|'symbol'} mode - Render mode
      */
-    render(mode = 'color') {
+    renderIntoCurrentSize(mode = 'color') {
         if (!this.data || !this.ctx || !this.gridBuffer) return;
 
         const { width, height, palette } = this.data;
 
-        // Calculate optimal cell size
-        const maxCanvasSize = Math.min(window.innerWidth - 400, window.innerHeight - 100);
-        this.cellSize = Math.max(2, Math.floor(maxCanvasSize / Math.max(width, height)));
-
-        // Size canvas
-        this.canvas.width = width * this.cellSize;
-        this.canvas.height = height * this.cellSize;
+        // Cell size should already be calculated by preSize()
+        // If not set, calculate it now (fallback)
+        if (!this.cellSize) {
+            const maxCanvasSize = Math.min(window.innerWidth - 400, window.innerHeight - 100);
+            this.cellSize = Math.max(2, Math.floor(maxCanvasSize / Math.max(width, height)));
+        }
 
         // Pre-parse palette colors for performance
         const paletteRGB = palette.map(hex => ({
@@ -73,6 +96,28 @@ const PatternStore = {
             // For larger cells, use fillRect (allows grid lines)
             this.renderWithFillRect(width, height, paletteRGB, mode);
         }
+    },
+
+    /**
+     * Legacy render method that includes canvas resizing.
+     * Use for mode changes where canvas is already visible.
+     * @param {'color'|'symbol'} mode - Render mode
+     */
+    render(mode = 'color') {
+        if (!this.data || !this.ctx || !this.gridBuffer) return;
+
+        const { width, height } = this.data;
+
+        // Calculate optimal cell size
+        const maxCanvasSize = Math.min(window.innerWidth - 400, window.innerHeight - 100);
+        this.cellSize = Math.max(2, Math.floor(maxCanvasSize / Math.max(width, height)));
+
+        // Size canvas (may cause visible resize if canvas is shown)
+        this.canvas.width = width * this.cellSize;
+        this.canvas.height = height * this.cellSize;
+
+        // Render content
+        this.renderIntoCurrentSize(mode);
     },
 
     /**
