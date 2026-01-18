@@ -1,15 +1,28 @@
-# Web application dependencies for FastAPI server
+# Web application dependencies - Python 3.11.x compatible
+# Pinned versions for stability
+
+# Core web framework
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
+
+# Templating and static files
 jinja2==3.1.4
+
+# Request handling
 python-multipart==0.0.20
 aiofiles==24.1.0
 
-# Additional web-specific dependencies
+# Data validation and serialization
 pydantic==2.10.6
 pydantic-settings==2.7.0
 
-# Optional performance improvements
-# python-multipart is needed for file uploads
-# aiofiles for async file operations
-# uvicorn[standard] includes all optional performance dependencies
+# HTTP client (for health checks)
+httpx==0.27.2
+
+# Additional dependencies that FastAPI might pull in
+starlette==0.41.3
+anyio==4.7.0
+sniffio==1.3.1
+
+# Optional but recommended
+email-validator==2.2.0

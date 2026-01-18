@@ -1,0 +1,30 @@
+# Pinned requirements for production deployment
+# Compatible with Python 3.11.x - DO NOT CHANGE without testing
+
+# Core numerical computing stack (verified compatible)
+numpy==2.4.1
+scipy==1.17.0
+scikit-learn==1.8.0
+
+# Image processing
+pillow==12.1.0
+
+# Excel generation
+openpyxl==3.1.5
+et_xmlfile==2.0.0
+
+# Development tools (pinned for consistency)
+pytest==9.0.2
+mypy==1.19.1
+ruff==0.14.11
+
+# Supporting libraries
+joblib==1.5.3
+threadpoolctl==3.6.0
+packaging==25.0
+typing_extensions==4.15.0
+
+# Build dependencies (may be needed for compilation)
+setuptools>=65.0
+wheel>=0.38.0
+Cython>=0.29.0

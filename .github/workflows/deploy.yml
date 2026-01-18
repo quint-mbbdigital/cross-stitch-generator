@@ -6,35 +6,120 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  validate-environment:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libopenblas-dev liblapack-dev gfortran
+
+      - name: Install Python dependencies (pinned)
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install -r requirements-pinned.txt
+          pip install -r requirements-web.txt
+          pip install pytest pytest-asyncio httpx
+
+      - name: Validate environment
+        run: python scripts/validate-environment.py
+
+      - name: Run comprehensive tests
+        run: pytest tests/ -v
+
+      - name: Test web server health
+        run: |
+          # Start server in background
+          uvicorn web.main:app --host 0.0.0.0 --port 8000 &
+          SERVER_PID=$!
+
+          # Wait for server to start
+          sleep 5
+
+          # Test endpoints
+          curl -f http://localhost:8000/health
+          curl -f http://localhost:8000/
+
+          # Cleanup
+          kill $SERVER_PID
+
+      - name: Test image processing pipeline
+        run: |
+          python -c "
+          import numpy as np
+          from PIL import Image
+          from src.cross_stitch.core.image_processor import ImageProcessor
+
+          # Create test image
+          img = Image.new('RGB', (50, 50), 'red')
+          processor = ImageProcessor()
+
+          # Test image processing
+          processed = processor.load_image_from_bytes(img.tobytes(), 'test.png')
+          print('✅ Image processing pipeline works')
+          "
+
+  integration-test:
+    needs: validate-environment
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements-pinned.txt
           pip install -r requirements-web.txt
-          pip install pytest pytest-asyncio httpx
 
-      - name: Run tests
-        run: pytest tests/ -v
-
-      - name: Test web server starts
+      - name: Create test image
         run: |
-          uvicorn web.main:app --host 0.0.0.0 --port 8000 &
-          sleep 5
-          curl -f http://localhost:8000/health
-          pkill -f uvicorn
+          python -c "
+          from PIL import Image
+          img = Image.new('RGB', (100, 100), 'blue')
+          img.save('test_image.png')
+          "
+
+      - name: Test full CLI pipeline
+        run: |
+          python cross_stitch_generator.py generate test_image.png test_pattern.xlsx --max-colors 8
+          ls -la test_pattern.xlsx
+
+      - name: Cleanup test files
+        run: rm -f test_image.png test_pattern.xlsx
 
   notify:
-    needs: test
+    needs: [validate-environment, integration-test]
     runs-on: ubuntu-latest
     steps:
       - name: Deployment ready
-        run: echo "Tests passed. Pull changes in Replit to deploy."
+        run: |
+          echo "✅ All tests passed!"
+          echo "🚀 Environment validated for Python 3.11"
+          echo "📋 Pull changes in Replit to deploy"
+          echo ""
+          echo "If Replit fails:"
+          echo "1. Run: python scripts/validate-environment.py"
+          echo "2. Check Python version: python --version"
+          echo "3. Reinstall: pip install -r requirements-pinned.txt"
