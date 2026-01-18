@@ -127,17 +127,15 @@
         </div>
     </div>
 
-    <!-- Pattern Canvas (Instant Render) -->
+    <!-- Pattern Canvas (Stabilized Magic Moment) -->
     <div
         x-show="patternData && !isGenerating"
         x-transition=""
-        style="transition: none !important; animation: none !important;"
         class="h-full flex items-center justify-center p-4"
     >
         <canvas
             id="pattern-canvas"
             class="shadow-lg"
-            style="transition: none !important; animation: none !important;"
             :style="{ transform: `scale(${zoom})`, transformOrigin: 'center' }"
         ></canvas>
     </div>

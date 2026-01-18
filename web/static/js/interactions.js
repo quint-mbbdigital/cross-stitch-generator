@@ -7,23 +7,24 @@
 
 // Regenerate pattern functionality moved to Alpine.js app state in base.html
 
-// Listen for magic-moment events - ANIMATION DISABLED for instant rendering
+// Listen for magic-moment events - Stabilized animation enabled
 document.addEventListener('magic-moment', (event) => {
     const detail = event.detail || {};
 
     if (detail.data && PatternStore) {
-        // Initialize and load pattern WITHOUT animation effects
+        // Initialize and load pattern with stabilized animation
         PatternStore.init('pattern-canvas');
         PatternStore.load(detail.data);
 
-        // Animation effects disabled - no CSS class manipulation
-        // const canvas = document.getElementById('pattern-canvas');
-        // if (canvas) {
-        //     canvas.classList.add('magic-moment');
-        //     setTimeout(() => {
-        //         canvas.classList.remove('magic-moment');
-        //     }, 1200);
-        // }
+        // Apply gentle, stabilized animation effect
+        const canvas = document.getElementById('pattern-canvas');
+        if (canvas) {
+            canvas.classList.add('magic-moment');
+            // Remove class after animation (300ms + small buffer)
+            setTimeout(() => {
+                canvas.classList.remove('magic-moment');
+            }, 350);
+        }
     }
 });
 
@@ -168,9 +169,9 @@ document.addEventListener('htmx:afterRequest', (event) => {
                     console.log('Pattern data synchronized for export. JobId:', app.jobId);
                 }
 
-                // Render pattern instantly without animation effects
-                document.dispatchEvent(new CustomEvent('render-pattern', {
-                    detail: { data: patternData, mode: app.viewMode }
+                // Trigger stabilized magic moment reveal
+                document.dispatchEvent(new CustomEvent('magic-moment', {
+                    detail: { data: patternData }
                 }));
             } catch (e) {
                 console.error('Failed to parse pattern data from HTMX response:', e);
