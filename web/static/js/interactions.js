@@ -7,24 +7,23 @@
 
 // Regenerate pattern functionality moved to Alpine.js app state in base.html
 
-// Listen for magic-moment events (The "Darkroom" reveal)
+// Listen for magic-moment events - ANIMATION DISABLED for instant rendering
 document.addEventListener('magic-moment', (event) => {
     const detail = event.detail || {};
 
     if (detail.data && PatternStore) {
-        // Initialize and load pattern with magic reveal
+        // Initialize and load pattern WITHOUT animation effects
         PatternStore.init('pattern-canvas');
         PatternStore.load(detail.data);
 
-        // Add magic moment class to canvas
-        const canvas = document.getElementById('pattern-canvas');
-        if (canvas) {
-            canvas.classList.add('magic-moment');
-            // Remove class after animation
-            setTimeout(() => {
-                canvas.classList.remove('magic-moment');
-            }, 1200);
-        }
+        // Animation effects disabled - no CSS class manipulation
+        // const canvas = document.getElementById('pattern-canvas');
+        // if (canvas) {
+        //     canvas.classList.add('magic-moment');
+        //     setTimeout(() => {
+        //         canvas.classList.remove('magic-moment');
+        //     }, 1200);
+        // }
     }
 });
 
@@ -169,9 +168,9 @@ document.addEventListener('htmx:afterRequest', (event) => {
                     console.log('Pattern data synchronized for export. JobId:', app.jobId);
                 }
 
-                // Trigger magic moment reveal
-                document.dispatchEvent(new CustomEvent('magic-moment', {
-                    detail: { data: patternData }
+                // Render pattern instantly without animation effects
+                document.dispatchEvent(new CustomEvent('render-pattern', {
+                    detail: { data: patternData, mode: app.viewMode }
                 }));
             } catch (e) {
                 console.error('Failed to parse pattern data from HTMX response:', e);

@@ -115,7 +115,8 @@
             opacity: 1;
         }
 
-        /* Magic Moment Reveal (Darkroom Effect) */
+        /* Magic Moment Reveal - DISABLED for instant rendering */
+        /*
         .magic-moment {
             animation: magicReveal 1.2s ease-out;
         }
@@ -135,6 +136,7 @@
                 filter: blur(0px);
             }
         }
+        */
 
         /* Button success state animation */
         .success-flash {
@@ -369,11 +371,8 @@
                             this.processingStatus = 'idle';
                         }, 1500);
 
-                        // Trigger magic moment reveal
-                        this.$dispatch('magic-moment', { data: patternData });
-
-                        // Preserve current view mode (symbols/colors) after regeneration
-                        this.$dispatch('render-pattern', { mode: this.viewMode });
+                        // Render pattern instantly without animation effects
+                        this.$dispatch('render-pattern', { data: patternData, mode: this.viewMode });
 
                     } catch (error) {
                         this.isGenerating = false;

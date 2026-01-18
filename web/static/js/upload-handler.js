@@ -75,8 +75,8 @@ async function uploadFile(file) {
         app.isGenerating = false;
         app.processingStatus = 'complete';
 
-        // Trigger magic moment reveal
-        app.$dispatch('magic-moment', { data: patternData });
+        // Render pattern instantly without animation effects
+        app.$dispatch('render-pattern', { data: patternData, mode: app.viewMode });
 
     } catch (error) {
         app.isGenerating = false;
