@@ -127,22 +127,18 @@
         </div>
     </div>
 
-    <!-- Pattern Canvas (Magic Moment Reveal) -->
+    <!-- Pattern Canvas (Stabilized Magic Moment) -->
     <div
         x-show="patternData && !isGenerating"
-        :class="effects.canvasAnimationsEnabled ? 'transition-opacity duration-200 ease-out' : ''"
+        x-transition=""
         class="h-full flex items-center justify-center p-4"
     >
         <canvas
             id="pattern-canvas"
+            width="400"
+            height="400"
             class="shadow-lg"
-            :style="{
-                transform: `scale(${zoom})`,
-                transformOrigin: 'center',
-                transition: effects.canvasAnimationsEnabled && typeof DisplayEffectsManager !== 'undefined' && DisplayEffectsManager.config.zoom.smooth ?
-                    `transform ${DisplayEffectsManager.config.zoom.duration}ms ${DisplayEffectsManager.config.zoom.easing}` :
-                    'none'
-            }"
+            :style="{ transform: `scale(${zoom})`, transformOrigin: 'center' }"
         ></canvas>
     </div>
 </div>
