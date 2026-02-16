@@ -6,7 +6,7 @@ import io
 from datetime import datetime
 
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Alignment, Border, Side, Font
+from openpyxl.styles import PatternFill, Alignment, Border, Side, Font, Color
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -245,7 +245,8 @@ class ExcelGenerator:
                     cell.value = symbol
 
                     # Calculate contrasting font color for readability
-                    font_color = self._get_contrasting_font_color(color)
+                    font_color_hex = self._get_contrasting_font_color(color)
+                    font_color = Color(rgb=font_color_hex)
                     cell.font = Font(color=font_color, size=12, bold=True)  # Larger font for symbols
 
         except Exception as e:

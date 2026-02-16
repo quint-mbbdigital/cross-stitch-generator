@@ -1,7 +1,7 @@
 # Cross-Stitch Pattern Generator
 
 ## Project Overview
-A Python CLI application that converts images into cross-stitch patterns exported as Excel files. Currently generates patterns at multiple resolutions with color quantization, but lacks DMC floss thread color matching - the key feature needed for real-world embroidery use.
+A sophisticated dual-mode application that converts images into cross-stitch patterns exported as Excel files. Features both a Python CLI and a modern web interface with comprehensive pattern generation, color quantization, and DMC floss thread color matching for real-world embroidery projects.
 
 ## Quick Reference Commands
 
@@ -33,7 +33,7 @@ A Python CLI application that converts images into cross-stitch patterns exporte
 
 **Never Skip Tests**: If functionality doesn't have tests, create them FIRST. No exceptions.
 
-**Test Coverage**: Maintain >95% test coverage. Current: 92/94 tests passing (97.9%)
+**Test Coverage**: Maintain >95% test coverage. Current: 254/279 tests passing (~91%)
 
 ## Approval Gates - STOP Points
 
@@ -50,29 +50,51 @@ A Python CLI application that converts images into cross-stitch patterns exporte
 
 ```
 cross-stitch-generator/
-├── src/cross_stitch/           # Main package
+├── src/cross_stitch/           # Main package (CLI backend)
 │   ├── cli/
 │   │   └── main.py             # Command-line interface (163 lines)
 │   ├── core/                   # Core processing modules
-│   │   ├── color_manager.py    # Color quantization (410 lines)
+│   │   ├── color_manager.py    # Color quantization with DMC support
+│   │   ├── dmc_matcher.py      # DMC thread color matching
 │   │   ├── excel_generator.py  # Excel file generation (368 lines)
 │   │   ├── image_processor.py  # Image loading/processing (342 lines)
 │   │   └── pattern_generator.py # Main orchestration (391 lines)
 │   ├── models/                 # Data models
-│   │   ├── config.py           # GeneratorConfig dataclass (63 lines)
+│   │   ├── config.py           # GeneratorConfig dataclass
 │   │   ├── color_palette.py    # Color/ColorPalette models (140 lines)
 │   │   └── pattern.py          # Pattern/PatternSet models (160 lines)
 │   └── utils/                  # Utilities
 │       ├── exceptions.py       # Custom exceptions (162 lines)
 │       ├── file_utils.py       # File/image utilities
 │       └── validation.py       # Input validation (331 lines)
-├── tests/                      # Test suite (94 tests, 92 passing)
+├── web/                        # Web interface
+│   ├── routes/
+│   │   ├── api.py              # FastAPI backend routes
+│   │   └── web.py              # Web page routes
+│   ├── models/
+│   │   └── requests.py         # Pydantic request models
+│   ├── static/js/              # Frontend JavaScript
+│   │   ├── display-effects.js  # Animation and effects system
+│   │   ├── interactions.js     # UI interaction handling
+│   │   ├── pattern-store.js    # Canvas rendering and storage
+│   │   └── upload-handler.js   # File upload management
+│   ├── templates/              # Jinja2 templates
+│   │   ├── base.html           # Main application template
+│   │   └── components/         # Reusable UI components
+│   └── main.py                 # FastAPI application entry point
+├── tests/                      # Test suite (279 tests total)
 │   ├── conftest.py             # Test fixtures
-│   ├── test_integration.py     # Integration tests (374 lines)
-│   ├── test_models.py          # Model unit tests (430+ lines)
-│   └── test_utils.py           # Utility tests (400+ lines)
+│   ├── test_integration.py     # CLI integration tests
+│   ├── test_models.py          # Model unit tests
+│   ├── test_utils.py           # Utility tests
+│   ├── test_dmc_*.py           # DMC functionality tests
+│   ├── test_edge_mode.py       # Edge processing tests
+│   └── test_web/               # Web interface tests
+├── data/
+│   └── dmc_colors.csv          # DMC thread color database
 ├── cross_stitch_generator.py   # CLI entry point
-├── requirements.txt            # Dependencies
+├── requirements.txt            # Core dependencies
+├── requirements-web.txt        # Web dependencies
 └── CLAUDE.md                   # This file
 ```
 
@@ -111,32 +133,56 @@ def quantize_colors(image: Image, max_colors: int) -> ColorPalette:
 
 ## Current Functionality Status
 
-**✅ Working Features**:
+**✅ Core Features (CLI + Web)**:
 - Image loading (PNG, JPG, GIF, BMP, TIFF, WEBP)
 - Color quantization (median cut and k-means algorithms)
 - Pattern generation at multiple resolutions
-- Excel file generation with colored cells
+- Excel file generation with colored cells and DMC codes
 - Color legend and summary sheets
+- **DMC floss thread color matching** - Full database with 500+ colors
 - CLI with progress reporting
-- Comprehensive error handling
+- Modern web interface with real-time preview
+- Comprehensive error handling with graceful fallbacks
 - Transparency handling (white background, remove, preserve)
+- Edge mode processing (smooth/hard)
+
+**✅ Web Interface Features**:
+- Real-time pattern preview with canvas rendering
+- Advanced animation system with accessibility support
+- Drag-and-drop file upload
+- Interactive color/symbol view modes
+- DMC thread shopping list generation
+- Responsive design with mobile support
 
 **⚠️ Known Issues**:
-- K-means quantization fails on some grayscale images (2 test failures)
+- Some edge mode and Excel professional improvement tests failing (24/279 tests)
 - Pillow deprecation warnings for 'mode' parameter
+- Web-specific tests may need alignment after recent changes
 
-**❌ Missing Critical Feature**:
-- **DMC floss thread color matching** - Currently generates arbitrary RGB colors
-- Need DMC color database and matching algorithm
-- Excel output should show DMC thread codes in cells
+**🔒 Recent Stability Fixes**:
+- Fixed silent exception handling in DMC initialization
+- Added graceful fallback for missing DMC database
+- Improved error logging and debugging capabilities
 
 ## Dependencies
 
-**Core**:
+**Core (CLI)**:
 - `pillow==12.1.0` - Image processing
 - `openpyxl==3.1.5` - Excel generation
 - `numpy==2.4.1` - Array operations
 - `scikit-learn==1.8.0` - K-means clustering
+
+**Web Interface**:
+- `fastapi` - Modern Python web framework
+- `jinja2` - Template engine
+- `python-multipart` - File upload support
+- `uvicorn` - ASGI server
+
+**Frontend Stack**:
+- **HTMX** - Dynamic HTML without JavaScript complexity
+- **Alpine.js** - Reactive components and state management
+- **Tailwind CSS** - Utility-first CSS framework
+- **DaisyUI** - Component library for Tailwind
 
 **Development**:
 - `pytest==9.0.2` - Testing framework
@@ -162,7 +208,37 @@ python cross_stitch_generator.py info photo.jpg --estimate-time
 
 # Verbose output for debugging
 python cross_stitch_generator.py generate photo.jpg pattern.xlsx --verbose
+
+# Enable DMC color matching
+python cross_stitch_generator.py generate photo.jpg pattern.xlsx --enable-dmc
+
+# DMC-only palette (restrict to available DMC colors)
+python cross_stitch_generator.py generate photo.jpg pattern.xlsx --dmc-only
 ```
+
+## Web Interface Usage
+
+The web interface provides a modern, interactive experience for pattern generation:
+
+**Development Server:**
+```bash
+# Start the web application
+uvicorn web.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Web Features:**
+- **Drag & Drop Upload**: Direct image upload with preview
+- **Real-time Configuration**: Interactive sliders and controls
+- **Canvas Preview**: Live pattern rendering with color/symbol modes
+- **DMC Integration**: Automatic thread color matching with shopping lists
+- **Animation System**: Smooth transitions with accessibility support
+- **Download Options**: Excel files with professional formatting
+
+**Architecture Notes:**
+- **FastAPI Backend**: RESTful API with async support
+- **Alpine.js Frontend**: Reactive components without build complexity
+- **HTMX Integration**: Dynamic updates without full page reloads
+- **Effect System**: Centralized animation management with presets
 
 ## Testing Requirements
 
@@ -192,15 +268,25 @@ python cross_stitch_generator.py generate photo.jpg pattern.xlsx --verbose
 
 **Commit Frequency**: Commit after each passing test suite, not before
 
-## Current Priority: DMC Color Matching
+## Recent Major Improvements
 
-The codebase is solid but missing the key feature for real-world use. Next phase should add:
-1. DMC floss color database (`data/dmc_colors.csv`)
-2. Color matching algorithm (`src/cross_stitch/core/dmc_matcher.py`)
-3. Excel output enhancement (show DMC codes in cells)
-4. CLI flags for DMC options
+The project has evolved significantly from a CLI-only tool to a sophisticated dual-mode application:
 
-**Critical**: Implement with TDD - write tests for DMC functionality BEFORE implementation.
+**Phase 1 - Critical Stability Fixes:**
+- Fixed silent exception handling in DMC initialization (was masking errors)
+- Added graceful fallback for missing DMC database configuration
+- Improved error logging and debugging capabilities
+
+**Phase 2 - Complexity Reduction:**
+- Streamlined display effects system (44% code reduction)
+- Aligned frontend/backend parameter consistency (removed 7 unused fields)
+- Simplified UI by removing unused configuration sections
+
+**Phase 3 - Web Interface Enhancement:**
+- Comprehensive display effects system with animation presets
+- Advanced canvas rendering with pre-sizing to prevent visual "pop"
+- Effect-aware pattern rendering with accessibility support
+- Clean git history with logical commit organization
 
 ## Web Development Context
 

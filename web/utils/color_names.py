@@ -7,6 +7,9 @@ from typing import Tuple
 def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
     """Convert hex color to RGB tuple."""
     hex_color = hex_color.lstrip('#')
+    # Validate hex format
+    if len(hex_color) != 6 or not all(c in '0123456789ABCDEFabcdef' for c in hex_color):
+        raise ValueError(f"Invalid hex color: #{hex_color}")
     return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
 
@@ -95,13 +98,13 @@ def get_hue_name(hue: float) -> str:
         return "Emerald"
     elif hue < 195:
         return "Cyan"
-    elif hue < 225:
+    elif hue <= 240:  # Extended blue range to include pure blue (#0000FF at 240°)
         return "Blue"
-    elif hue < 255:
+    elif hue < 260:
         return "Navy"
-    elif hue < 285:
+    elif hue <= 300:  # Purple range adjusted to catch #800080 (300°)
         return "Purple"
-    elif hue < 315:
+    elif hue < 330:
         return "Magenta"
     else:
         return "Rose"

@@ -46,15 +46,15 @@ class TestExcelProfessionalImprovements:
     def test_rule_of_10_major_grid_lines(self, sample_config, sample_image):
         """Test that Rule of 10 creates major grid lines every 10th row/column."""
         with tempfile.TemporaryDirectory() as temp_dir:
+            # Save sample image to temporary file
+            image_path = Path(temp_dir) / "test_image.png"
+            sample_image.save(image_path)
+
             output_path = Path(temp_dir) / "test_pattern.xlsx"
 
-            # Generate pattern
+            # Generate pattern using correct API
             generator = PatternGenerator(sample_config)
-            pattern_set = generator.generate_pattern_set(sample_image)
-
-            # Generate Excel file
-            excel_generator = generator.excel_generator
-            excel_generator.generate_excel_file(pattern_set, output_path)
+            pattern_set = generator.generate_patterns(image_path, output_path)
 
             # Load and verify the Excel file
             workbook = load_workbook(output_path)
@@ -74,15 +74,15 @@ class TestExcelProfessionalImprovements:
     def test_custom_ruler_system(self, sample_config, sample_image):
         """Test that custom rulers show stitch counters."""
         with tempfile.TemporaryDirectory() as temp_dir:
+            # Save sample image to temporary file
+            image_path = Path(temp_dir) / "test_image.png"
+            sample_image.save(image_path)
+
             output_path = Path(temp_dir) / "test_pattern.xlsx"
 
-            # Generate pattern
+            # Generate pattern using correct API
             generator = PatternGenerator(sample_config)
-            pattern_set = generator.generate_pattern_set(sample_image)
-
-            # Generate Excel file
-            excel_generator = generator.excel_generator
-            excel_generator.generate_excel_file(pattern_set, output_path)
+            pattern_set = generator.generate_patterns(image_path, output_path)
 
             # Load and verify the Excel file
             workbook = load_workbook(output_path)
@@ -105,15 +105,15 @@ class TestExcelProfessionalImprovements:
     def test_symbols_instead_of_dmc_codes(self, sample_config, sample_image):
         """Test that cells contain symbols instead of DMC codes."""
         with tempfile.TemporaryDirectory() as temp_dir:
+            # Save sample image to temporary file
+            image_path = Path(temp_dir) / "test_image.png"
+            sample_image.save(image_path)
+
             output_path = Path(temp_dir) / "test_pattern.xlsx"
 
-            # Generate pattern
+            # Generate pattern using correct API
             generator = PatternGenerator(sample_config)
-            pattern_set = generator.generate_pattern_set(sample_image)
-
-            # Generate Excel file
-            excel_generator = generator.excel_generator
-            excel_generator.generate_excel_file(pattern_set, output_path)
+            pattern_set = generator.generate_patterns(image_path, output_path)
 
             # Load and verify the Excel file
             workbook = load_workbook(output_path)
@@ -136,15 +136,15 @@ class TestExcelProfessionalImprovements:
     def test_freeze_panes_and_print_setup(self, sample_config, sample_image):
         """Test freeze panes and print preparation features."""
         with tempfile.TemporaryDirectory() as temp_dir:
+            # Save sample image to temporary file
+            image_path = Path(temp_dir) / "test_image.png"
+            sample_image.save(image_path)
+
             output_path = Path(temp_dir) / "test_pattern.xlsx"
 
-            # Generate pattern
+            # Generate pattern using correct API
             generator = PatternGenerator(sample_config)
-            pattern_set = generator.generate_pattern_set(sample_image)
-
-            # Generate Excel file
-            excel_generator = generator.excel_generator
-            excel_generator.generate_excel_file(pattern_set, output_path)
+            pattern_set = generator.generate_patterns(image_path, output_path)
 
             # Load and verify the Excel file
             workbook = load_workbook(output_path)
@@ -165,15 +165,15 @@ class TestExcelProfessionalImprovements:
     def test_legend_includes_symbols(self, sample_config, sample_image):
         """Test that legend sheet includes symbol column."""
         with tempfile.TemporaryDirectory() as temp_dir:
+            # Save sample image to temporary file
+            image_path = Path(temp_dir) / "test_image.png"
+            sample_image.save(image_path)
+
             output_path = Path(temp_dir) / "test_pattern.xlsx"
 
-            # Generate pattern
+            # Generate pattern using correct API
             generator = PatternGenerator(sample_config)
-            pattern_set = generator.generate_pattern_set(sample_image)
-
-            # Generate Excel file
-            excel_generator = generator.excel_generator
-            excel_generator.generate_excel_file(pattern_set, output_path)
+            pattern_set = generator.generate_patterns(image_path, output_path)
 
             # Load and verify the Excel file
             workbook = load_workbook(output_path)
@@ -209,15 +209,15 @@ class TestExcelProfessionalImprovements:
     def test_pattern_offset_for_rulers(self, sample_config, sample_image):
         """Test that pattern is properly offset for ruler system."""
         with tempfile.TemporaryDirectory() as temp_dir:
+            # Save sample image to temporary file
+            image_path = Path(temp_dir) / "test_image.png"
+            sample_image.save(image_path)
+
             output_path = Path(temp_dir) / "test_pattern.xlsx"
 
-            # Generate pattern
+            # Generate pattern using correct API
             generator = PatternGenerator(sample_config)
-            pattern_set = generator.generate_pattern_set(sample_image)
-
-            # Generate Excel file
-            excel_generator = generator.excel_generator
-            excel_generator.generate_excel_file(pattern_set, output_path)
+            pattern_set = generator.generate_patterns(image_path, output_path)
 
             # Load and verify the Excel file
             workbook = load_workbook(output_path)
