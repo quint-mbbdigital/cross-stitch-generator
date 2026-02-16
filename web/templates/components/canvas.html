@@ -130,15 +130,19 @@
     <!-- Pattern Canvas (Magic Moment Reveal) -->
     <div
         x-show="patternData && !isGenerating"
-        x-transition:enter="transition-all duration-200 ease-out"
-        x-transition:enter-start="opacity-0 scale-95 blur-sm"
-        x-transition:enter-end="opacity-100 scale-100"
+        :class="effects.canvasAnimationsEnabled ? 'transition-opacity duration-200 ease-out' : ''"
         class="h-full flex items-center justify-center p-4"
     >
         <canvas
             id="pattern-canvas"
             class="shadow-lg"
-            :style="{ transform: `scale(${zoom})`, transformOrigin: 'center' }"
+            :style="{
+                transform: `scale(${zoom})`,
+                transformOrigin: 'center',
+                transition: effects.canvasAnimationsEnabled && typeof DisplayEffectsManager !== 'undefined' && DisplayEffectsManager.config.zoom.smooth ?
+                    `transform ${DisplayEffectsManager.config.zoom.duration}ms ${DisplayEffectsManager.config.zoom.easing}` :
+                    'none'
+            }"
         ></canvas>
     </div>
 </div>

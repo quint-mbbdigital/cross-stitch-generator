@@ -42,21 +42,164 @@ const PatternStore = {
     },
 
     /**
-     * Render pattern to canvas using optimized buffer access.
-     * @param {'color'|'symbol'} mode - Render mode
+     * Calculate and optionally pre-size canvas dimensions before display.
+     * This prevents visual "pop" during initial pattern reveal.
+     * @param {Object} patternData - Pattern data with width/height
+     * @param {Object} effectConfig - Effect configuration from DisplayEffectsManager
+     * @returns {Object} Calculated canvas dimensions { width, height, cellSize }
      */
-    render(mode = 'color') {
+    preSize(patternData, effectConfig) {
+        if (!patternData || !this.canvas) return null;
+
+        const { width, height } = patternData;
+
+        // Calculate optimal cell size (same logic as render method)
+        const maxCanvasSize = Math.min(window.innerWidth - 400, window.innerHeight - 100);
+        const cellSize = Math.max(2, Math.floor(maxCanvasSize / Math.max(width, height)));
+
+        const canvasWidth = width * cellSize;
+        const canvasHeight = height * cellSize;
+
+        // Pre-size canvas if enabled to prevent visual "pop"
+        if (effectConfig && effectConfig.preSize) {
+            this.canvas.width = canvasWidth;
+            this.canvas.height = canvasHeight;
+            this.cellSize = cellSize;
+        }
+
+        return {
+            width: canvasWidth,
+            height: canvasHeight,
+            cellSize: cellSize
+        };
+    },
+
+    /**
+     * Enhanced render method that respects effect configuration.
+     * @param {'color'|'symbol'} mode - Render mode
+     * @param {Object} effectConfig - Effect configuration from DisplayEffectsManager
+     * @param {boolean} isInitialLoad - Whether this is the first pattern load
+     */
+    renderWithEffects(mode = 'color', effectConfig = null, isInitialLoad = false) {
         if (!this.data || !this.ctx || !this.gridBuffer) return;
 
         const { width, height, palette } = this.data;
 
-        // Calculate optimal cell size
+        // Calculate new dimensions
         const maxCanvasSize = Math.min(window.innerWidth - 400, window.innerHeight - 100);
-        this.cellSize = Math.max(2, Math.floor(maxCanvasSize / Math.max(width, height)));
+        const newCellSize = Math.max(2, Math.floor(maxCanvasSize / Math.max(width, height)));
+        const newWidth = width * newCellSize;
+        const newHeight = height * newCellSize;
 
-        // Size canvas
-        this.canvas.width = width * this.cellSize;
-        this.canvas.height = height * this.cellSize;
+        // Check if dimensions changed
+        const dimensionsChanged =
+            this.canvas.width !== newWidth ||
+            this.canvas.height !== newHeight ||
+            this.cellSize !== newCellSize;
+
+        if (dimensionsChanged && effectConfig && effectConfig.resizeAnimation && effectConfig.resizeAnimation.enabled) {
+            // Apply resize animation
+            this.applyResizeAnimation(newWidth, newHeight, newCellSize, effectConfig.resizeAnimation);
+        } else {
+            // Immediate resize without animation
+            this.canvas.width = newWidth;
+            this.canvas.height = newHeight;
+            this.cellSize = newCellSize;
+        }
+
+        // Proceed with normal rendering
+        this.renderPattern(mode);
+    },
+
+    /**
+     * Apply smooth canvas resize animation.
+     * @param {number} targetWidth - Target canvas width
+     * @param {number} targetHeight - Target canvas height
+     * @param {number} targetCellSize - Target cell size
+     * @param {Object} animConfig - Animation configuration
+     */
+    applyResizeAnimation(targetWidth, targetHeight, targetCellSize, animConfig) {
+        if (!animConfig.enabled || animConfig.duration <= 0) {
+            // No animation, apply immediately
+            this.canvas.width = targetWidth;
+            this.canvas.height = targetHeight;
+            this.cellSize = targetCellSize;
+            return;
+        }
+
+        const startTime = performance.now();
+        const startWidth = this.canvas.width;
+        const startHeight = this.canvas.height;
+        const startCellSize = this.cellSize;
+
+        const widthDiff = targetWidth - startWidth;
+        const heightDiff = targetHeight - startHeight;
+        const cellSizeDiff = targetCellSize - startCellSize;
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / animConfig.duration, 1);
+
+            // Apply easing function
+            const easedProgress = this.applyEasing(progress, animConfig.easing);
+
+            // Interpolate values
+            this.canvas.width = Math.round(startWidth + (widthDiff * easedProgress));
+            this.canvas.height = Math.round(startHeight + (heightDiff * easedProgress));
+            this.cellSize = startCellSize + (cellSizeDiff * easedProgress);
+
+            // Re-render at intermediate size
+            this.renderPattern();
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                // Ensure final values are exact
+                this.canvas.width = targetWidth;
+                this.canvas.height = targetHeight;
+                this.cellSize = targetCellSize;
+                this.renderPattern();
+            }
+        };
+
+        requestAnimationFrame(animate);
+    },
+
+    /**
+     * Apply easing function to animation progress.
+     * @param {number} progress - Animation progress (0-1)
+     * @param {string} easing - Easing function name
+     * @returns {number} Eased progress value
+     */
+    applyEasing(progress, easing) {
+        switch (easing) {
+            case 'ease-out':
+                return 1 - Math.pow(1 - progress, 2);
+            case 'ease-in':
+                return Math.pow(progress, 2);
+            case 'ease-in-out':
+                return progress < 0.5
+                    ? 2 * Math.pow(progress, 2)
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+            case 'cubic-bezier(0.4, 0, 0.2, 1)':
+                // Approximation of Material Design easing
+                return progress < 0.5
+                    ? 2 * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+            case 'none':
+            default:
+                return progress;
+        }
+    },
+
+    /**
+     * Core pattern rendering logic (extracted from original render method).
+     * @param {'color'|'symbol'} mode - Render mode
+     */
+    renderPattern(mode = 'color') {
+        if (!this.data || !this.ctx || !this.gridBuffer) return;
+
+        const { width, height, palette } = this.data;
 
         // Pre-parse palette colors for performance
         const paletteRGB = palette.map(hex => ({
@@ -73,6 +216,27 @@ const PatternStore = {
             // For larger cells, use fillRect (allows grid lines)
             this.renderWithFillRect(width, height, paletteRGB, mode);
         }
+    },
+
+    /**
+     * Render pattern to canvas using optimized buffer access.
+     * @param {'color'|'symbol'} mode - Render mode
+     */
+    render(mode = 'color') {
+        if (!this.data || !this.ctx || !this.gridBuffer) return;
+
+        const { width, height } = this.data;
+
+        // Calculate optimal cell size
+        const maxCanvasSize = Math.min(window.innerWidth - 400, window.innerHeight - 100);
+        this.cellSize = Math.max(2, Math.floor(maxCanvasSize / Math.max(width, height)));
+
+        // Size canvas (immediate, no animation)
+        this.canvas.width = width * this.cellSize;
+        this.canvas.height = height * this.cellSize;
+
+        // Use core rendering logic
+        this.renderPattern(mode);
     },
 
     /**

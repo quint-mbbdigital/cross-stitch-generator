@@ -117,7 +117,7 @@
 
         /* Magic Moment Reveal (Darkroom Effect) */
         .magic-moment {
-            animation: magicReveal 1.2s ease-out;
+            animation: magicReveal var(--magic-duration, 1.2s) ease-out;
         }
         @keyframes magicReveal {
             0% {
@@ -179,7 +179,6 @@
 
                 // Configuration State (maps 1:1 to PatternConfig Pydantic model)
                 config: {
-                    // Current 8 parameters
                     resolution: 40,
                     max_colors: 64,
                     quantization: 'median_cut',
@@ -188,15 +187,6 @@
                     min_color_percent: 1.0,
                     enable_dmc: true,
                     dmc_only: false,
-
-                    // Added 7 missing CLI parameters
-                    max_merge_distance: 50.0,
-                    resolutions: null,
-                    excel_cell_size: 20.0,
-                    include_color_legend: true,
-                    legend_sheet_name: 'Color Legend',
-                    dmc_palette_size: null,
-                    dmc_database: null,
                 },
 
                 // Application State
@@ -209,9 +199,16 @@
                 // Panel State
                 essentialsOpen: true,
                 advancedOpen: false,
-                multiResolution: false,
                 customDmcFile: null,
                 showSubtitles: false, // Hide subtitles by default for cleaner look
+
+                // Display Effects State
+                effects: {
+                    preset: 'default',
+                    magicMomentEnabled: true,
+                    canvasAnimationsEnabled: true,
+                    reducedMotion: false
+                },
 
                 // Methods
                 toggleSidebar() {
@@ -223,6 +220,40 @@
                     if (this.patternData) {
                         this.$dispatch('render-pattern', { mode });
                     }
+                },
+
+                // Enhanced methods for effect management
+                setEffectPreset(preset) {
+                    if (typeof DisplayEffectsManager !== 'undefined') {
+                        DisplayEffectsManager.loadPreset(preset);
+                        this.effects.preset = preset;
+
+                        // Update individual toggles to reflect preset settings
+                        this.effects.magicMomentEnabled = DisplayEffectsManager.config.magicMoment.enabled;
+                        this.effects.canvasAnimationsEnabled = DisplayEffectsManager.config.canvas.resizeAnimation.enabled;
+
+                        localStorage.setItem('effectPreset', preset);
+                        console.log(`🎨 Effect preset changed to: ${preset}`);
+                    } else {
+                        console.warn('⚠️ DisplayEffectsManager not available');
+                    }
+                },
+
+                toggleMagicMoment() {
+                    this.effects.magicMomentEnabled = !this.effects.magicMomentEnabled;
+                    if (typeof DisplayEffectsManager !== 'undefined') {
+                        DisplayEffectsManager.updateConfig('magicMoment.enabled', this.effects.magicMomentEnabled);
+                    }
+                    localStorage.setItem('magicMomentEnabled', this.effects.magicMomentEnabled);
+                },
+
+                toggleCanvasAnimations() {
+                    this.effects.canvasAnimationsEnabled = !this.effects.canvasAnimationsEnabled;
+                    if (typeof DisplayEffectsManager !== 'undefined') {
+                        DisplayEffectsManager.updateConfig('canvas.resizeAnimation.enabled', this.effects.canvasAnimationsEnabled);
+                        DisplayEffectsManager.updateConfig('canvas.smoothTransitions', this.effects.canvasAnimationsEnabled);
+                    }
+                    localStorage.setItem('canvasAnimationsEnabled', this.effects.canvasAnimationsEnabled);
                 },
 
                 // Check if symbols are available (cells large enough to render symbols)
@@ -369,8 +400,12 @@
                             this.processingStatus = 'idle';
                         }, 1500);
 
-                        // Trigger magic moment reveal
-                        this.$dispatch('magic-moment', { data: patternData });
+                        // Trigger magic moment reveal (this is regeneration, not initial load)
+                        this.$dispatch('magic-moment', {
+                            data: patternData,
+                            isInitialLoad: false,  // This is regeneration, not first load
+                            effectConfig: typeof DisplayEffectsManager !== 'undefined' ? DisplayEffectsManager.config : null
+                        });
 
                         // Preserve current view mode (symbols/colors) after regeneration
                         this.$dispatch('render-pattern', { mode: this.viewMode });
@@ -392,12 +427,32 @@
 
                     const savedSubtitles = localStorage.getItem('showSubtitles');
                     this.showSubtitles = savedSubtitles === 'true'; // Default to false for cleaner look
+
+                    // Load effect preferences
+                    const savedMagicMoment = localStorage.getItem('magicMomentEnabled');
+                    this.effects.magicMomentEnabled = savedMagicMoment !== 'false'; // Default to true
+
+                    const savedCanvasAnimations = localStorage.getItem('canvasAnimationsEnabled');
+                    this.effects.canvasAnimationsEnabled = savedCanvasAnimations !== 'false'; // Default to true
+
+                    const savedPreset = localStorage.getItem('effectPreset');
+                    if (savedPreset && typeof DisplayEffectsManager !== 'undefined') {
+                        this.setEffectPreset(savedPreset);
+                    } else if (typeof DisplayEffectsManager !== 'undefined') {
+                        // Apply individual settings to DisplayEffectsManager
+                        DisplayEffectsManager.updateConfig('magicMoment.enabled', this.effects.magicMomentEnabled);
+                        DisplayEffectsManager.updateConfig('canvas.resizeAnimation.enabled', this.effects.canvasAnimationsEnabled);
+                        DisplayEffectsManager.updateConfig('canvas.smoothTransitions', this.effects.canvasAnimationsEnabled);
+                    }
+
+                    console.log('✨ Alpine.js app state initialized with effects:', this.effects);
                 },
             };
         }
     </script>
 
     <!-- Pattern Store and Interactions -->
+    <script src="/static/js/display-effects.js"></script>
     <script src="/static/js/pattern-store.js"></script>
     <script src="/static/js/upload-handler.js"></script>
     <script src="/static/js/interactions.js"></script>

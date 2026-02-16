@@ -75,8 +75,20 @@ async function uploadFile(file) {
         app.isGenerating = false;
         app.processingStatus = 'complete';
 
-        // Trigger magic moment reveal
-        app.$dispatch('magic-moment', { data: patternData });
+        // Reset to normal after 1.5 seconds (same as regenerate pattern)
+        setTimeout(() => {
+            app.processingStatus = 'idle';
+        }, 1500);
+
+        // Trigger magic moment reveal (this is initial load from file upload)
+        app.$dispatch('magic-moment', {
+            data: patternData,
+            isInitialLoad: true,  // This is the first generation from uploaded image
+            effectConfig: typeof DisplayEffectsManager !== 'undefined' ? DisplayEffectsManager.config : null
+        });
+
+        // Preserve current view mode (same as regenerate pattern flow)
+        app.$dispatch('render-pattern', { mode: app.viewMode });
 
     } catch (error) {
         app.isGenerating = false;
