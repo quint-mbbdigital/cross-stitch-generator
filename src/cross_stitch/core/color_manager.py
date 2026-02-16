@@ -1,5 +1,6 @@
 """Color management and quantization for cross-stitch patterns."""
 
+import logging
 from typing import List, Tuple
 import numpy as np
 from PIL import Image
@@ -8,6 +9,8 @@ from sklearn.cluster import KMeans
 from ..models import Color, ColorPalette, GeneratorConfig
 from ..utils import ColorQuantizationError
 from .dmc_matcher import DMCMatcher
+
+logger = logging.getLogger(__name__)
 
 
 class ColorManager:
@@ -32,9 +35,19 @@ class ColorManager:
                 dmc_db_path = getattr(config, "dmc_database", None)
                 self.dmc_matcher = DMCMatcher(dmc_db_path)
                 if not self.dmc_matcher.is_available():
+                    logger.info("DMC database not available, falling back to standard quantization")
                     self.dmc_matcher = None
-            except Exception:
-                # Gracefully handle DMC initialization failures
+            except FileNotFoundError as e:
+                logger.warning(f"DMC database file not found: {e}. Falling back to standard quantization.")
+                self.dmc_matcher = None
+            except PermissionError as e:
+                logger.warning(f"Permission denied accessing DMC database: {e}. Falling back to standard quantization.")
+                self.dmc_matcher = None
+            except ValueError as e:
+                logger.warning(f"Invalid DMC database format: {e}. Falling back to standard quantization.")
+                self.dmc_matcher = None
+            except Exception as e:
+                logger.error(f"Unexpected error initializing DMC matcher: {e}. Falling back to standard quantization.")
                 self.dmc_matcher = None
 
     def quantize_image(self, image: Image.Image) -> Tuple[ColorPalette, np.ndarray]:

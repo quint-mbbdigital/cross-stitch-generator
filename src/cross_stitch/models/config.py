@@ -1,8 +1,11 @@
 """Configuration models for cross-stitch pattern generation."""
 
+import logging
 import os
 from dataclasses import dataclass, field
 from typing import List, Tuple, Optional
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -97,9 +100,13 @@ class GeneratorConfig:
 
         if self.dmc_database is not None:
             if not os.path.exists(self.dmc_database):
-                raise ValueError(
-                    f"DMC database file does not exist: {self.dmc_database}"
+                logger.warning(
+                    f"DMC database file does not exist: {self.dmc_database}. "
+                    "DMC functionality will be disabled, falling back to standard quantization."
                 )
+                # Reset DMC settings to prevent further issues
+                self.dmc_database = None
+                self.enable_dmc = False
 
     def get_resolution_name(self, width: int, height: int) -> str:
         """Generate a readable name for a resolution."""
